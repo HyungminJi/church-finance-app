@@ -3,6 +3,8 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <!-- 전역 모달 시스템 -->
+    <AppModal />
   </UApp>
 </template>
 

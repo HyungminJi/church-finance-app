@@ -77,6 +77,7 @@ export default defineEventHandler(async (event) => {
         'cell_groups.name as cell_group_name',
         'common_codes.name as church_role_name',
         'users.id as user_id',
+        'users.login_id as login_id',
         'users.role as user_role'
       ])
       .orderBy('members.created_at', 'desc')

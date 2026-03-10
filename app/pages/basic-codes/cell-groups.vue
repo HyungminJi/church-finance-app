@@ -35,8 +35,8 @@
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="cursor-pointer px-6 font-bold" @click="refresh()" />
-          <UButton label="초기화" variant="ghost" color="neutral" class="cursor-pointer" @click="resetFilters" />
+          <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="px-6 font-bold" @click="refresh()" />
+          <UButton label="초기화" variant="ghost" color="neutral" @click="resetFilters" />
         </div>
       </div>
 
@@ -45,8 +45,8 @@
           총 <span class="font-bold text-blue-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
         </div>
         <div class="flex items-center space-x-2">
-          <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="font-bold cursor-pointer" @click="openModal()" />
-          <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="cursor-pointer font-bold" @click="downloadExcel" />
+          <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="font-bold" @click="openModal()" />
+          <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="font-bold" @click="downloadExcel" />
         </div>
       </div>
     </div>
@@ -60,12 +60,12 @@
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역명</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상위 소속</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역장(리더)</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">구역명</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">상위 소속</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">구역장(리더)</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">상태</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">생성일</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">관리</th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -76,11 +76,11 @@
             :class="{ 'bg-red-50/30 dark:bg-red-900/10': !group.is_active }"
           >
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-bold" :class="{ 'text-red-600/70 dark:text-red-400/70': !group.is_active }">{{ group.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" :class="{ 'text-red-500/50': !group.is_active }">{{ group.parent_group || '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" :class="{ 'text-red-500/50': !group.is_active }">{{ displayValue(group.parent_group) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
               <div class="flex items-center space-x-2" :class="{ 'opacity-60': !group.is_active }">
                 <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-400" />
-                <span>{{ group.leader_name || '미지정' }}</span>
+                <span>{{ displayValue(group.leader_name) }}</span>
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -90,8 +90,8 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(group.created_at) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-              <UButton label="수정" color="primary" variant="ghost" size="xs" class="cursor-pointer" @click="openModal(group)" />
-              <UButton v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" class="cursor-pointer" @click="deleteGroup(group)" />
+              <UButton label="수정" color="primary" variant="ghost" size="xs" @click="openModal(group)" />
+              <UButton v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" @click="deleteGroup(group)" />
             </td>
           </tr>
           <tr v-if="cellGroups.length === 0 && !pending">
@@ -101,13 +101,13 @@
       </table>
     </div>
 
-    <!-- 등록/수정 모달 -->
+    <!-- 등록/수정 모달 (기존 커스텀 모달 유지하되 스타일 보강) -->
     <UModal v-model:open="isModalOpen" :ui="{ content: 'max-w-md' }">
       <template #content>
         <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
           <div class="flex items-center justify-between border-b pb-4 dark:border-gray-800">
             <h3 class="text-xl font-bold">{{ isEditing ? '구역 정보 수정' : '신규 구역 등록' }}</h3>
-            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="isModalOpen = false" class="cursor-pointer" />
+            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="isModalOpen = false" />
           </div>
 
           <div class="space-y-4 py-2">
@@ -119,24 +119,24 @@
             </UFormField>
             <UFormField label="구역장(리더)">
               <div class="flex space-x-2">
-                <UInput :model-value="form.leader_name || '미지정'" disabled class="flex-1 bg-gray-50 dark:bg-gray-800" />
-                <UButton label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" class="cursor-pointer" @click="isMemberSearchOpen = true" />
+                <UInput :model-value="displayValue(form.leader_name)" disabled class="flex-1 bg-gray-50 dark:bg-gray-800" />
+                <UButton label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
               </div>
             </UFormField>
             <div class="flex items-center space-x-2 pt-2">
-              <UCheckbox v-model="form.is_active" label="현재 활성 구역으로 사용함" class="cursor-pointer" />
+              <UCheckbox v-model="form.is_active" label="현재 활성 구역으로 사용함" />
             </div>
           </div>
 
           <div class="flex justify-end space-x-2 pt-6 border-t dark:border-gray-800">
-            <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" class="cursor-pointer" />
-            <UButton :label="isEditing ? '수정 완료' : '등록 하기'" color="primary" class="font-bold px-6 cursor-pointer shadow-md" @click="saveGroup" />
+            <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
+            <UButton :label="isEditing ? '수정 완료' : '등록 하기'" color="primary" class="font-bold px-6 shadow-md" @click="saveGroup" />
           </div>
         </div>
       </template>
     </UModal>
 
-    <!-- 성도 검색 모달 (구역장 선택용) -->
+    <!-- 성도 검색 모달 -->
     <UModal v-model:open="isMemberSearchOpen" :ui="{ content: 'max-w-lg' }">
       <template #content>
         <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4">
@@ -148,8 +148,8 @@
               <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                 <tr v-for="m in filteredMembers" :key="m.id" class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors" @click="selectLeader(m)">
                   <td class="px-4 py-3 text-sm font-bold">{{ m.name }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-500">{{ m.church_role_name || '-' }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-500 text-right">{{ m.phone_number }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-500">{{ displayValue(m.church_role_name) }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-500 text-right">{{ formatPhoneNumber(m.phone_number) }}</td>
                 </tr>
                 <tr v-if="filteredMembers.length === 0">
                   <td colspan="3" class="px-4 py-8 text-center text-sm text-gray-500">검색 결과가 없습니다.</td>
@@ -158,56 +158,8 @@
             </table>
           </div>
           <div class="flex justify-end pt-2">
-            <UButton label="닫기" variant="ghost" color="neutral" @click="isMemberSearchOpen = false" class="cursor-pointer" />
+            <UButton label="닫기" variant="ghost" color="neutral" @click="isMemberSearchOpen = false" />
           </div>
-        </div>
-      </template>
-    </UModal>
-
-    <!-- 구역 삭제 확인 모달 (Red 테마) -->
-    <UModal v-model:open="isDeleteConfirmModalOpen">
-      <template #content>
-        <div class="p-6 text-center space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl border-t-4 border-red-500">
-          <div class="flex justify-center">
-            <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 text-red-500" />
-          </div>
-          <div class="space-y-2">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">구역 영구 삭제</h3>
-            <p class="text-gray-600 dark:text-gray-400">
-              <span class="text-red-600 font-bold">[{{ groupToDelete?.name }}]</span> 구역을 정말 삭제하시겠습니까?<br/>
-              이 작업은 절대로 되돌릴 수 없습니다.
-            </p>
-          </div>
-          <div class="pt-4 flex space-x-3">
-            <UButton label="취소" variant="outline" color="neutral" class="flex-1 cursor-pointer" @click="isDeleteConfirmModalOpen = false" />
-            <UButton label="영구 삭제" color="error" class="flex-1 font-bold cursor-pointer shadow-md" @click="executeDelete" />
-          </div>
-        </div>
-      </template>
-    </UModal>
-
-    <!-- 확인/알림 모달 (공통) -->
-    <UModal v-model:open="isConfirmModalOpen">
-      <template #content>
-        <div class="p-6 text-center space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
-          <div class="flex justify-center"><UIcon name="i-heroicons-question-mark-circle" class="w-12 h-12 text-blue-500" /></div>
-          <h3 class="text-xl font-bold">{{ confirmConfig.title }}</h3>
-          <p class="text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ confirmConfig.message }}</p>
-          <div class="pt-4 flex space-x-3">
-            <UButton label="취소" variant="outline" color="neutral" class="flex-1 cursor-pointer" @click="isConfirmModalOpen = false" />
-            <UButton label="확인" color="primary" class="flex-1 font-bold cursor-pointer" @click="confirmConfig.onConfirm(); isConfirmModalOpen = false" />
-          </div>
-        </div>
-      </template>
-    </UModal>
-
-    <UModal v-model:open="isAlertModalOpen">
-      <template #content>
-        <div class="p-6 text-center space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
-          <div class="flex justify-center"><UIcon name="i-heroicons-exclamation-circle" class="w-12 h-12 text-blue-500" /></div>
-          <h3 class="text-xl font-bold">{{ alertConfig.title }}</h3>
-          <p class="text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ alertConfig.message }}</p>
-          <div class="pt-2"><UButton label="확인" color="primary" class="w-full font-bold cursor-pointer" @click="isAlertModalOpen = false" /></div>
         </div>
       </template>
     </UModal>
@@ -216,6 +168,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
+import { formatPhoneNumber, formatDate, displayValue } from '~/utils/formatter'
+import { downloadAsExcel } from '~/utils/excel'
+import { useUIStore } from '~/stores/ui'
+
+const ui = useUIStore()
 
 // 1. 상태 및 필터
 const filters = reactive({
@@ -259,13 +216,6 @@ const isModalOpen = ref(false)
 const isEditing = ref(false)
 const isMemberSearchOpen = ref(false)
 const memberSearchTerm = ref('')
-
-const isAlertModalOpen = ref(false)
-const isConfirmModalOpen = ref(false)
-const isDeleteConfirmModalOpen = ref(false)
-const groupToDelete = ref<any>(null)
-const alertConfig = reactive({ title: '', message: '' })
-const confirmConfig = reactive({ title: '', message: '', onConfirm: () => {} })
 
 const form = reactive({
   id: '',
@@ -319,9 +269,7 @@ const selectLeader = (member: any) => {
 // 5. CRUD 로직
 const saveGroup = async () => {
   if (!form.name) {
-    alertConfig.title = '입력 오류'
-    alertConfig.message = '구역명은 필수 입력 항목입니다.'
-    isAlertModalOpen.value = true
+    ui.showAlert('입력 오류', '구역명은 필수 입력 항목입니다.', 'warning')
     return
   }
 
@@ -333,32 +281,25 @@ const saveGroup = async () => {
     if (res.success) {
       isModalOpen.value = false
       await refresh()
+      ui.showAlert('성공', '구역 정보가 저장되었습니다.', 'success')
     }
   } catch (error: any) {
-    alertConfig.title = '저장 오류'
-    alertConfig.message = error.data?.statusMessage || '정보 저장 중 오류가 발생했습니다.'
-    isAlertModalOpen.value = true
+    ui.showAlert('저장 오류', error.data?.statusMessage || '정보 저장 중 오류가 발생했습니다.', 'error')
   }
 }
 
-const deleteGroup = (group: any) => {
-  groupToDelete.value = group
-  isDeleteConfirmModalOpen.value = true
-}
-
-const executeDelete = async () => {
-  if (!groupToDelete.value) return
-  
-  try {
-    const res: any = await $fetch(`/api/cell-groups/${groupToDelete.value.id}`, { method: 'DELETE' })
-    if (res.success) {
-      isDeleteConfirmModalOpen.value = false
-      await refresh()
+const deleteGroup = async (group: any) => {
+  const confirmed = await ui.showConfirm('구역 삭제', `[${group.name}] 구역을 정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`, 'error', '영구 삭제')
+  if (confirmed) {
+    try {
+      const res: any = await $fetch(`/api/cell-groups/${group.id}`, { method: 'DELETE' })
+      if (res.success) {
+        await refresh()
+        ui.showAlert('완료', '삭제되었습니다.', 'success')
+      }
+    } catch (error: any) {
+      ui.showAlert('삭제 오류', error.data?.statusMessage || '구역 삭제 중 오류가 발생했습니다.', 'error')
     }
-  } catch (error: any) {
-    alertConfig.title = '삭제 오류'
-    alertConfig.message = error.data?.statusMessage || '구역 삭제 중 오류가 발생했습니다.'
-    isAlertModalOpen.value = true
   }
 }
 
@@ -366,25 +307,11 @@ const executeDelete = async () => {
 const downloadExcel = () => {
   const excelData = cellGroups.value.map((g: any) => ({
     '구역명': g.name,
-    '상위 소속': g.parent_group || '-',
-    '구역장': g.leader_name || '-',
+    '상위 소속': displayValue(g.parent_group),
+    '구역장': displayValue(g.leader_name),
     '상태': g.is_active ? '활성' : '비활성',
     '생성일': formatDate(g.created_at)
   }))
   downloadAsExcel(excelData, '구역목록', '구역정보')
-}
-
-// 날짜 형식 변환 (사파리 호환성 강화)
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return '-'
-  try {
-    // ISO 형식이 아닌 경우 하이픈을 슬래시로 변환하여 사파리 호환성 확보
-    const safeDateStr = dateStr.includes('T') ? dateStr : dateStr.replace(/-/g, '/')
-    const date = new Date(safeDateStr)
-    if (isNaN(date.getTime())) return dateStr
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
-  } catch {
-    return dateStr
-  }
 }
 </script>

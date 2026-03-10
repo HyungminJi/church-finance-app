@@ -4,9 +4,43 @@
 @theme {
   --font-sans: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
 
+  /* 브랜드 핵심 컬러 정의 */
   --color-brand-blue: #3CAFFF;
   --color-brand-green: #91D700;
   --color-brand-white: #FFFFFF;
+
+  /* 
+    Tailwind v4 및 Nuxt UI v3의 primary 색상을 브랜드 블루로 강제 고정.
+    'blue' 키워드와 'primary' 키워드 모두를 브랜드 블루 팔레트로 덮어씁니다.
+  */
+  --color-blue-50: #F0F9FF;
+  --color-blue-100: #E0F2FE;
+  --color-blue-200: #BAE6FD;
+  --color-blue-300: #7DD3FC;
+  --color-blue-400: #38BDF8;
+  --color-blue-500: #3CAFFF; /* 핵심 브랜드 블루 */
+  --color-blue-600: #0284C7;
+  --color-blue-700: #0369A1;
+  --color-blue-800: #075985;
+  --color-blue-900: #0C4A6E;
+  --color-blue-950: #082F49;
+
+  /* primary 별칭 정의 (Tailwind v4 문법) */
+  --color-primary-50: var(--color-blue-50);
+  --color-primary-100: var(--color-blue-100);
+  --color-primary-200: var(--color-blue-200);
+  --color-primary-300: var(--color-blue-300);
+  --color-primary-400: var(--color-blue-400);
+  --color-primary-500: var(--color-blue-500);
+  --color-primary-600: var(--color-blue-600);
+  --color-primary-700: var(--color-blue-700);
+  --color-primary-800: var(--color-blue-800);
+  --color-primary-900: var(--color-blue-900);
+  --color-primary-950: var(--color-blue-950);
+
+  /* success는 브랜드 그린으로 고정 */
+  --color-green-500: #91D700;
+  --color-success-500: var(--color-green-500);
 
   --color-slate-50: #F8FAFC;
   --color-slate-200: #E2E8F0;
@@ -14,39 +48,22 @@
 }
 
 @layer base {
-  /* 클릭 가능한 표준 요소 및 접근성 속성 기반 요소에 포인터 커서 적용 */
-  button, 
-  a, 
-  input[type="button"], 
-  input[type="submit"], 
-  input[type="reset"],
-  input[type="checkbox"],
-  input[type="radio"],
-  label,
-  select,
-  summary,
-  [role="button"],
-  [role="menuitem"],
-  [role="option"],
-  [role="tab"],
-  [role="link"],
-  [aria-haspopup="true"],
-  [aria-expanded] {
+  /* Nuxt UI가 생성하는 내부 변수를 브랜드 블루로 명시적 강제 (Hydration/우선순위 문제 해결) */
+  :root {
+    --ui-primary: var(--color-brand-blue);
+    --ui-success: var(--color-brand-green);
+  }
+
+  button, a, input[type="button"], input[type="submit"], input[type="reset"],
+  input[type="checkbox"], input[type="radio"], label, select, summary,
+  [role="button"], [role="menuitem"], [role="option"], [role="tab"], [role="link"],
+  [aria-haspopup="true"], [aria-expanded] {
     @apply cursor-pointer;
   }
 
-  /* 일반 텍스트 및 비활성 요소는 기본 커서 유지 */
-  input[type="text"],
-  input[type="password"],
-  input[type="number"],
-  input[type="email"],
-  input[type="tel"],
-  input[type="url"],
-  input[type="date"],
-  input[disabled],
-  button[disabled],
-  textarea,
-  [disabled] {
+  input[type="text"], input[type="password"], input[type="number"], input[type="email"],
+  input[type="tel"], input[type="url"], input[type="date"], input[disabled],
+  button[disabled], textarea, [disabled] {
     @apply cursor-auto;
   }
 }

@@ -4,7 +4,7 @@ const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
   // 1. 로그인 페이지 접속
-  await page.goto('/login', { waitUntil: 'networkidle' });
+  await page.goto('/auth/login', { waitUntil: 'networkidle' });
 
   // 2. 요소 로드 대기
   const idInput = page.locator('input[placeholder="아이디를 입력하세요"]');

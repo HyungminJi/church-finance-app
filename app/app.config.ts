@@ -1,6 +1,6 @@
 export default defineAppConfig({
   ui: {
-    primary: 'blue',
+    primary: 'primary', // main.css에서 정의한 커스텀 primary 팔레트 사용
     gray: 'slate',
     button: {
       rounded: 'rounded-md',

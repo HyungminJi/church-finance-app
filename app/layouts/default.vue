@@ -59,13 +59,12 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-      <!-- 상단바 (좌측 정렬만 사용하도록 구조 단순화) -->
+      <!-- 상단바 (제목만 표시) -->
       <header class="h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center px-8 shrink-0 relative z-10">
         <div class="flex items-center gap-3">
           <div class="w-1 h-6 bg-brand-blue rounded-full"></div>
           <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">{{ currentPathLabel }}</h1>
         </div>
-        <!-- 우측 컨테이너 자체를 제거 (flex justify-between 대신 flex 사용) -->
       </header>
 
       <!-- 콘텐츠 스크롤 영역 -->
@@ -80,16 +79,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getRoleInfo } from '~/utils/formatter'
+import { useUIStore } from '~/stores/ui'
 
 const { user, clear: clearSession } = useUserSession()
 const route = useRoute()
+const ui = useUIStore()
 
 const menuItems = [
   { path: '/', label: '대시보드', icon: 'i-heroicons-squares-2x2' },
+  { path: '/basic-codes', label: '기초코드', icon: 'i-heroicons-command-line' },
   { path: '/entries', label: '전표입력', icon: 'i-heroicons-pencil-square' },
   { path: '/ledgers', label: '장부관리', icon: 'i-heroicons-book-open' },
   { path: '/budget', label: '예산관리', icon: 'i-heroicons-chart-bar' },
-  { path: '/basic-codes', label: '기초코드', icon: 'i-heroicons-command-line' },
   { path: '/reports', label: '재무보고서', icon: 'i-heroicons-document-chart-bar' },
   { path: '/settings', label: '환경설정', icon: 'i-heroicons-cog-8-tooth' },
 ]
@@ -116,10 +117,11 @@ const roleInfo = computed(() => {
 })
 
 const handleLogout = async () => {
-  if (confirm('로그아웃 하시겠습니까?')) {
+  const confirmed = await ui.showConfirm('로그아웃', '정말 로그아웃 하시겠습니까?', 'info')
+  if (confirmed) {
     await $fetch('/api/auth/logout', { method: 'POST' })
     await clearSession()
-    window.location.href = '/login'
+    window.location.href = '/auth/login'
   }
 }
 </script>
