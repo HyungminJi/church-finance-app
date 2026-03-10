@@ -1,0 +1,92 @@
+<template>
+  <div>Members Page Test</div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { formatPhoneNumber, getRoleInfo } from '~/utils/formatter'
+
+const tabs = [
+  { id: 'CURRENT', label: '출석 성도' },
+  { id: 'REMOVED', label: '제적 성도' }
+]
+
+const activeTab = ref('CURRENT')
+const currentPage = ref(1)
+const filters = reactive({ name: '', phone: '', email: '', cellGroupId: null, role: null })
+
+const { data: response, refresh, pending } = await useFetch('/api/members', {
+  query: computed(() => ({
+    page: currentPage.value,
+    tab: activeTab.value,
+    ...filters
+  })),
+  watch: [currentPage, activeTab]
+})
+
+const { data: rolesRes } = await useFetch('/api/common-codes', { query: { group: 'CHURCH_ROLE' } })
+const { data: groupsRes } = await useFetch('/api/cell-groups')
+
+const roles = computed(() => (rolesRes.value as any)?.data || [])
+const cellGroups = computed(() => (groupsRes.value as any)?.data || [])
+const members = computed(() => (response.value as any)?.data || [])
+const stats = computed(() => (response.value as any)?.stats || { current: 0, removed: 0 })
+const paginationInfo = computed(() => (response.value as any)?.pagination || { totalPages: 0, totalCount: 0, limit: 10 })
+
+const columns = [
+  { accessorKey: 'name', header: '이름' },
+  { accessorKey: 'church_role_name', header: '직분' },
+  { accessorKey: 'user_role', header: '시스템 권한' },
+  { accessorKey: 'phone_number', header: '전화번호' },
+  { id: 'actions', header: '관리' }
+]
+
+const resetFilters = () => {
+  Object.assign(filters, { name: '', phone: '', email: '', cellGroupId: null, role: null })
+  refresh()
+}
+
+const isModalOpen = ref(false)
+const isEditing = ref(false)
+const form = reactive({ id: null, name: '', phone_number: '', church_role: null, cell_group_id: null })
+
+const openModal = (member?: any) => {
+  isEditing.value = !!member
+  if (member) Object.assign(form, { ...member })
+  else Object.assign(form, { id: null, name: '', phone_number: '', church_role: null, cell_group_id: null })
+  isModalOpen.value = true
+}
+
+const saveMember = async () => {
+  const method = isEditing.value ? 'PATCH' : 'POST'
+  const url = isEditing.value ? `/api/members/${form.id}` : '/api/members'
+  try {
+    await $fetch(url, { method, body: form })
+    isModalOpen.value = false
+    refresh()
+  } catch (e) {}
+}
+
+const removeMember = async (member: any) => {
+  if (confirm(`${member.name} 성도를 제적 처리하시겠습니까?`)) {
+    await $fetch(`/api/members/${member.id}/remove`, { method: 'PATCH', body: { removedDate: new Date().toISOString().slice(0, 10) } })
+    refresh()
+  }
+}
+
+const reRegisterMember = async (member: any) => {
+  if (confirm(`${member.name} 성도를 재등록하시겠습니까?`)) {
+    await $fetch(`/api/members/${member.id}/re-register`, { method: 'PATCH' })
+    refresh()
+  }
+}
+
+const deleteMember = async (member: any) => {
+  if (confirm('영구 삭제하시겠습니까?')) {
+    await $fetch(`/api/members/${member.id}`, { method: 'DELETE' })
+    refresh()
+  }
+}
+
+const downloadExcel = () => {}
+</script>

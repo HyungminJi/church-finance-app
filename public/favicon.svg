@@ -1,0 +1,12 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 좌측: 흩어진 점들 (과거/혼돈) - Brand Blue -->
+  <circle cx="20" cy="40" r="6" fill="#3CAFFF" fill-opacity="0.8" />
+  <circle cx="35" cy="25" r="4" fill="#3CAFFF" fill-opacity="0.6" />
+  <circle cx="30" cy="55" r="7" fill="#3CAFFF" fill-opacity="0.9" />
+  
+  <!-- 중앙: 변화의 여백 -->
+  
+  <!-- 우측: 우상향하는 굵은 선 (미래/생명) - Brand Green -->
+  <path d="M55 75L85 25" stroke="#91D700" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="85" cy="25" r="8" fill="#91D700" />
+</svg>

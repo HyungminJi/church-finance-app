@@ -1,0 +1,12 @@
+<svg width="400" height="160" viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="Symbol">
+    <path d="M185 100C160 100 120 85 110 40C135 45 155 65 175 75C175 60 165 40 145 25C175 30 195 55 198 85V100H185Z" fill="#3CAFFF"/>
+    <path d="M215 100C240 100 280 85 290 40C265 45 245 65 225 75C225 60 235 40 255 25C225 30 205 55 202 85V100H215Z" fill="#91D700"/>
+    <rect x="198" y="70" width="4" height="25" fill="#FFFFFF"/>
+    <rect x="190" y="78" width="20" height="4" fill="#FFFFFF"/>
+  </g>
+
+  <text x="200" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="32">
+    <tspan fill="#3CAFFF">Ledger</tspan><tspan fill="#91D700">rection</tspan>
+  </text>
+</svg>

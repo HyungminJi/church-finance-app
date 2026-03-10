@@ -1,0 +1,959 @@
+<!DOCTYPE html><html lang="ko"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title> 오직 재정 </title>
+    <link rel="stylesheet" href="/lib/jquery-ui/1.14.1/jquery-ui.min.css?202602111746">
+<!--    <link rel="stylesheet" href='/lib/bootstrap-5.0.2-for-modal-dist/css/bootstrap_modal.css?202602111746' type="text/css"/>-->
+    <link rel="stylesheet" href="/css/flat/bootstrap.min.css?202602111746">
+    <link rel="stylesheet" href="/css/default.css?202602111746">
+    <link rel="stylesheet" href="/css/flat/fontello.css?202602111746">
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" href="/css/flat/fontello-ie7.css?202602111746"><![endif]-->
+    <link rel="stylesheet" href="/css/flat/fontello-ie7.css?202602111746">
+    <link rel="stylesheet" href="/css/tab_menu.css?202602111746">
+    <link rel="stylesheet" href="/css/select_pop-0.1.css?202602111746" type="text/css">
+    <link rel="stylesheet" href="/css/dtmn/pop_determinator_add.css?202602111746" type="text/css">
+    <link rel="stylesheet" href="/css/bill/mobile_donation_fail_notification_modal.css?202602111746">
+
+
+    <link href="//static.ohjic.com/plugins/font-awesome/5.15.2/css/all.min.css?202602111746" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/donation_receipt/donation_receipt.css?202602111746">
+
+    <link rel="stylesheet" href="//fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,700,0,0">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" type="text/css" href="/css/bill.css?202602111746">
+    <link rel="stylesheet" type="text/css" href="/css/flat/omni.css?202602111746">
+    <style type="text/css">
+        html, body {
+            overflow: hidden;
+        }
+
+        #wrap {
+            padding-left: 990px;
+        }
+
+        #wrap #roundWrap {
+            height: 1px;
+        }
+
+        #wrap #roundWrap #PageContentContainer {
+            margin-left: -990px;
+            position: relative;
+            height: 1px;
+        }
+
+        .headTop {
+            background: url('/images/top_bg.gif') repeat-x;
+            width: 100%;
+            height: 49px;
+            overflow: hidden;
+        }
+
+        .btns {
+            background: url("/images/slice(1).gif?202602111746") no-repeat;
+            width: 79px;
+            height: 27px;
+            margin-left: 2px;
+        }
+
+        .btn_case {
+            padding-left: 13px;
+            font-size: 0px;
+        }
+
+        .home .on {
+            background-position: 0px -1px;
+            width: 60px;
+        }
+
+        .home .off {
+            background-position: 0px -38px;
+            width: 60px;
+        }
+
+        .base .on {
+            background-position: -60px -1px;
+            width: 82px;
+        }
+
+        .base .off {
+            background-position: -60px -38px;
+            width: 82px
+        }
+
+        .budget .on {
+            background-position: -142px -1px;
+        }
+
+        .budget .off {
+            background-position: -142px -38px;
+        }
+
+        .bill .on {
+            background-position: -220px -1px;
+        }
+
+        .bill .off {
+            background-position: -220px -38px;
+        }
+
+        .ledger .on {
+            background-position: -299px -1px;
+        }
+
+        .ledger .off {
+            background-position: -299px -38px;
+        }
+
+        .report .on {
+            background-position: -378px -1px;
+        }
+
+        .report .off {
+            background-position: -378px -38px;
+        }
+
+        .setting .on {
+            background-position: -457px -1px;
+            width: 64px
+        }
+
+        .setting .off {
+            background-position: -457px -38px;
+            width: 64px
+        }
+
+
+        .part .on {
+            background-position: -653px -1px;
+            width: 64px
+        }
+
+        .part .off {
+            background-position: -653px -38px;
+            width: 64px
+        }
+
+        .cooper .on {
+            background-position: -523px -1px;
+            width: 64px
+        }
+
+        .cooper .off {
+            background-position: -523px -38px;
+            width: 64px
+        }
+
+        .btn {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .popover-content {
+            font-size: 9pt;
+            text-align: center;
+
+            color: #555555;
+        }
+
+        #qna_overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            opacity: 0.5;
+            filter: alpha(opacity=50);
+        }
+
+        #qna_modal {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            padding: 8px;
+        }
+
+        #qna_content {
+            border-radius: 8px;
+            background: #fff;
+            padding: 20px;
+        }
+
+        #qna_close {
+            position: absolute;
+            width: 24px;
+            height: 27px;
+            display: block;
+            text-indent: -9999px;
+            top: -7px;
+            right: -7px;
+        }
+
+        .scroll-wrapper {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: scroll;
+        }
+        .tooltip-inner {
+            white-space:pre;
+            min-width:300px;
+        }
+        .tooltip_span {
+            border :none;
+        }
+
+        .fade-in-box {
+            display: inline-block;
+            background: yellow;
+            padding: 10px;
+            animation: fadein 3s;
+            -moz-animation: fadein 3s; /* Firefox */
+            -webkit-animation: fadein 3s; /* Safari and Chrome */
+            -o-animation: fadein 3s; /* Opera */
+        }
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @-moz-keyframes fadein { /* Firefox */
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @-webkit-keyframes fadein { /* Safari and Chrome */
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @-o-keyframes fadein { /* Opera */
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        #frame_custom_modal_wrap_fixing_introduce_modal .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        #frame_custom_modal_wrap_fixing_introduce_modal .modal-dialog {
+            height: 100%;
+        }
+
+    </style>
+
+    <link rel="stylesheet" href="//static.ohjic.com/css/component.fix.css?202602111746">
+
+    <script type="text/javascript" src="/js/jquery-3.7.1.min.js?202602111746"></script>
+    <script>var domainName = "ohjic.com";</script>
+  <script type="text/javascript" src="/js/encrypt.js?202602111746"></script>
+  <script type="text/javascript" src="/js/drop_menu_sc.js?202602111746"></script>
+  <script type="text/javascript" src="/js/json_parse.js?202602111746"></script>
+  <script type="text/javascript" src="/js/json.js?202602111746"></script>
+  <!--    <script type='text/javascript' src='/js/jquery-ui-1.9.2.custom.min.js?202602111746'></script>-->
+  <script type="text/javascript" src="/lib/jquery-ui/1.14.1/jquery-ui.min.js?202602111746"></script>
+  <script type="text/javascript" src="/js/bootstrap.min.js?202602111746"></script>
+  <script type="text/javascript" src="/js/tab_menu.js?202602111746"></script>
+    <script type="text/javascript" src="/js/common/jquery.form.js?202602111746"></script>
+    <script type="text/javascript" src="/js/common/jquery-number-master/jquery.number.min.js?202602111746"></script>
+    <script type="text/javascript" src="/js/common/common_lib.js?202602111746"></script>
+    <script type="text/javascript" src="/js/common.js?202602111746"></script>
+    <script type="text/javascript" src="/js/common/init.js?202602111746"></script>
+    <script src="//static.ohjic.com/plugins/lottie-player/dist/lottie-player.js?202602111746"></script>
+    <script src="//static.ohjic.com/plugins/pdfmake/pdfmake-0.2.4.min.js?202602111746"></script>
+    <script src="//static.ohjic.com/plugins/vfs_fonts.js?202602111746"></script>
+    <script type="module" src="//cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm"></script>
+    <script src="/js/pdfviewer.fix.js?202602111746"></script>
+
+    <script type="text/javascript">
+        // PHP 변수들을 JavaScript 변수로 치환 (main 접두어를 사용하여 고유성 확보)
+        var fCode = 1755;
+        var domainMember = "https://mem.ohjic.com";
+        var dblEntryModeUse = false;
+        var churchCode = "8099";
+        var domainHomepage = "https://beta.ohjic.com";
+
+        var defaultMenu = {
+            0: '홈',
+            1: '계정과목등록',
+            2: '예산작성',
+            3: '헌금전표입력',
+            4: '재정보고서',
+            5: '항목별명세서',
+            6: '일반관리',
+            7: '협동비내역',
+            8: '부서관리',
+        };
+
+        // 공통 함수들 정의
+
+        /**
+         * v 쿼리 파라미터 자동 추가 함수
+         * @param {string} url - 기본 URL
+         * @returns {string} v 파라미터가 추가된 URL
+         */
+        function mainAddQueryParamIfExists(url) {
+            var queryParams = getQueryStringObject(window.location);
+            if (queryParams.v) {
+                url += (url.indexOf('?') !== -1 ? '&' : '?') + 'v=' + queryParams.v;
+            }
+            return url;
+        }
+
+        /**
+         * 팝업 윈도우 열기 공통 함수
+         * @param {string} name - 팝업 윈도우 이름
+         * @param {string} url - 팝업 URL
+         * @param {string} width - 팝업 너비 (기본값: 1000px)
+         */
+        function mainOpenPopup(name, url, width) {
+            var popupWidth = width || '1000px';
+            var finalUrl = mainAddQueryParamIfExists(url);
+            window.open(finalUrl, name, "width=" + popupWidth + ",height=580,toolbar=no,location=no,status=no,menubar=no,resizable=yes,left=300,top=100");
+        }
+
+    </script>
+
+</head>
+<body>
+<!--
+<div id="loadingMsg"
+     style="top:300px; left:360px; z-index:100; position:absolute; display:none; width:250px; background-color:white; border:#eee solid 3px; text-align:center;">
+    <img src='/images/loading.gif' align="middle">
+    <span style="margin-right:10px;">잠시만 기다려주세요...</span>
+</div> -->
+
+<!-- common modal frame -->
+
+<!-- end of common modal frame -->
+<div id="wrap">
+    <div id="roundWrap">
+        <div id="PageContentContainer">
+<!--            <div style="background-color:#000;width:100%;height:49px;position:absolute;top:0;left:0;z-index:9999;opacity:0.3"></div>-->
+            <div class="headTop">
+                <div style="padding:0px;float:left;">
+                    <a href="https://ohjic.com" target="_blank"><img src="/images/transpixel.gif" class="btns" style="background-position:0px -94px; width:127px;height:49px;"></a>
+                </div>
+                <div style="float:left;padding-left:2px;color:#333;">
+                    <div style="height:22px;float:left;">
+                        <div style="padding-top:4px;padding-bottom:4px;padding-right:4px;float:left;">
+                            <img src="/images/transpixel.gif" class="btns" style="margin-bottom:4px;background-position:0px -74px;width:13px;height:13px;margin-left:7px; vertical-align:middle"> 오직데모교회                        </div>
+                        <div style="padding-top:2px;padding-bottom:4px;float:left;">
+                                                            <div style="padding:3px"><span style="font-size:9pt;">재정부</span>
+                                </div>
+                                                    </div>
+                        <div style="padding-left:10px;padding-top:7px;padding-bottom:2px;float:left;font-size:8pt;">
+                                                            <button class="tooltip_span" data-toggle="popover" data-original-title="" title="">
+                                    <strong>기부금영수증발급장부</strong>
+                                    <span class="material-symbols-rounded" style="font-size:12px;vertical-align: -2px;">help</span>
+                                </button>
+                                                        김오직 님, 안녕하세요
+                        </div>
+                    </div>
+                    <div class="btn_case" style="clear:both;">
+                        <a href="#home/chart#0" onclick="gomenu(0)" class="home" onfocus="blur()">
+                            <img src="/images/transpixel.gif" class="btns on" style="border:0; vertical-align:middle">
+                        </a>
+                        
+                                                        <a href="#registration/acntTitle/listview/income#1" onclick="gomenu(1)" onmouseover="msover(1);" onmouseout="msout(1);" class="base" onfocus="blur()">
+                                    <img id="menu1" src="/images/transpixel.gif" class="btns off" style="border:0; vertical-align:middle">
+                                </a>
+                            
+                                <a href="#budget/income#2" onclick="gomenu(2)" class="budget" onfocus="blur()">
+                                    <img id="menu2" src="/images/transpixel.gif" class="btns off" style="border:0; vertical-align:middle">
+                                </a>
+
+                            
+                                <a href="#bill/donation/listview/income#3" onclick="gomenu(3)" class="bill" onfocus="blur()">
+                                    <img id="menu3" src="/images/transpixel.gif" class="btns off" style="border:0; vertical-align:middle">
+                                </a>
+
+                                                            <a href="#ledger/weekAcnt/preMain#4" onclick="gomenu(4)" onmouseover="msover(4);" onmouseout="msout(4);" class="ledger" onfocus="blur()">
+                                    <img id="menu4" src="/images/transpixel.gif" class="btns off" style="border:0; vertical-align:middle">
+                                </a>
+
+                                                            <a href="#report/finance/preMain#5" onclick="gomenu(5)" onmouseover="msover(5);" onmouseout="msout(5);" class="report" onfocus="blur()">
+                                    <img id="menu5" src="/images/transpixel.gif" class="btns off" style="border:0; vertical-align:middle">
+                                </a>
+
+                            
+                        
+                        
+                                            </div>
+                    <script>
+    if (mtDropDown.isSupported()) {
+        var churchCode = "8099";
+        var isUsingFinancialBillService = "1";
+        var is_using_dtmn_service = "1";
+        var donationOmission = "1";
+        var ms = new mtDropDownSet(mtDropDown.direction.down, 0, 0, mtDropDown.reference.bottomLeft);
+        var usingExcelUpload = "1";
+        var usingReservationBill = "1";
+        var usingBarcodeService = "0";
+        var usingCounterFeature = "0";
+        var isEDonationExclusiveMode = "0";
+        
+        
+
+        var menu1 = ms.addMenu(document.getElementById("menu1"));
+        if (churchCode == 4046) {
+            menu1.addItem("계정과목등록", "/registration/acntTitle/listview/income");
+            menu1.addItem("계좌/외화 코드등록", "/registration/bankAccount/main");
+            menu1.addItem("초기이월금 등록", "/registration/carry/main");
+            menu1.addItem("교회 목록", "/registration/memList/main/member/");
+            menu1.addItem("협동비내역", "cooperative_dues/cooperative_dues/main_view");
+            menu1.addItem("협동비사람검색", "cooperative_dues/cooperative_dues/member_search");
+        } else {
+            if (dblEntryModeUse) {
+                menu1.addItem("복식계정과목", "/finapp/dbl-entry-account");
+                menu1.addItem("예산계정과목", "/finapp/budget-account");
+                // menu1.addItem("복식계정과목", "/registration/dbl_account/main");
+            } else {
+                menu1.addItem("계정과목등록", "/registration/acntTitle/listview/income");
+            }
+
+            menu1.addItem("계좌/외화 코드등록", "/registration/bankAccount/main");
+            menu1.addItem("예배코드관리", "/registration/worship");
+            menu1.addItem("성도/거래처 목록", "/registration/memList/main/member/");
+            menu1.addItem("성도바코드 라벨인쇄", "/registration/print_member/main");
+            menu1.addItem("초기이월금 등록", "/registration/carry/main");
+
+            if (usingCounterFeature == 1) {
+                menu1.addItem("계수자 관리", "/registration/donation_checker");
+            }
+        }
+
+        
+        var menu2 = ms.addMenu(document.getElementById("menu2"));
+        menu2.addItem("예산작성", "budget/income");
+        if (churchCode == 4726) {
+            menu2.addItem("계정/청구서 엑셀변환", "budgetExcel");
+        }
+        
+        var menu3 = ms.addMenu(document.getElementById("menu3"));
+        
+        menu3.addItem("헌금전표입력", "/bill/donation/listview/income");
+        menu3.addItem("헌금전표엑셀입력", "/bill/donation_excel/main");
+        menu3.addItem("모바일헌금 집금내역", "/bill/bill_collecting/index");
+
+
+        if (usingExcelUpload == 1) {
+            menu3.addItem("헌금전표엑셀입력2 ", "/bill/donation_excel_upload/main");
+        }
+
+        if (donationOmission == true) {
+            menu3.addItem("헌금누락확인요청", "/bill/donationOmission/main");
+        }
+        
+
+
+
+                menu3.addItem("일반전표입력", "/bill/bill/listview/income");
+                if (usingReservationBill == 1) {
+            menu3.addItem("예약전표관리", "/bill/reservation/listview");
+        }
+        if (churchCode == 2634) {
+            menu3.addItem("일반전표엑셀입력", "/bill/bill_excel/main");
+        }
+        
+
+        if (is_using_dtmn_service == 1) {
+            menu3.addItem("작정헌금 캠페인 관리", "/dtmn/determination/campaign");
+            menu3.addItem("작정헌금 출금/입력 현황", "/dtmn/determination/set_display");
+            menu3.addItem("작정헌금 월별 통계 조회", "/dtmn/determination/monthly_income_report");
+            if (churchCode == 4726) {
+                menu3.addItem("가상계좌 발급 현황", "/dtmn/determination/get_vpa_list");
+            }
+        }
+        
+        
+
+
+                var menu4 = ms.addMenu(document.getElementById("menu4"));
+        menu4.addItem("재정보고서", "/ledger/weekAcnt/preMain/");
+        menu4.addItem("자금명세서", "/ledger/financestatement/main");
+        menu4.addItem("원장", "/ledger/ledgerMain/main");
+        menu4.addItem("총계정원장", "/ledger/totalAcnt/preMain");
+
+                if (churchCode != 9482) {
+            menu4.addItem("헌금자순위", "/ledger/donationRank/main");
+        }
+        menu4.addItem("헌금자리스트", "/ledger/donation/main");
+        menu4.addItem("헌금자통계", "/ledger/donation_stats/main");
+        if(isEDonationExclusiveMode == 1) {
+            menu4.addItem('전자기부금 사전신청', "/ledger/EDonationReceiptPreapply/main");
+        }
+        //국가타입별 메뉴 노출
+                if(donationOmission) {
+            menu4.addItem('기부금영수증', "/ledger/receipts/regi_receipt_form");
+        }
+        
+        
+
+
+                var menu5 = ms.addMenu(document.getElementById("menu5"));
+        menu5.addItem("항목별명세서", "/report/finance/preMain");
+        menu5.addItem("본회계결산서", "/report/thisFinance/preMain");
+        menu5.addItem("본회계결산서 요약", "/report/thisFinanceSummary/preMain");
+        menu5.addItem("합계잔액시산표", "/report/trialBalance/preMain");
+        menu5.addItem("재무상태표", "/report/balanceSheet/preMain");
+        menu5.addItem("손익계산서", "/report/incomeState/preMain");
+        menu5.addItem("헌금수입주계표", "/report/weekly_total_donation/main");
+        menu5.addItem("회계연도별 헌금/성도 현황", "/report/yearly_member_donation/main");
+        menu5.addItem("월별 헌금 현황", "/report/MonthlyDonationSheet/index");
+        if (churchCode == 3164) {
+            menu5.addItem("교회별 헌금 보고서1", "/report/group_report/preMain");
+            menu5.addItem("교회별 헌금 보고서2", "/report/group_report/preMain2");
+        }
+
+                
+                mtDropDown.renderAll();
+    }
+</script><div id="mtDropDown0" class="mtDropdownMenu top" style="width: 165px; height: 197px; visibility: hidden;"><div class="content" style="width: 163px; height: 195px; top: -197px;"><table class="items" width="160" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed" onmouseover="divmsover(Tmenuov);" onmouseout="divmsout(Tmenuou);"><tbody><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">계정과목등록</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">계좌/외화 코드등록</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">예배코드관리</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">성도/거래처 목록</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">성도바코드 라벨인쇄</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">초기이월금 등록</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr></tbody></table><div class="shadowBottom" style="top: 193px; width: 158px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="shadowRight" style="left: 161px; height: 192px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="background" style="width: 161px; height: 193px; background-color: white;"><img src="" width="1" height="1"></div></div></div><div id="mtDropDown1" class="mtDropdownMenu top" style="width: 165px; height: 37px; visibility: hidden;"><div class="content" style="width: 163px; height: 35px; top: -37px;"><table class="items" width="160" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed" onmouseover="divmsover(Tmenuov);" onmouseout="divmsout(Tmenuou);"><tbody><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">예산작성</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr></tbody></table><div class="shadowBottom" style="top: 33px; width: 158px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="shadowRight" style="left: 161px; height: 32px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="background" style="width: 161px; height: 33px; background-color: white;"><img src="" width="1" height="1"></div></div></div><div id="mtDropDown2" class="mtDropdownMenu top" style="width: 165px; height: 325px; visibility: hidden;"><div class="content" style="width: 163px; height: 323px; top: -325px;"><table class="items" width="160" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed" onmouseover="divmsover(Tmenuov);" onmouseout="divmsout(Tmenuou);"><tbody><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금전표입력</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금전표엑셀입력</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">모바일헌금 집금내역</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금전표엑셀입력2 </td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금누락확인요청</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">일반전표입력</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">예약전표관리</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">작정헌금 캠페인 관리</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">작정헌금 출금/입력 현황</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">작정헌금 월별 통계 조회</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr></tbody></table><div class="shadowBottom" style="top: 321px; width: 158px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="shadowRight" style="left: 161px; height: 320px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="background" style="width: 161px; height: 321px; background-color: white;"><img src="" width="1" height="1"></div></div></div><div id="mtDropDown3" class="mtDropdownMenu top" style="width: 165px; height: 261px; visibility: hidden;"><div class="content" style="width: 163px; height: 259px; top: -261px;"><table class="items" width="160" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed" onmouseover="divmsover(Tmenuov);" onmouseout="divmsout(Tmenuou);"><tbody><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">재정보고서</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">자금명세서</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">원장</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">총계정원장</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금자순위</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금자리스트</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금자통계</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">기부금영수증</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr></tbody></table><div class="shadowBottom" style="top: 257px; width: 158px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="shadowRight" style="left: 161px; height: 256px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="background" style="width: 161px; height: 257px; background-color: white;"><img src="" width="1" height="1"></div></div></div><div id="mtDropDown4" class="mtDropdownMenu top" style="width: 165px; height: 293px; visibility: hidden;"><div class="content" style="width: 163px; height: 291px; top: -293px;"><table class="items" width="160" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed" onmouseover="divmsover(Tmenuov);" onmouseout="divmsout(Tmenuou);"><tbody><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">항목별명세서</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">본회계결산서</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">본회계결산서 요약</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">합계잔액시산표</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">재무상태표</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">손익계산서</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">헌금수입주계표</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">회계연도별 헌금/성도 현황</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr><tr height="23" class="item"><td nowrap="" class="mtDropdown" width="160" style="">월별 헌금 현황</td><td width="0"><img src="" border="0" width="0" height="0" align="absmiddle"></td></tr><tr><td colspan="2" bgcolor="#DDDDDD" height="1"></td></tr></tbody></table><div class="shadowBottom" style="top: 289px; width: 158px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="shadowRight" style="left: 161px; height: 288px; background-color: rgb(136, 136, 136);"><img src="" width="1" height="1"></div><div class="background" style="width: 161px; height: 289px; background-color: white;"><img src="" width="1" height="1"></div></div></div>
+                </div>
+
+                <!-- 문의게시판 적용 -->
+                <div id="guide_bar" style="position: absolute; left: 750px; top: 25px; min-width: 504px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-xs call_center" data-placement="bottom" data-container="body" data-original-title="사용설명서" data-content="" data-html="true" data-toggle="popover"><i class="icon-book"></i> 사용설명서
+                        </button>
+                        <!--                        <a href="javascript:;" id="qna" type="button" class="btn btn-info btn-xs"><i-->
+                        <!--                                class='icon-megaphone'></i> 1:1 문의</a>-->
+
+                        <button type="button" class="btn btn-info btn-xs " id="call_center"><i class="icon-phone"></i> 고객섬김센터 <span class="label label-danger" style="border-radius:12px">N</span>
+                        </button>
+                    </div>
+                </div>
+
+              <div id="call_info_popup" class="popover fade bottom in" style="top: 47px; left: 839.477px; display: none;">
+                <div class="arrow"></div>
+                <div class="popover-content">
+                  <div style="text-align:center">
+                    <div style="border:1px #e6e6e6 solid;padding:3px;margin-bottom:5px;">
+                      <h5>카톡상담</h5>
+                      <div>
+
+                        <a href="javascript:;" onclick="PopupView.open('ohjic_kakaotalk','https://www.ohjic.com/service/chat')" type="button" class="btn btn-info btn-sm">바로가기</a>
+
+                      </div>
+                      화~금 : 10시~17시<br>
+                      토일월 : 10시~17시<br>
+                    </div>
+
+                    <div style="border:1px #e6e6e6 solid;padding:3px">
+                      <h5>전화상담</h5>
+                      <b>1599-0657</b><br><br>
+                      화~금 : 10시~17시<br><br>
+                    </div>
+                            <div style="margin-top:5px">
+                                <a href="http://remote.ohjic.com/index.php" target="_blank" type="button" class="btn btn-info btn-sm" style="display: inline-block;width: 100%;"><i class="icon-monitor"></i> 원격지원</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/javascript" src="/js/bootstrap.min.js?202602111746"></script>
+                <link rel="stylesheet" href="/css/flat/bootstrap.min.css?202602111746">
+                <script src="//developers.kakao.com/sdk/js/kakao.min.js"></script>
+
+                <script type="text/javascript">
+                    $(function(){
+                        $('#call_center').on('click',function(){
+                            $('#call_info_popup').toggle();
+                        });
+
+                    })
+                    //<![CDATA[
+                    // 사용할 앱의 JavaScript 키를 설정해 주세요.
+                    Kakao.init('f1b744f086138b055a9db40586f94dbd');
+                    // 플러스친구 1:1채팅 버튼을 생성합니다.
+                    if (document.getElementById('plusfriend-chat-button')) {
+                        Kakao.PlusFriend.createChatButton({
+                            container: '#plusfriend-chat-button',
+                            plusFriendId: '_tgCxgC', // 플러스친구 홈 URL에 명시된 id로 설정합니다.
+                            // shape : 'pc',
+                            // title : '바로가기'
+                        });
+                    }
+                    //]]>
+                </script>
+                <div style="position:absolute;top:0px;right:0px;padding-left:2px;padding-top:4px;color:#333;" id="acntYearDiv">
+
+
+                    <div style="float:left;">
+				<span style="font-weight:bold;">
+					회계 기수 :
+				</span>
+                        <select id="change_acntYear" style="font-size:9pt;" name="acntYear">
+                                                            <option value="2018">
+                                                                            1 기 ( 18년 1월 01일~19년 12월 31일 )
+                                                                    </option>
+                                                            <option value="2019">
+                                                                            2 기 ( 20년 1월 01일~20년 12월 01일 )
+                                                                    </option>
+                                                            <option value="2020">
+                                                                            3 기 ( 20년 12월 02일~21년 12월 01일 )
+                                                                    </option>
+                                                            <option value="2021">
+                                                                            4 기 ( 21년 12월 02일~22년 12월 01일 )
+                                                                    </option>
+                                                            <option value="2022">
+                                                                            5 기 ( 22년 12월 02일~23년 12월 31일 )
+                                                                    </option>
+                                                            <option value="2023" selected="">
+                                                                            6 기 ( 24년 1월 01일~24년 12월 31일 )
+                                                                    </option>
+                                                            <option value="2024">
+                                                                            7 기 ( 25년 1월 01일~25년 12월 31일 )
+                                                                    </option>
+                                                            <option value="2025">
+                                                                            8 기 ( 26년 1월 01일~26년 12월 31일 )
+                                                                    </option>
+                                                    </select>
+                    </div>
+                    <div style="float:left;padding-left:5px;">
+                        <a href="/index/logout" style="padding-right:5px;">
+                            <img src="/images/logout.jpg">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div style="background:#0e4ead; width:100%; height:4px;font-size:0px;clear:both;"></div>
+            <div style="height: 35px;padding-top: 5px;">
+                <ul id="tab_head" class="ui-sortable">
+                
+    <li class="tab_auto_width active ui-sortable-handle" data-tab="홈" style="display: inline; width: 122.2px;" data-loading="on">
+        <span class="tab_name">&nbsp;&nbsp;홈</span>
+        <span class="tab_close" onclick="tabMenuController.removeTab('홈');"><img src="/images/btn_close.png"></span>
+    </li>
+</ul>
+            </div>
+            <div id="tab_body">
+    <div data-tab="홈" data-url="#" class="active"><iframe name="mainf" class="mainf" src="/home/chart" style="width: 100%; border: none; height: 711px;" frameborder="0"></iframe></div>
+</div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Confirm Modal -->
+<script type="text/html" id="template_confirm_modal">
+
+</script>
+
+<script type="text/html" id="tab_head_item">
+    <li class="tab_auto_width" data-tab="{%key%}" style="display:{%display%}">
+        <span class="tab_name">&nbsp;&nbsp;{%key%}</span>
+        <span class="tab_close" onclick="tabMenuController.removeTab('{%key%}');"><img
+                        src="/images/btn_close.png"/></span>
+    </li>
+</script>
+<script type="text/html" id="tab_body_item">
+    <div data-tab="{%key%}" data-url="{%url%}"><iframe name="mainf" class="mainf" src="" style="width: 100%; border: none; height: 896px;" frameborder="0"></iframe></div>
+</script>
+<script type="text/html" id="exception_body_item">
+    <div class="active" data-tab="{%key%}"><iframe name="mainf" class="mainf" src="{%url%}" style="width: 100%; border: none; height: 896px;" frameborder="0"></iframe></div>
+</script>
+<!-- QNA Script -->
+<script>
+    init.requestPCInfo();
+    window.addEventListener( 'message', init.receiveMessageFromParent);
+    init.fixTopFrame();
+
+    window.parent = window;
+    function getTop () {
+        return this;
+    }
+
+    var Tmenuov = "";
+    var Tmenuou = "";
+
+    function msover(num) {
+    }
+
+    function msout(num) {
+        Tmenuov = num;
+    }
+
+    function divmsover() {
+        Tmenuou = Tmenuov;
+    }
+
+    function divmsout() {
+    }
+
+    var preloaded = [];
+
+    function swapImage(imgName, sFilename) {
+        document.images[imgName].src = sFilename;
+    }
+
+    function gomenu(no) {
+        tabMenuController.existUpperMenu(no) || loadingShow();
+        tabMenuController.selectUpperMenu(no);
+    }
+
+    function getAcntYear() {
+        var year = $('#acntYear').html().split(' ');
+        return Number(year[0]);
+    }
+
+    // 권한이 없을 경우 괜히 없는 메뉴 나오지 않게 하기 위함.
+    var setDefaultMenu = function () {
+
+        var menuItem = ms.getMenuItems();
+        $.each(menuItem, function (i, v) {
+            var originId = v.elTarget.id.split('menu').join('');
+            if (v.items.length == 0) {
+                $(v.elTarget).hide();
+            } else {
+                defaultMenu[parseInt(originId)] = v.items[0].text;
+            }
+
+        });
+    };
+
+    var height = 89;
+
+    $(window).resize(function () {
+        setClassBrows('mainf', height);
+    });
+
+    $(function () {
+        mtDropDown.initialize();
+
+        setDefaultMenu();
+
+        tabMenuController.init(churchCode, 'tab_head', 'tab_body', {
+            "addTabAfter": function () {
+                setClassBrows('mainf', height);
+            }
+        });
+    });
+
+    $(function () {
+        setClassBrows('mainf', height);
+        $("#change_acntYear").change(function () {
+
+            loadingShow_acntYear();
+            var acntYear = $("#change_acntYear").val();
+            $.post('/setting/main_change_acntYear', {acntYear: acntYear}, function (data) {
+                if (data === '1') {
+                    MessageBox.alert('회계 기수 변경 완료', () => {
+                        getTop().location.reload();
+                    });
+                }
+                else {
+                    MessageBox.alert('기수 변경 실패');
+                }
+            });
+        });
+
+
+        $("#change_Fin").change(function () {
+
+            var fCode = $("#change_Fin").val();
+            var fName = $("#change_Fin:selected").text();
+            $.post("/main/changeFin", {fCode: fCode, fName: fName}, function (data) {
+                data = data.split(" ").join("");
+                if (data == "1") {
+                    WindowLocation.href = '/main';
+                } else {
+                    MessageBox.alert("에러!");
+                }
+            });
+        });
+    });
+
+
+    function acntReload() {
+        location.reload();
+    }
+
+
+    $(".call_center").data("content",
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1900608' target='`_blank`'>기초코드등록</a><br>\n" +
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1900632' target='`_blank`'>예산작성</a><br>\n" +
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1902068' target='`_blank`'>전표입력</a><br>\n" +
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1900658' target='`_blank`'>장부관리</a><br>\n" +
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1900684' target='`_blank`'>결산/보고서</a><br>\n" +
+        "<a href='https://ohjic-help.atlassian.net/wiki/spaces/FIN/pages/1900724' target='`_blank`'>설정</a><br>\n")
+    $('.call_center').popover();
+    $('.call_center').on('shown.bs.popover', function () {
+        $("#manual_link").prop("href", "ht"+"tp://help.ohj"+"ic.com/pages/viewpage.action?pageId=9339776");
+    });
+
+
+    var modal = (function () {
+        var
+            method = {},
+            $overlay,
+            $modal,
+            $content,
+            $close;
+
+        // Center the modal in the viewport
+        method.position = function () {
+            var top, left;
+
+            top = 50;
+            left = 20;
+
+            $modal.css({
+                top: top + $(window).scrollTop(),
+                left: left + $(window).scrollLeft()
+            });
+        };
+
+        // Open the modal
+        method.open = function (settings) {
+            $content.empty().append(settings.content);
+
+            var content_width = window.innerWidth
+            var content_height = window.innerHeight - 100;
+
+            content_width = content_width > 1144 ? 1024 : content_width - 120;
+            content_width = content_width < 900 ? 780 : content_width - 120;
+            content_height = content_height > 780 ? content_height : 780;
+
+            $modal.css({
+                width: content_width,
+                height: content_height
+            });
+
+            $modal.find('iframe').css({
+                width: content_width - 70,
+                height: content_height - 70,
+                'max-height': content_height,
+                'overflow-y': 'scroll'
+            });
+
+            var ipad = navigator.userAgent.match(/(iPad)/g) ? true : false;
+            if (ipad) {
+                $('#qna_scroll_wrapper').css({
+                    height: content_height + " !important",
+                    'max-height': content_height
+                });
+            }
+
+            method.position();
+            $overlay.click(function () {
+                $close.click();
+            });
+
+            $('html').css({
+                'overflow-x': 'scroll',
+                'overflow-y': 'scroll'
+            });
+
+            $(window).bind('resize.modal', method.position);
+
+            $modal.show();
+            $overlay.show();
+        };
+
+        // Close the modal
+        method.close = function () {
+            $modal.hide();
+            $overlay.hide();
+            $content.empty();
+            $('html').css({
+                'overflow-x': 'hidden'
+            });
+            $(window).unbind('resize.modal');
+        };
+
+        // Generate the HTML and add it to the document
+        $overlay = $('<div id="qna_overlay"></div>');
+        $modal = $('<div id="qna_modal"></div>');
+        $content = $('<div id="qna_content"></div>');
+        $close = $('<a id="qna_close" href="#">close</a>');
+
+        $modal.hide();
+        $overlay.hide();
+        $modal.append($content, $close);
+
+        $(document).ready(function () {
+            $('body').append($overlay, $modal);
+
+        });
+
+        $close.click(function (e) {
+            e.preventDefault();
+            method.close();
+        });
+
+        return method;
+    }());
+
+    // Wait until the DOM has loaded before querying the document
+    $(document).ready(function () {
+        $(".tooltip_span").popover({
+            trigger : 'focus',
+            content : "기부금영수증발급장부에서만 기부금영수증 설정 및 발급, 헌금누락확인이 가능합니다. (발급장부 변경은 카톡상담으로 문의 주세요.)",
+            placement : "bottom",
+            template : '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content text-left"></div></div>'
+        });
+
+
+        isVisibleCallCenter = false;
+        $('a#qna').click(function (e) {
+            var ipad = navigator.userAgent.match(/(iPad)/g) ? true : false;
+            var content_head = "";
+            var content_foot = "";
+            if (ipad) {
+                content_head = "<div id='qna_scroll_wrapper' class='scroll-wrapper'>";
+                content_foot = "</div>";
+            }
+            var content = content_head + "<iframe src='" + domainHomepage + "/home/qna/listview/page/0/noFrame/2' scrolling='yes'></iframe>" + content_foot;
+
+            if (isVisibleCallCenter) {
+                $('.call_center').click();
+                isVisibleCallCenter = false;
+            }
+
+            modal.open({content: content});
+            e.preventDefault();
+        });
+
+        $('.call_center').on('click', function () {
+            isVisibleCallCenter = !isVisibleCallCenter;
+        });
+
+
+
+
+
+    });
+
+    var PopupView = (function ($) {
+        var popupView = {};
+
+        popupView.open = function (name, url, width) {
+            mainOpenPopup(name, url, width);
+        };
+
+        return popupView;
+    })(jQuery);
+
+
+</script>
+
+
+<div id="qna_overlay" style="display: none;"></div><div id="qna_modal" style="display: none;"><div id="qna_content"></div><a id="qna_close" href="#">close</a></div></body></html>
