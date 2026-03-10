@@ -1,5 +1,10 @@
 <template>
-  <UModal v-model:open="ui.isOpen" :prevent-close="ui.type === 'prompt'">
+  <UModal 
+    v-model:open="ui.isOpen" 
+    :prevent-close="ui.type === 'prompt'"
+    :title="ui.title || defaultTitle"
+    :description="ui.message"
+  >
     <template #content>
       <div class="p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
         <!-- 아이콘 영역 -->

@@ -102,12 +102,19 @@
     </div>
 
     <!-- 등록/수정 모달 -->
-    <UModal v-model:open="isModalOpen" :ui="{ content: 'max-w-md' }">
+    <UModal 
+      v-model:open="isModalOpen" 
+      :title="isEditing ? '구역 정보 수정' : '신규 구역 등록'"
+      description="구역의 명칭과 소속, 리더 정보를 관리합니다."
+      :ui="{ content: 'max-w-md' }"
+    >
       <template #content>
         <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
-          <div class="flex items-center justify-between border-b pb-4 dark:border-gray-800">
-            <h3 class="text-xl font-bold">{{ isEditing ? '구역 정보 수정' : '신규 구역 등록' }}</h3>
-            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="isModalOpen = false" />
+          <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+              {{ isEditing ? '구역 정보 수정' : '신규 구역 등록' }}
+            </h3>
+            <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
           </div>
 
           <div class="space-y-4 py-2">
@@ -137,10 +144,19 @@
     </UModal>
 
     <!-- 성도 검색 모달 -->
-    <UModal v-model:open="isMemberSearchOpen" :ui="{ content: 'max-w-lg' }">
+    <UModal 
+      v-model:open="isMemberSearchOpen" 
+      title="구역장(리더) 선택"
+      description="구역을 담당할 성도를 검색하여 선택합니다."
+      :ui="{ content: 'max-w-lg' }"
+    >
       <template #content>
         <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4">
-          <h3 class="text-lg font-bold border-b pb-2 dark:border-gray-800">구역장(리더) 선택</h3>
+          <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">구역장(리더) 선택</h3>
+            <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
+          </div>
+
           <UInput v-model="memberSearchTerm" placeholder="성도 이름 검색" icon="i-heroicons-magnifying-glass" class="w-full" />
           
           <div class="max-h-[300px] overflow-y-auto border rounded-lg dark:border-gray-800">
