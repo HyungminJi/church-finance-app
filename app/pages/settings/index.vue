@@ -26,11 +26,11 @@
           <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">시스템 권한</p>
           <UBadge 
             v-if="user?.role"
-            :color="getRoleInfo(user?.role)?.color" 
+            :color="getBadgeColor(user.role)" 
             variant="solid" 
             class="font-bold px-3 py-1 rounded-md shadow-sm"
           >
-            {{ getRoleInfo(user?.role)?.label }}
+            {{ getRoleInfo(user.role).label }}
           </UBadge>
           <span v-else class="text-gray-300">-</span>
         </div>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- 기수/회계 설정 섹션 (추후 구현 예정) -->
+    <!-- 기수/회계 설정 섹션 (준비 중) -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden opacity-60">
       <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
@@ -162,6 +162,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { getRoleInfo } from '~/utils/formatter'
 
 const { user } = useUserSession()
 
@@ -175,6 +176,16 @@ const passwordForm = reactive({
   new: '',
   confirm: ''
 })
+
+const getBadgeColor = (role: any): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
+  const r = parseInt(role)
+  switch (r) {
+    case 1: return 'primary'
+    case 2: return 'success'
+    case 3: return 'warning'
+    default: return 'neutral'
+  }
+}
 
 const closePasswordModal = () => {
   isPasswordModalOpen.value = false

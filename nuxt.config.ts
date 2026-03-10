@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     session: {
-      password: process.env.NUXT_SESSION_PASSWORD,
+      password: process.env.NUXT_SESSION_PASSWORD || '',
       cookie: {
         secure: false
       }

@@ -1,29 +1,41 @@
 export default defineAppConfig({
   ui: {
-    primary: 'primary', // main.css에서 정의한 커스텀 primary 팔레트 사용
+    primary: 'primary',
     gray: 'slate',
     button: {
-      rounded: 'rounded-md',
-      default: {
+      slots: {
+        base: 'rounded-md'
+      },
+      defaultVariants: {
         size: 'md',
         color: 'primary',
         variant: 'solid'
       }
     },
     input: {
-      rounded: 'rounded-md',
+      slots: {
+        base: 'rounded-md'
+      }
     },
     select: {
-      rounded: 'rounded-md',
+      slots: {
+        base: 'rounded-md'
+      }
     },
     table: {
-      th: {
-        base: 'whitespace-nowrap',
-      },
+      slots: {
+        th: 'whitespace-nowrap font-bold'
+      }
     },
     card: {
-      rounded: 'rounded-lg',
-      background: 'bg-white dark:bg-slate-900',
+      slots: {
+        root: 'rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700'
+      }
+    },
+    modal: {
+      slots: {
+        content: 'rounded-2xl'
+      }
     }
   }
 })

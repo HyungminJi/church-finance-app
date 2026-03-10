@@ -52,7 +52,7 @@
     </div>
 
     <!-- 목록 테이블 -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative border border-gray-200 dark:border-gray-700">
       <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10 py-20">
         <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-blue-600" />
       </div>
@@ -101,7 +101,7 @@
       </table>
     </div>
 
-    <!-- 등록/수정 모달 (기존 커스텀 모달 유지하되 스타일 보강) -->
+    <!-- 등록/수정 모달 -->
     <UModal v-model:open="isModalOpen" :ui="{ content: 'max-w-md' }">
       <template #content>
         <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
@@ -169,7 +169,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { formatPhoneNumber, formatDate, displayValue } from '~/utils/formatter'
-import { downloadAsExcel } from '~/utils/excel'
+import { fetchAndDownloadExcel } from '~/utils/excel'
 import { useUIStore } from '~/stores/ui'
 
 const ui = useUIStore()
@@ -303,15 +303,21 @@ const deleteGroup = async (group: any) => {
   }
 }
 
-// 6. 엑셀 다운로드
-const downloadExcel = () => {
-  const excelData = cellGroups.value.map((g: any) => ({
+// 6. 엑셀 다운로드 (공통 함수 활용)
+const downloadExcel = async () => {
+  const mapper = (g: any) => ({
     '구역명': g.name,
     '상위 소속': displayValue(g.parent_group),
     '구역장': displayValue(g.leader_name),
     '상태': g.is_active ? '활성' : '비활성',
     '생성일': formatDate(g.created_at)
-  }))
-  downloadAsExcel(excelData, '구역목록', '구역정보')
+  })
+
+  await fetchAndDownloadExcel(
+    '/api/cell-groups',
+    { name: filters.name, parent: filters.parent, isActive: filters.isActive },
+    mapper,
+    '구역목록'
+  )
 }
 </script>

@@ -17,13 +17,13 @@
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <UFormField label="이름">
-            <UInput v-model="filters.name" placeholder="이름 입력" icon="i-heroicons-user" class="w-full" @keyup.enter="refresh" />
+            <UInput v-model="filters.name" placeholder="이름 입력" icon="i-heroicons-user" class="w-full" @keyup.enter="() => refresh()" />
           </UFormField>
           <UFormField label="전화번호">
-            <UInput v-model="filters.phone" placeholder="전화번호 입력" icon="i-heroicons-phone" class="w-full" @keyup.enter="refresh" />
+            <UInput v-model="filters.phone" placeholder="전화번호 입력" icon="i-heroicons-phone" class="w-full" @keyup.enter="() => refresh()" />
           </UFormField>
           <UFormField label="이메일">
-            <UInput v-model="filters.email" placeholder="이메일 입력" icon="i-heroicons-envelope" class="w-full" @keyup.enter="refresh" />
+            <UInput v-model="filters.email" placeholder="이메일 입력" icon="i-heroicons-envelope" class="w-full" @keyup.enter="() => refresh()" />
           </UFormField>
           <UFormField label="구역">
             <USelectMenu v-model="filters.cellGroupId" :items="cellGroups" value-key="id" placeholder="전체 구역" class="w-full" />
@@ -34,68 +34,69 @@
         </div>
         <div class="flex justify-between items-center mt-6">
           <div class="flex gap-2">
-            <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="refresh" class="px-8">조회하기</UButton>
+            <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="px-8">조회하기</UButton>
             <UButton variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
           </div>
           <div class="flex gap-2 items-center">
             <UButton icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" @click="downloadTemplate" class="font-bold">양식받기</UButton>
             <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileUpload" />
-            <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="$refs.fileInput.click()" class="font-bold">대량등록</UButton>
-            <UButton icon="i-heroicons-user-plus" color="primary" @click="openModal()" class="font-bold">성도추가</UButton>
+            <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="() => fileInput?.click()" class="font-bold">대량등록</UButton>
+            
+            <UButton icon="i-heroicons-user-plus" color="primary" @click="() => openModal()" class="font-bold">성도추가</UButton>
             <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="font-bold">엑셀</UButton>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative">
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative border border-gray-200 dark:border-gray-700">
         <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10">
           <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
         </div>
         <UTable :data="members" :columns="columns" class="w-full">
           <template #name-cell="{ row }">
-            {{ displayValue(row.original.name) }}
+            {{ displayValue((row.original as any).name) }}
           </template>
           <template #church_role_name-cell="{ row }">
-            {{ displayValue(row.original.church_role_name) }}
+            {{ displayValue((row.original as any).church_role_name) }}
           </template>
           <template #spouse_name-cell="{ row }">
-            {{ displayValue(row.original.spouse_name) }}
+            {{ displayValue((row.original as any).spouse_name) }}
           </template>
           <template #cell_group_name-cell="{ row }">
-            {{ displayValue(row.original.cell_group_name) }}
+            {{ displayValue((row.original as any).cell_group_name) }}
           </template>
           <template #user_role-cell="{ row }">
             <UBadge 
-              v-if="row.original.user_role" 
-              :color="getRoleBadgeColor(row.original.user_role)" 
+              v-if="(row.original as any).user_role" 
+              :color="getRoleBadgeColor((row.original as any).user_role)" 
               variant="solid" 
               class="font-bold px-2.5 py-0.5"
             >
-              {{ getRoleInfo(row.original.user_role).label }}
+              {{ getRoleInfo((row.original as any).user_role).label }}
             </UBadge>
             <span v-else class="text-gray-300">-</span>
           </template>
           <template #birth_date-cell="{ row }">
-            {{ formatDate(row.original.birth_date) }}
+            {{ formatDate((row.original as any).birth_date) }}
           </template>
           <template #removed_date-cell="{ row }">
             <span class="text-red-600 dark:text-red-400 font-bold">
-              {{ formatDate(row.original.removed_date) }}
+              {{ formatDate((row.original as any).removed_date) }}
             </span>
           </template>
           <template #phone_number-cell="{ row }">
-            {{ formatPhoneNumber(row.original.phone_number) }}
+            {{ formatPhoneNumber((row.original as any).phone_number) }}
           </template>
           <template #email-cell="{ row }">
-            {{ displayValue(row.original.email) }}
+            {{ displayValue((row.original as any).email) }}
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-1">
-              <UButton variant="ghost" color="primary" size="xs" @click="openModal(row.original)">수정</UButton>
-              <UButton v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="removeMember(row.original)">제적</UButton>
+              <UButton variant="ghost" color="primary" size="xs" @click="() => openModal(row.original)">수정</UButton>
+              <UButton v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="() => removeMember(row.original)">제적</UButton>
               <template v-else>
-                <UButton variant="ghost" color="success" size="xs" @click="reRegisterMember(row.original)">재등록</UButton>
-                <UButton variant="ghost" color="error" size="xs" @click="deleteMember(row.original)">삭제</UButton>
+                <UButton variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
+                <UButton variant="ghost" color="error" size="xs" @click="() => deleteMember(row.original)">삭제</UButton>
               </template>
             </div>
           </template>
@@ -106,7 +107,6 @@
         <UPagination v-model:page="currentPage" :total="paginationInfo.totalCount" :items-per-page="paginationInfo.limit" />
       </div>
 
-      <!-- 접근성 경고 해결: title 및 description 속성 추가 -->
       <UModal 
         v-model:open="isModalOpen" 
         :title="isEditing ? '성도 정보 수정' : '신규 성도 추가'"
@@ -245,21 +245,21 @@ const members = computed(() => (response.value as any)?.data || [])
 const stats = computed(() => (response.value as any)?.stats || { current: 0, removed: 0 })
 const paginationInfo = computed(() => (response.value as any)?.pagination || { totalPages: 0, totalCount: 0, limit: 10 })
 
-// 권한 등급별 뱃지 색상 매핑 함수
-const getRoleBadgeColor = (role: number) => {
-  switch (role) {
-    case 1: return 'primary' // 최고관리자 (Blue)
-    case 2: return 'success' // 관리자 (Green)
-    case 3: return 'warning' // 재정담당 (Yellow)
-    default: return 'neutral' // 사용자 (Gray)
+const getRoleBadgeColor = (role: any): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
+  const r = parseInt(role)
+  switch (r) {
+    case 1: return 'primary'
+    case 2: return 'success'
+    case 3: return 'warning'
+    default: return 'neutral'
   }
 }
 
 const dynamicSysRoles = computed(() => {
   const currentVal = form.user_role ? parseInt(form.user_role as any) : null
-  let filtered = sysRoles.value.filter(r => r.code >= currentUserRole.value)
-  if (currentVal !== null && !filtered.some(r => r.code === currentVal)) {
-    const originalRole = sysRoles.value.find(r => r.code === currentVal)
+  let filtered = sysRoles.value.filter((r: any) => r.code >= currentUserRole.value)
+  if (currentVal !== null && !filtered.some((r: any) => r.code === currentVal)) {
+    const originalRole = sysRoles.value.find((r: any) => r.code === currentVal)
     if (originalRole) {
       filtered = [originalRole, ...filtered]
     }
@@ -291,7 +291,7 @@ const columns = computed(() => {
     cols.push({ id: 'removed_date', accessorKey: 'removed_date', header: '제적일' })
   }
 
-  cols.push({ id: 'actions', header: '관리' })
+  cols.push({ id: 'actions', accessorKey: 'id', header: '관리' })
   return cols
 })
 
@@ -374,7 +374,6 @@ const saveMember = async () => {
 const downloadTemplate = () => {
   const header = [['성함', '연락처', '배우자', '생년월일', '이메일', '직분', '구역명', '우편번호', '주소', '상세주소']]
   const sampleData = [['홍길동', '010-1234-5678', '김영희', '1980-01-01', 'hong@example.com', '집사', '믿음목장', '12345', '서울시 강남구...', '101호']]
-  
   const worksheet = XLSX.utils.aoa_to_sheet([...header, ...sampleData])
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = range.s.r; R <= range.e.r; ++R) {

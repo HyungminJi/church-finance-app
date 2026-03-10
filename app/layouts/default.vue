@@ -107,7 +107,7 @@ const currentPathLabel = computed(() => {
 })
 
 const roleInfo = computed(() => {
-  const info = getRoleInfo(user.value?.role)
+  const info = getRoleInfo(user.value?.role ?? null)
   let colorClass = 'bg-slate-400'
   if (info.color === 'blue') colorClass = 'bg-brand-blue'
   else if (info.color === 'green') colorClass = 'bg-brand-green'
