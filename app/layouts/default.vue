@@ -88,9 +88,9 @@ const ui = useUIStore()
 const menuItems = [
   { path: '/', label: '대시보드', icon: 'i-heroicons-squares-2x2' },
   { path: '/basic-codes', label: '기초코드', icon: 'i-heroicons-command-line' },
+  { path: '/budget', label: '예산관리', icon: 'i-heroicons-chart-bar' },
   { path: '/entries', label: '전표입력', icon: 'i-heroicons-pencil-square' },
   { path: '/ledgers', label: '장부관리', icon: 'i-heroicons-book-open' },
-  { path: '/budget', label: '예산관리', icon: 'i-heroicons-chart-bar' },
   { path: '/reports', label: '재무보고서', icon: 'i-heroicons-document-chart-bar' },
   { path: '/settings', label: '환경설정', icon: 'i-heroicons-cog-8-tooth' },
 ]

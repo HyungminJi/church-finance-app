@@ -42,6 +42,16 @@ export const displayValue = (val: any) => {
   return val
 }
 
+/**
+ * 숫자를 천 단위 콤마 형식으로 포맷팅 (예: 1,000,000)
+ */
+export const formatNumber = (val: number | string | null | undefined) => {
+  if (val === null || val === undefined || val === '') return '0'
+  const num = typeof val === 'string' ? parseFloat(val) : val
+  if (isNaN(num)) return '0'
+  return new Intl.NumberFormat().format(num)
+}
+
 export const getRoleInfo = (role: number | null) => {
   switch (role) {
     case 1: return { label: '최고관리자', color: 'blue' }

@@ -38,6 +38,7 @@
       <div>
         <p class="font-bold">예산 입력 가이드</p>
         <p>※ 예산은 최하위단계(레벨 2) 계정과목에만 입력할 수 있습니다. 상위 항목은 하위 항목들의 합계로 자동 계산됩니다.</p>
+        <p class="mt-1 text-xs opacity-80">* 과거 회계년도의 예산은 조회만 가능하며 수정할 수 없습니다.</p>
       </div>
     </div>
 
@@ -51,12 +52,12 @@ import { ref, provide } from 'vue'
 
 const route = useRoute()
 
-// 연도 옵션 (현재 전후 2년)
+// 연도 옵션 조정: 과거 3년 ~ 미래 1년 (실무 표준)
 const currentYear = new Date().getFullYear()
-const yearOptions = Array.from({ length: 5 }, (_, i) => (currentYear - 2 + i).toString())
+const yearOptions = Array.from({ length: 5 }, (_, i) => (currentYear - 3 + i).toString())
 const selectedYear = ref(currentYear.toString())
 
-// 하위 페이지를 위해 provide (필요시)
+// 하위 페이지를 위해 provide
 provide('budgetYear', selectedYear)
 
 const tabs = [

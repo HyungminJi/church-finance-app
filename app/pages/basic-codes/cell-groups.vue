@@ -1,104 +1,108 @@
 <template>
-  <div class="space-y-6">
-    <!-- 상단 헤더 및 검색 -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div class="flex flex-wrap items-end gap-4">
-          <div class="w-[180px] flex-shrink-0">
-            <UFormField label="구역명">
-              <div class="relative">
-                <input 
-                  v-model="filters.name" 
-                  type="text"
-                  placeholder="구역명 검색" 
-                  class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm h-[36px]"
-                  @keyup.enter="refresh()" 
-                />
-                <UIcon name="i-heroicons-magnifying-glass" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-              </div>
-            </UFormField>
+  <div class="space-y-6 relative">
+    <!-- 2안 적용: 상단 헤더 및 검색 필터 고정 -->
+    <div class="sticky top-0 z-30 space-y-4 pb-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="flex flex-wrap items-end gap-4">
+            <div class="w-[180px] flex-shrink-0">
+              <UFormField label="구역명">
+                <div class="relative">
+                  <input 
+                    v-model="filters.name" 
+                    type="text"
+                    placeholder="구역명 검색" 
+                    class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm h-[36px]"
+                    @keyup.enter="refresh()" 
+                  />
+                  <UIcon name="i-heroicons-magnifying-glass" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                </div>
+              </UFormField>
+            </div>
+            <div class="w-[160px] flex-shrink-0">
+              <UFormField label="상위 소속">
+                <select v-model="filters.parent" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
+                  <option value="all">전체 소속</option>
+                  <option v-for="p in parentGroups" :key="p" :value="p">{{ p }}</option>
+                </select>
+              </UFormField>
+            </div>
+            <div class="w-[100px] flex-shrink-0">
+              <UFormField label="상태">
+                <select v-model="filters.isActive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
+                  <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                </select>
+              </UFormField>
+            </div>
           </div>
-          <div class="w-[160px] flex-shrink-0">
-            <UFormField label="상위 소속">
-              <select v-model="filters.parent" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
-                <option value="all">전체 소속</option>
-                <option v-for="p in parentGroups" :key="p" :value="p">{{ p }}</option>
-              </select>
-            </UFormField>
-          </div>
-          <div class="w-[100px] flex-shrink-0">
-            <UFormField label="상태">
-              <select v-model="filters.isActive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
-                <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-              </select>
-            </UFormField>
+          <div class="flex items-center space-x-2">
+            <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="px-6 font-bold" @click="refresh()" />
+            <UButton label="초기화" variant="ghost" color="neutral" @click="resetFilters" />
           </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="px-6 font-bold" @click="refresh()" />
-          <UButton label="초기화" variant="ghost" color="neutral" @click="resetFilters" />
-        </div>
-      </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <div class="flex items-center space-x-2 text-sm text-gray-500">
-          총 <span class="font-bold text-blue-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
-        </div>
-        <div class="flex items-center space-x-2">
-          <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="font-bold" @click="openModal()" />
-          <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="font-bold" @click="downloadExcel" />
+        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+          <div class="flex items-center space-x-2 text-sm text-gray-500">
+            총 <span class="font-bold text-blue-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
+          </div>
+          <div class="flex items-center space-x-2">
+            <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="font-bold" @click="openModal()" />
+            <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="font-bold" @click="downloadExcel" />
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 목록 테이블 -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative border border-gray-200 dark:border-gray-700">
+    <!-- 목록 테이블 (3안 적용: 헤더 고정) -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg relative border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10 py-20">
         <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-blue-600" />
       </div>
       
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-900">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">구역명</th>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">상위 소속</th>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">구역장(리더)</th>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">생성일</th>
-            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">관리</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr 
-            v-for="group in cellGroups" 
-            :key="group.id" 
-            class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            :class="{ 'bg-red-50/30 dark:bg-red-900/10': !group.is_active }"
-          >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-bold" :class="{ 'text-red-600/70 dark:text-red-400/70': !group.is_active }">{{ group.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" :class="{ 'text-red-500/50': !group.is_active }">{{ displayValue(group.parent_group) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-              <div class="flex items-center space-x-2" :class="{ 'opacity-60': !group.is_active }">
-                <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-400" />
-                <span>{{ displayValue(group.leader_name) }}</span>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <UBadge :color="group.is_active ? 'success' : 'error'" variant="subtle" class="font-bold">
-                {{ group.is_active ? '활성' : '비활성' }}
-              </UBadge>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(group.created_at) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-              <UButton label="수정" color="primary" variant="ghost" size="xs" @click="openModal(group)" />
-              <UButton v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" @click="deleteGroup(group)" />
-            </td>
-          </tr>
-          <tr v-if="cellGroups.length === 0 && !pending">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">등록된 구역 정보가 없습니다.</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
+          <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0 z-20 shadow-sm">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">구역명</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">상위 소속</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">구역장(리더)</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">상태</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">생성일</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900">관리</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr 
+              v-for="group in cellGroups" 
+              :key="group.id" 
+              class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              :class="{ 'bg-red-50/30 dark:bg-red-900/10': !group.is_active }"
+            >
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-bold" :class="{ 'text-red-600/70 dark:text-red-400/70': !group.is_active }">{{ group.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" :class="{ 'text-red-500/50': !group.is_active }">{{ displayValue(group.parent_group) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center space-x-2" :class="{ 'opacity-60': !group.is_active }">
+                  <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-400" />
+                  <span>{{ displayValue(group.leader_name) }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <UBadge :color="group.is_active ? 'success' : 'error'" variant="subtle" class="font-bold">
+                  {{ group.is_active ? '활성' : '비활성' }}
+                </UBadge>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(group.created_at) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                <UButton label="수정" color="primary" variant="ghost" size="xs" @click="openModal(group)" />
+                <UButton v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" @click="deleteGroup(group)" />
+              </td>
+            </tr>
+            <tr v-if="cellGroups.length === 0 && !pending">
+              <td colspan="6" class="px-6 py-12 text-center text-gray-500 italic font-medium">등록된 구역 정보가 없습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- 등록/수정 모달 -->

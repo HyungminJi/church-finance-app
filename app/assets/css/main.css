@@ -43,7 +43,9 @@
   --color-success-500: var(--color-green-500);
 
   --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
   --color-slate-200: #E2E8F0;
+  --color-slate-400: #94A3B8;
   --color-slate-800: #1E293B;
 }
 
@@ -65,5 +67,32 @@
   input[type="tel"], input[type="url"], input[type="date"], input[disabled],
   button[disabled], textarea, [disabled] {
     @apply cursor-auto;
+  }
+
+  /* 
+    비활성화(Disabled) 요소 시관적 강화 
+    Tailwind @apply와 표준 CSS !important 혼합 사용 (v4 호환)
+  */
+  input:disabled, 
+  select:disabled, 
+  textarea:disabled, 
+  button:disabled, 
+  [disabled],
+  .disabled {
+    background-color: var(--color-slate-100) !important;
+    color: var(--color-slate-400) !important;
+    border-color: var(--color-slate-200) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+  }
+
+  .dark input:disabled, 
+  .dark select:disabled, 
+  .dark textarea:disabled, 
+  .dark button:disabled, 
+  .dark [disabled] {
+    background-color: rgba(30, 41, 59, 0.5) !important; /* slate-800/50 */
+    color: var(--color-slate-400) !important;
+    border-color: var(--color-slate-800) !important;
   }
 }

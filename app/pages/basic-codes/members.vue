@@ -1,112 +1,135 @@
 <template>
   <ClientOnly>
-    <div class="space-y-6">
-      <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-lg w-fit">
-        <UButton
-          v-for="tab in tabs"
-          :key="tab.id"
-          @click="activeTab = tab.id"
-          :variant="activeTab === tab.id ? 'solid' : 'ghost'"
-          :color="activeTab === tab.id ? (tab.id === 'CURRENT' ? 'primary' : 'error') : 'neutral'"
-          class="px-6 py-1.5 font-bold transition-all duration-200"
-        >
-          {{ tab.label }} ({{ stats[tab.id === 'CURRENT' ? 'current' : 'removed'] }})
-        </UButton>
+    <div class="space-y-6 relative">
+      <!-- 상단 고정 영역: 필터 및 액션 버튼 (Stacked Sticky 1) -->
+      <div class="sticky top-[-32px] z-30 pt-8 pb-4 bg-slate-50 dark:bg-slate-900 border-b border-transparent">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-lg w-fit shadow-inner">
+              <UButton
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="activeTab = tab.id"
+                :variant="activeTab === tab.id ? 'solid' : 'ghost'"
+                :color="activeTab === tab.id ? (tab.id === 'CURRENT' ? 'primary' : 'error') : 'neutral'"
+                class="px-6 py-1.5 font-bold transition-all duration-200"
+              >
+                {{ tab.label }} ({{ stats[tab.id === 'CURRENT' ? 'current' : 'removed'] }})
+              </UButton>
+            </div>
+
+            <div class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border dark:border-gray-700">
+              <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-brand-blue" />
+              <span>목록 개수</span>
+              <USelectMenu 
+                v-model="pageSize" 
+                :items="pageSizeOptions" 
+                variant="none"
+                class="w-16 font-mono font-black" 
+                size="sm"
+              />
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <UFormField label="이름">
+                <UInput v-model="filters.name" placeholder="이름 입력" icon="i-heroicons-user" class="w-full" @keyup.enter="() => refresh()" />
+              </UFormField>
+              <UFormField label="전화번호">
+                <UInput v-model="filters.phone" placeholder="전화번호 입력" icon="i-heroicons-phone" class="w-full" @keyup.enter="() => refresh()" />
+              </UFormField>
+              <UFormField label="이메일">
+                <UInput v-model="filters.email" placeholder="이메일 입력" icon="i-heroicons-envelope" class="w-full" @keyup.enter="() => refresh()" />
+              </UFormField>
+              <UFormField label="구역">
+                <USelectMenu v-model="filters.cellGroupId" :items="cellGroups" value-key="id" placeholder="전체 구역" class="w-full" />
+              </UFormField>
+              <UFormField label="직분">
+                <USelectMenu v-model="filters.role" :items="roles" value-key="code" placeholder="전체 직분" class="w-full" />
+              </UFormField>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+              <div class="flex gap-2">
+                <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="px-8 font-bold">조회하기</UButton>
+                <UButton variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
+              </div>
+              <div class="flex gap-2 items-center">
+                <UButton icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" @click="downloadTemplate" class="font-bold">양식받기</UButton>
+                <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileUpload" />
+                <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="() => fileInput?.click()" class="font-bold">대량등록</UButton>
+                <UButton icon="i-heroicons-user-plus" color="primary" @click="() => openModal()" class="font-bold">성도추가</UButton>
+                <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="font-bold">엑셀</UButton>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          <UFormField label="이름">
-            <UInput v-model="filters.name" placeholder="이름 입력" icon="i-heroicons-user" class="w-full" @keyup.enter="() => refresh()" />
-          </UFormField>
-          <UFormField label="전화번호">
-            <UInput v-model="filters.phone" placeholder="전화번호 입력" icon="i-heroicons-phone" class="w-full" @keyup.enter="() => refresh()" />
-          </UFormField>
-          <UFormField label="이메일">
-            <UInput v-model="filters.email" placeholder="이메일 입력" icon="i-heroicons-envelope" class="w-full" @keyup.enter="() => refresh()" />
-          </UFormField>
-          <UFormField label="구역">
-            <USelectMenu v-model="filters.cellGroupId" :items="cellGroups" value-key="id" placeholder="전체 구역" class="w-full" />
-          </UFormField>
-          <UFormField label="직분">
-            <USelectMenu v-model="filters.role" :items="roles" value-key="code" placeholder="전체 직분" class="w-full" />
-          </UFormField>
-        </div>
-        <div class="flex justify-between items-center mt-6">
-          <div class="flex gap-2">
-            <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="px-8">조회하기</UButton>
-            <UButton variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
-          </div>
-          <div class="flex gap-2 items-center">
-            <UButton icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" @click="downloadTemplate" class="font-bold">양식받기</UButton>
-            <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileUpload" />
-            <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="() => fileInput?.click()" class="font-bold">대량등록</UButton>
-            
-            <UButton icon="i-heroicons-user-plus" color="primary" @click="() => openModal()" class="font-bold">성도추가</UButton>
-            <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="font-bold">엑셀</UButton>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden relative border border-gray-200 dark:border-gray-700">
-        <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10">
+      <!-- 테이블 영역 (Stacked Sticky 2: 테이블 헤더 고정) -->
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg relative border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-40 py-20">
           <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
         </div>
-        <UTable :data="members" :columns="columns" class="w-full">
-          <template #name-cell="{ row }">
-            {{ displayValue((row.original as any).name) }}
-          </template>
-          <template #church_role_name-cell="{ row }">
-            {{ displayValue((row.original as any).church_role_name) }}
-          </template>
-          <template #spouse_name-cell="{ row }">
-            {{ displayValue((row.original as any).spouse_name) }}
-          </template>
-          <template #cell_group_name-cell="{ row }">
-            {{ displayValue((row.original as any).cell_group_name) }}
-          </template>
-          <template #user_role-cell="{ row }">
-            <UBadge 
-              v-if="(row.original as any).user_role" 
-              :color="getRoleBadgeColor((row.original as any).user_role)" 
-              variant="solid" 
-              class="font-bold px-2.5 py-0.5"
-            >
-              {{ getRoleInfo((row.original as any).user_role).label }}
-            </UBadge>
-            <span v-else class="text-gray-300">-</span>
-          </template>
-          <template #birth_date-cell="{ row }">
-            {{ formatDate((row.original as any).birth_date) }}
-          </template>
-          <template #removed_date-cell="{ row }">
-            <span class="text-red-600 dark:text-red-400 font-bold">
-              {{ formatDate((row.original as any).removed_date) }}
-            </span>
-          </template>
-          <template #phone_number-cell="{ row }">
-            {{ formatPhoneNumber((row.original as any).phone_number) }}
-          </template>
-          <template #email-cell="{ row }">
-            {{ displayValue((row.original as any).email) }}
-          </template>
-          <template #actions-cell="{ row }">
-            <div class="flex gap-1">
-              <UButton variant="ghost" color="primary" size="xs" @click="() => openModal(row.original)">수정</UButton>
-              <UButton v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="() => removeMember(row.original)">제적</UButton>
-              <template v-else>
-                <UButton variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
-                <UButton variant="ghost" color="error" size="xs" @click="() => deleteMember(row.original)">삭제</UButton>
-              </template>
-            </div>
-          </template>
-        </UTable>
+        
+        <div class="overflow-x-auto">
+          <UTable :data="members" :columns="columns" class="w-full border-collapse sticky-header-table">
+            <template #name-cell="{ row }">
+              {{ displayValue((row.original as any).name) }}
+            </template>
+            <template #church_role_name-cell="{ row }">
+              {{ displayValue((row.original as any).church_role_name) }}
+            </template>
+            <template #spouse_name-cell="{ row }">
+              {{ displayValue((row.original as any).spouse_name) }}
+            </template>
+            <template #cell_group_name-cell="{ row }">
+              {{ displayValue((row.original as any).cell_group_name) }}
+            </template>
+            <template #user_role-cell="{ row }">
+              <UBadge 
+                v-if="(row.original as any).user_role" 
+                :color="getRoleBadgeColor((row.original as any).user_role)" 
+                variant="solid" 
+                class="font-bold px-2.5 py-0.5"
+              >
+                {{ getRoleInfo((row.original as any).user_role).label }}
+              </UBadge>
+              <span v-else class="text-gray-300">-</span>
+            </template>
+            <template #birth_date-cell="{ row }">
+              {{ formatDate((row.original as any).birth_date) }}
+            </template>
+            <template #removed_date-cell="{ row }">
+              <span class="text-red-600 dark:text-red-400 font-bold">
+                {{ formatDate((row.original as any).removed_date) }}
+              </span>
+            </template>
+            <template #phone_number-cell="{ row }">
+              {{ formatPhoneNumber((row.original as any).phone_number) }}
+            </template>
+            <template #email-cell="{ row }">
+              {{ displayValue((row.original as any).email) }}
+            </template>
+            <template #actions-cell="{ row }">
+              <div class="flex gap-1">
+                <UButton variant="ghost" color="primary" size="xs" @click="() => openModal(row.original)">수정</UButton>
+                <UButton v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="() => removeMember(row.original)">제적</UButton>
+                <template v-else>
+                  <UButton variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
+                  <UButton variant="ghost" color="error" size="xs" @click="() => deleteMember(row.original)">삭제</UButton>
+                </template>
+              </div>
+            </template>
+          </UTable>
+        </div>
       </div>
 
-      <div v-if="paginationInfo.totalPages > 1" class="flex justify-center mt-6">
-        <UPagination v-model:page="currentPage" :total="paginationInfo.totalCount" :items-per-page="paginationInfo.limit" />
+      <div v-if="paginationInfo.totalPages > 1" class="flex justify-center mt-6 pb-8">
+        <UPagination v-model:page="currentPage" :total="paginationInfo.totalCount" :items-per-page="parseInt(pageSize)" />
       </div>
 
+      <!-- 모달 생략 (동일) -->
       <UModal 
         v-model:open="isModalOpen" 
         :title="isEditing ? '성도 정보 수정' : '신규 성도 추가'"
@@ -211,6 +234,9 @@ const tabs = [
 
 const activeTab = ref('CURRENT')
 const currentPage = ref(1)
+const pageSize = ref('10') 
+const pageSizeOptions = ['10', '20', '50', '100']
+
 const filters = reactive({ name: '', phone: '', email: '', cellGroupId: null, role: null })
 const ui = useUIStore()
 const { user: currentUser } = useUserSession()
@@ -218,13 +244,14 @@ const fileInput = ref<HTMLInputElement | null>(null)
 
 const currentUserRole = computed(() => currentUser.value?.role || 4)
 
-watch([activeTab, filters], () => {
+watch([activeTab, filters, pageSize], () => {
   currentPage.value = 1
 }, { deep: true })
 
 const { data: response, refresh, pending } = await useFetch('/api/members', {
   query: computed(() => ({
     page: currentPage.value,
+    limit: pageSize.value,
     tab: activeTab.value,
     name: filters.name,
     phone: filters.phone,
@@ -282,15 +309,8 @@ const columns = computed(() => {
     { id: 'phone_number', accessorKey: 'phone_number', header: '전화번호' },
     { id: 'email', accessorKey: 'email', header: '이메일' }
   ]
-
-  if (activeTab.value === 'CURRENT') {
-    cols.push({ id: 'user_role', accessorKey: 'user_role', header: '시스템 권한' })
-  }
-
-  if (activeTab.value === 'REMOVED') {
-    cols.push({ id: 'removed_date', accessorKey: 'removed_date', header: '제적일' })
-  }
-
+  if (activeTab.value === 'CURRENT') { cols.push({ id: 'user_role', accessorKey: 'user_role', header: '시스템 권한' }) }
+  if (activeTab.value === 'REMOVED') { cols.push({ id: 'removed_date', accessorKey: 'removed_date', header: '제적일' }) }
   cols.push({ id: 'actions', accessorKey: 'id', header: '관리' })
   return cols
 })
@@ -306,18 +326,9 @@ const isSaving = ref(false)
 const hasAuth = ref(false) 
 
 const form = reactive({ 
-  id: null, 
-  name: '', 
-  phone_number: '', 
-  email: '', 
-  spouse_name: '',
-  church_role: null, 
-  cell_group_id: null, 
-  birth_date: null,
-  user_id: null,
-  login_id: '',
-  user_role: null as number | null,
-  new_password: ''
+  id: null, name: '', phone_number: '', email: '', spouse_name: '',
+  church_role: null, cell_group_id: null, birth_date: null,
+  user_id: null, login_id: '', user_role: null as number | null, new_password: ''
 })
 
 const openModal = (member?: any) => {
@@ -325,9 +336,7 @@ const openModal = (member?: any) => {
   if (member) {
     Object.assign(form, { ...member, new_password: '' })
     hasAuth.value = !!member.user_id
-    if (form.birth_date) {
-      form.birth_date = new Date(form.birth_date).toISOString().split('T')[0] as any
-    }
+    if (form.birth_date) { form.birth_date = new Date(form.birth_date).toISOString().split('T')[0] as any }
   }
   else {
     Object.assign(form, { 
@@ -345,30 +354,20 @@ const saveMember = async () => {
     if (!form.login_id) { ui.showAlert('입력 오류', '부여할 로그인 아이디를 입력해 주세요.', 'warning'); return }
     if (!form.new_password) { ui.showAlert('입력 오류', '초기 비밀번호를 입력해 주세요.', 'warning'); return }
   }
-
   const payload: any = { ...form }
   if (isEditing.value) {
     if (hasAuth.value && !form.user_id) payload.auth_action = 'GRANT'
     else if (!hasAuth.value && !!form.user_id) payload.auth_action = 'REVOKE'
     else if (hasAuth.value && !!form.user_id) payload.auth_action = 'UPDATE'
   }
-
   isSaving.value = true
   const method = isEditing.value ? 'PATCH' : 'POST'
   const url = isEditing.value ? `/api/members/${form.id}` : '/api/members'
-  
   try {
     const res: any = await $fetch(url, { method, body: payload })
-    if (res.success) {
-      isModalOpen.value = false
-      refresh()
-      ui.showAlert('성공', `성도 정보가 ${isEditing.value ? '수정' : '등록'}되었습니다.`, 'success')
-    }
-  } catch (e: any) {
-    ui.showAlert('오류', e.data?.statusMessage || '처리 중 오류가 발생했습니다.', 'error')
-  } finally {
-    isSaving.value = false
-  }
+    if (res.success) { isModalOpen.value = false; refresh(); ui.showAlert('성공', `성도 정보가 저장되었습니다.`, 'success') }
+  } catch (e: any) { ui.showAlert('오류', e.data?.statusMessage || '처리 중 오류가 발생했습니다.', 'error') }
+  finally { isSaving.value = false }
 }
 
 const downloadTemplate = () => {
@@ -415,8 +414,7 @@ const removeMember = async (member: any) => {
   const confirmed = await ui.showConfirm('제적 처리', `${member.name} 성도를 제적 처리하시겠습니까?`, 'warning')
   if (confirmed) {
     await $fetch(`/api/members/${member.id}/remove`, { method: 'PATCH', body: { removedDate: new Date().toISOString().slice(0, 10) } })
-    refresh()
-    ui.showAlert('완료', '제적 처리가 완료되었습니다.', 'success')
+    refresh(); ui.showAlert('완료', '제적 처리가 완료되었습니다.', 'success')
   }
 }
 
@@ -424,8 +422,7 @@ const reRegisterMember = async (member: any) => {
   const confirmed = await ui.showConfirm('재등록', `${member.name} 성도를 재등록하시겠습니까?`, 'success')
   if (confirmed) {
     await $fetch(`/api/members/${member.id}/re-register`, { method: 'PATCH' })
-    refresh()
-    ui.showAlert('완료', '재등록이 완료되었습니다.', 'success')
+    refresh(); ui.showAlert('완료', '재등록이 완료되었습니다.', 'success')
   }
 }
 
@@ -433,8 +430,7 @@ const deleteMember = async (member: any) => {
   const confirmed = await ui.showConfirm('영구 삭제', '성도 정보를 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.', 'error')
   if (confirmed) {
     await $fetch(`/api/members/${member.id}`, { method: 'DELETE' })
-    refresh()
-    ui.showAlert('완료', '삭제되었습니다.', 'success')
+    refresh(); ui.showAlert('완료', '삭제되었습니다.', 'success')
   }
 }
 
@@ -456,3 +452,21 @@ const downloadExcel = async () => {
   await fetchAndDownloadExcel('/api/members', { ...filters, tab: activeTab.value }, mapper, `성도명단_${activeTab.value === 'CURRENT' ? '출석' : '제적'}`)
 }
 </script>
+
+<style scoped>
+/* 
+  레이아웃 패딩(p-8 = 32px)을 고려한 스티키 오프셋 설정 
+  부모 .overflow-y-auto 영역에서 고정됩니다.
+*/
+.sticky-header-table :deep(thead) {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--ui-bg);
+}
+
+/* 다크모드 대응 */
+.dark .sticky-header-table :deep(thead) {
+  background-color: #1e293b; /* slate-800 */
+}
+</style>
