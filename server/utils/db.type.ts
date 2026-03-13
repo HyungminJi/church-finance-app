@@ -83,6 +83,29 @@ export interface UsersTable {
   last_login_at: Date | null
 }
 
+export interface PledgeCampaignsTable {
+  id: Generated<string>
+  name: string
+  description: string | null
+  start_date: string | Date
+  end_date: string | Date | null
+  target_amount: number
+  account_code: string
+  is_active: boolean | null
+  created_at: Generated<Date>
+  updated_at: Generated<Date>
+}
+
+export interface MemberPledgesTable {
+  id: Generated<string>
+  campaign_id: string
+  member_id: string
+  pledge_amount: number
+  pledge_date: Generated<string | Date>
+  notes: string | null
+  created_at: Generated<Date>
+}
+
 export interface Database {
   accounts: AccountsTable
   members: MembersTable
@@ -92,4 +115,6 @@ export interface Database {
   budgets: BudgetsTable
   transactions: TransactionsTable
   users: UsersTable
+  pledge_campaigns: PledgeCampaignsTable
+  member_pledges: MemberPledgesTable
 }

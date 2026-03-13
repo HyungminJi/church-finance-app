@@ -12,6 +12,7 @@
                   v-model="selectedCampaignId" 
                   :items="campaigns" 
                   value-key="id" 
+                  label-key="name"
                   placeholder="통계를 조회할 캠페인 선택"
                   class="font-bold"
                 />
@@ -21,9 +22,10 @@
               <UFormField label="조회 연도">
                 <USelectMenu 
                   v-model="selectedYear" 
-                  :items="yearOptions" 
+                  :items="dynamicYearOptions" 
                   placeholder="연도"
                   class="font-mono font-bold"
+                  :disabled="!selectedCampaignId"
                 />
               </UFormField>
             </div>
@@ -31,18 +33,19 @@
               icon="i-heroicons-magnifying-glass" 
               color="primary" 
               label="통계 조회" 
-              class="font-black px-8"
-              @click="refresh"
+              class="font-black px-8 cursor-pointer"
+              :loading="pending"
+              @click="handleSearch"
             />
           </div>
           
-          <div v-if="meta" class="flex gap-6 items-center">
+          <div v-if="meta" class="flex gap-6 items-center animate-in fade-in slide-in-from-right-2">
             <div class="text-right">
-              <span class="text-[10px] font-bold text-gray-400 block uppercase">연간 누적 총액</span>
+              <span class="text-[10px] font-bold text-gray-400 block uppercase">연간 누적 모금액</span>
               <span class="text-xl font-black text-brand-blue font-mono">{{ formatNumber(meta.total_collected) }}원</span>
             </div>
             <div class="text-right border-l dark:border-gray-700 pl-6">
-              <span class="text-[10px] font-bold text-gray-400 block uppercase">목표 달성률</span>
+              <span class="text-[10px] font-bold text-gray-400 block uppercase">목표 달성률(실제납부 기준)</span>
               <span class="text-xl font-black text-brand-green font-mono">{{ Math.round((meta.total_collected / meta.target_amount) * 100) || 0 }}%</span>
             </div>
           </div>
@@ -50,21 +53,22 @@
       </div>
 
       <!-- 시각화 차트 영역 -->
-      <div v-if="statsData.length > 0" class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h3 class="text-sm font-bold text-gray-500 mb-8 flex items-center gap-2 uppercase tracking-widest">
-          <UIcon name="i-heroicons-chart-bar" />
-          Monthly Collection Trend ({{ selectedYear }})
-        </h3>
+      <div v-if="statsData.length > 0" class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-500">
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="text-sm font-bold text-gray-500 flex items-center gap-2 uppercase tracking-widest">
+            <UIcon name="i-heroicons-chart-bar" />
+            Monthly Actual Collection Trend ({{ selectedYear }})
+          </h3>
+          <span class="text-[10px] font-black bg-brand-blue/10 text-brand-blue px-2 py-1 rounded">실제 헌금 전표 기준 집계</span>
+        </div>
         
         <div class="h-64 flex items-end justify-between gap-2 px-4 border-b border-gray-100 dark:border-gray-700 pb-2">
           <div v-for="s in statsData" :key="s.month" class="flex-1 flex flex-col items-center group relative">
-            <!-- 툴팁 -->
             <div class="absolute -top-12 scale-0 group-hover:scale-100 transition-transform bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap z-10 font-bold shadow-xl">
               {{ formatNumber(s.amount) }}원
             </div>
-            <!-- 막대 -->
             <div 
-              class="w-full max-w-[40px] bg-brand-blue/20 group-hover:bg-brand-blue rounded-t-sm transition-all duration-500 relative"
+              class="w-full max-w-[40px] bg-brand-blue/20 group-hover:bg-brand-blue rounded-t-sm transition-all duration-700 ease-out relative"
               :style="{ height: getBarHeight(s.amount) + '%' }"
             >
               <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-brand-blue shadow-[0_0_10px_#3cafff]"></div>
@@ -86,7 +90,7 @@
               <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">월별</th>
               <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">당월 모금액</th>
               <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">연간 누적액</th>
-              <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">누적 달성률</th>
+              <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">누적 목표 달성률</th>
               <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">비고</th>
             </tr>
           </thead>
@@ -105,11 +109,11 @@
                 </UBadge>
               </td>
               <td class="px-6 py-4 text-xs text-gray-400 italic">
-                {{ s.amount > 0 ? '활동 데이터 있음' : '-' }}
+                {{ s.amount > 0 ? '실제 모금 데이터 있음' : '-' }}
               </td>
             </tr>
             <tr v-if="statsData.length === 0 && !pending">
-              <td colspan="5" class="px-6 py-20 text-center text-gray-500 italic">조회할 캠페인을 먼저 선택해 주세요.</td>
+              <td colspan="5" class="px-6 py-20 text-center text-gray-500 italic">캠페인 기간에 맞는 연도를 선택해 주세요.</td>
             </tr>
           </tbody>
         </table>
@@ -120,34 +124,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { formatNumber, displayValue } from '~/utils/formatter'
+import { ref, computed, watch } from 'vue'
+import { formatNumber } from '~/utils/formatter'
 import { useUIStore } from '~/stores/ui'
 
 const ui = useUIStore()
 const selectedCampaignId = ref<string | null>(null)
 const selectedYear = ref(new Date().getFullYear().toString())
 
-// 1. 연도 옵션 (현재 기준 전후 3년)
-const yearOptions = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - 3 + i).toString())
-
-// 2. 캠페인 목록 로드
+// 1. 캠페인 목록 로드
 const { data: campaignsRes } = await useFetch('/api/pledges/campaigns')
-const campaigns = computed(() => ((campaignsRes.value as any)?.data || []).map((c: any) => ({ ...c, label: c.name })))
+const campaigns = computed(() => (campaignsRes.value as any)?.data || [])
 
-// 3. 월별 통계 데이터 로드
-const { data: statsRes, refresh, pending } = await useFetch('/api/pledges/statistics/monthly', {
+const selectedCampaign = computed(() => campaigns.value.find((c: any) => c.id === selectedCampaignId.value))
+
+// 2. 캠페인 기간에 따른 동적 연도 옵션 생성
+const dynamicYearOptions = computed(() => {
+  if (!selectedCampaign.value) return [new Date().getFullYear().toString()]
+  
+  const startYear = new Date(selectedCampaign.value.start_date).getFullYear()
+  const endYear = selectedCampaign.value.end_date 
+    ? new Date(selectedCampaign.value.end_date).getFullYear() 
+    : new Date().getFullYear()
+  
+  const years = []
+  for (let y = startYear; y <= Math.max(endYear, new Date().getFullYear()); y++) {
+    years.push(y.toString())
+  }
+  return years.reverse()
+})
+
+// 3. 월별 실제 모금 통계 데이터 로드
+const { data: response, refresh, pending } = await useFetch('/api/pledges/statistics/monthly', {
   query: computed(() => ({
     campaignId: selectedCampaignId.value,
     year: selectedYear.value
   })),
-  immediate: false // 선택 전까지 호출 방지
+  immediate: true,
+  watch: false
 })
 
-const statsData = computed(() => (statsRes.value as any)?.data || [])
-const meta = computed(() => (statsRes.value as any)?.meta)
+const statsData = computed(() => (response.value as any)?.data || [])
+const meta = computed(() => (response.value as any)?.meta)
 
-// 4. 차트 막대 높이 계산
 const getBarHeight = (amount: number) => {
   if (statsData.value.length === 0) return 0
   const max = Math.max(...statsData.value.map((s: any) => s.amount))
@@ -155,11 +174,24 @@ const getBarHeight = (amount: number) => {
   return (amount / max) * 100
 }
 
-// 처음 렌더링 시 캠페인이 있다면 첫 번째 선택
+const handleSearch = async () => {
+  if (!selectedCampaignId.value) return
+  await refresh()
+}
+
+watch(selectedCampaignId, (newId) => {
+  if (newId) {
+    const years = dynamicYearOptions.value
+    if (!years.includes(selectedYear.value)) {
+      selectedYear.value = years[0]
+    }
+    refresh()
+  }
+})
+
 watch(campaigns, (newVal) => {
   if (newVal.length > 0 && !selectedCampaignId.value) {
     selectedCampaignId.value = newVal[0].id
-    refresh()
   }
 }, { immediate: true })
 </script>

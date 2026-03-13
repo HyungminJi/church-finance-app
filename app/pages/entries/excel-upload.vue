@@ -2,14 +2,14 @@
   <ClientOnly>
     <div class="space-y-6 p-8 relative min-h-full">
       
-      <!-- 헤더 및 안내 영역 -->
+      <!-- 헤더 및 안내 영역: 양식 다운로드만 유지 -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div class="space-y-1">
           <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon name="i-heroicons-cloud-arrow-up" class="text-brand-blue" />
             헌금 전표 대량 업로드
           </h2>
-          <p class="text-sm text-gray-500">엑셀 파일을 활용하여 다수의 헌금 내역을 한 번에 등록할 수 있습니다.</p>
+          <p class="text-sm text-gray-500">엑셀 파일을 활용하여 다수의 헌금 내역을 한 번에 등록하세요.</p>
         </div>
         
         <div class="flex gap-2">
@@ -17,22 +17,14 @@
             icon="i-heroicons-document-arrow-down" 
             color="neutral" 
             variant="ghost" 
-            label="업로드 양식 다운로드" 
+            label="업로드용 표준 양식 받기" 
             class="font-bold cursor-pointer"
             @click="downloadTemplate"
-          />
-          <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileUpload" />
-          <UButton 
-            icon="i-heroicons-folder-open" 
-            color="primary" 
-            label="엑셀 파일 선택" 
-            class="font-black px-6 shadow-md cursor-pointer"
-            @click="fileInput?.click()"
           />
         </div>
       </div>
 
-      <!-- 데이터 프리뷰 영역 -->
+      <!-- 데이터 프리뷰 영역: 파일이 이미 로드되었을 때 -->
       <div v-if="parsedData.length > 0" class="space-y-4 animate-in fade-in slide-in-from-top-2">
         <div class="flex justify-between items-end">
           <div class="flex gap-4">
@@ -46,15 +38,25 @@
             </div>
           </div>
           
-          <UButton 
-            color="success" 
-            size="lg" 
-            label="검증 완료 - 일괄 등록 실행" 
-            icon="i-heroicons-check-badge"
-            class="font-black px-10 shadow-xl hover:scale-105 transition-transform cursor-pointer"
-            :loading="isSaving"
-            @click="submitBulk"
-          />
+          <div class="flex gap-2">
+            <UButton 
+              color="neutral" 
+              variant="outline" 
+              label="파일 다시 선택" 
+              icon="i-heroicons-arrow-path"
+              class="font-bold cursor-pointer"
+              @click="parsedData = []"
+            />
+            <UButton 
+              color="success" 
+              size="lg" 
+              label="검증 완료 - 일괄 등록 실행" 
+              icon="i-heroicons-check-badge"
+              class="font-black px-10 shadow-xl hover:scale-105 transition-transform cursor-pointer"
+              :loading="isSaving"
+              @click="submitBulk"
+            />
+          </div>
         </div>
 
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -110,14 +112,50 @@
         </div>
       </div>
 
-      <!-- 초기 빈 화면 -->
-      <div v-else class="bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-32 flex flex-col items-center justify-center space-y-4">
-        <UIcon name="i-heroicons-document-text" class="w-16 h-16 text-gray-300" />
-        <div class="text-center">
-          <p class="text-lg font-bold text-gray-900 dark:text-white">파일이 업로드되지 않았습니다.</p>
-          <p class="text-sm text-gray-500">양식을 내려받아 작성한 후, 파일을 선택해 주세요.</p>
+      <!-- Drag & Drop 영역: 파일 선택만 유지 -->
+      <div 
+        v-else 
+        class="group bg-white dark:bg-gray-800 rounded-2xl border-4 border-dashed py-32 flex flex-col items-center justify-center space-y-6 transition-all duration-300 relative overflow-hidden"
+        :class="[
+          isDragging 
+            ? 'border-brand-blue bg-blue-50/50 dark:bg-blue-900/20 scale-[1.01]' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+        ]"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+      >
+        <!-- 배경 장식 아이콘 -->
+        <UIcon 
+          name="i-heroicons-document-arrow-up" 
+          class="absolute -bottom-8 -right-8 w-48 h-48 text-gray-50 dark:text-gray-900 pointer-events-none group-hover:scale-110 transition-transform" 
+        />
+
+        <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-gray-900 flex items-center justify-center border border-gray-100 dark:border-gray-800 shadow-inner group-hover:scale-110 transition-transform duration-500">
+          <UIcon 
+            :name="isDragging ? 'i-heroicons-arrow-down-tray' : 'i-heroicons-document-text'" 
+            class="w-10 h-10 transition-colors duration-300"
+            :class="isDragging ? 'text-brand-blue' : 'text-gray-300'"
+          />
         </div>
-        <UButton variant="outline" color="neutral" label="양식 다시 보기" class="cursor-pointer" @click="downloadTemplate" />
+
+        <div class="text-center space-y-2 relative z-10">
+          <p class="text-xl font-black text-gray-900 dark:text-white">
+            {{ isDragging ? '여기에 파일을 놓아주세요' : '엑셀 파일을 여기에 끌어다 놓으세요' }}
+          </p>
+          <p class="text-sm text-gray-500">또는 아래 버튼을 눌러 파일을 직접 선택하세요.</p>
+        </div>
+
+        <div class="relative z-10">
+          <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="e => handleFileSelection(e)" />
+          <UButton 
+            color="primary" 
+            label="컴퓨터에서 파일 선택" 
+            icon="i-heroicons-folder-open" 
+            class="font-black px-10 py-3 shadow-lg cursor-pointer"
+            @click="fileInput?.click()"
+          />
+        </div>
       </div>
 
     </div>
@@ -126,16 +164,17 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { formatNumber, displayValue, formatDate } from '~/utils/formatter'
+import { formatNumber, displayValue } from '~/utils/formatter'
 import { useUIStore } from '~/stores/ui'
 import * as XLSX from 'xlsx'
 
 const ui = useUIStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 const isSaving = ref(false)
+const isDragging = ref(false)
 const parsedData = ref<any[]>([])
 
-// 1. 기초 데이터 로드 (성도 및 계정과목 대조용)
+// 1. 기초 데이터 로드
 const { data: accountsRes } = await useFetch('/api/accounts')
 const { data: membersRes } = await useFetch('/api/members', { query: { limit: 10000, tab: 'CURRENT' } })
 
@@ -144,12 +183,27 @@ const members = computed(() => (membersRes.value as any)?.data || [])
 
 const totalAmount = computed(() => parsedData.value.reduce((sum, row) => sum + (Number(row.amount) || 0), 0))
 
-// 2. 엑셀 업로드 및 파싱 로직
-const handleFileUpload = async (event: Event) => {
+// 2. 파일 처리 통합 로직
+const handleFileSelection = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  if (!file) return
+  if (file) processFile(file)
+  target.value = ''
+}
 
+const handleDrop = (event: DragEvent) => {
+  isDragging.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file) {
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+      ui.showAlert('형식 오류', '엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.', 'warning')
+      return
+    }
+    processFile(file)
+  }
+}
+
+const processFile = async (file: File) => {
   const reader = new FileReader()
   reader.onload = async (e) => {
     try {
@@ -163,20 +217,15 @@ const handleFileUpload = async (event: Event) => {
         return
       }
 
-      // 데이터 가공 및 매핑
       parsedData.value = jsonData.map(row => {
-        const excelName = String(row['성함'] || row['이름'] || '').trim()
+        const excelName = String(row['성함'] || row['이름'] || row['이름 (성도매칭)'] || '').trim()
         const excelType = String(row['헌금종류'] || '').trim()
         const excelDate = row['일자'] || row['날짜']
         const excelAmount = row['금액']
         
-        // 성도 매핑 (이름 기준)
         const matchedMember = members.value.find((m: any) => m.name === excelName)
-        
-        // 계정과목 매핑 (이름 기준, 수입 타입만)
         const matchedAccount = accounts.value.find((a: any) => a.name === excelType && a.type === 'INCOME')
 
-        // 날짜 처리
         let formattedDate = ''
         let dateError = false
         try {
@@ -188,8 +237,7 @@ const handleFileUpload = async (event: Event) => {
             formattedDate = new Date().toISOString().split('T')[0]
           }
         } catch {
-          formattedDate = '날짜오류'
-          dateError = true
+          formattedDate = '날짜오류'; dateError = true
         }
 
         return {
@@ -207,29 +255,28 @@ const handleFileUpload = async (event: Event) => {
         }
       })
 
-      ui.showAlert('성공', `${parsedData.value.length}건의 데이터를 읽었습니다. 검증 결과를 확인해 주세요.`, 'success')
+      ui.showAlert('성공', `${parsedData.value.length}건의 데이터를 읽었습니다.`, 'success')
     } catch (err: any) {
-      console.error(err)
-      ui.showAlert('오류', '엑셀 파일 처리 중 오류가 발생했습니다. 양식을 확인해 주세요.', 'error')
-    } finally {
-      target.value = ''
+      ui.showAlert('오류', '엑셀 파일 처리 중 오류가 발생했습니다.', 'error')
     }
   }
   reader.readAsArrayBuffer(file)
 }
 
-// 3. 양식 다운로드
+// 3. 양식 다운로드 및 제출 로직
 const downloadTemplate = () => {
   const header = [['일자', '성함', '헌금종류', '금액', '적요']]
   const sample = [['2026-03-15', '홍길동', '십일조', '100000', '3월 3주차']]
   const worksheet = XLSX.utils.aoa_to_sheet([...header, ...sample])
   
-  // 모든 셀 텍스트 포맷 강제 (날짜 변형 방지)
-  const range = XLSX.utils.decode_range(worksheet['!ref']!)
+  // 모든 셀 표시형식을 '텍스트(@)'로 강제 지정
+  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = range.s.r; R <= range.e.r; ++R) {
     for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: R, c: C })]
-      if (cell) cell.z = '@'
+      const cell_address = { c: C, r: R }
+      const cell_ref = XLSX.utils.encode_cell(cell_address)
+      if (!worksheet[cell_ref]) continue
+      worksheet[cell_ref].z = '@' // 텍스트 형식
     }
   }
 
@@ -238,36 +285,20 @@ const downloadTemplate = () => {
   XLSX.writeFile(workbook, '헌금전표_업로드양식.xlsx')
 }
 
-// 4. 서버 전송 (Bulk Submit)
 const submitBulk = async () => {
-  const invalidRows = parsedData.value.filter(r => !rowIsValid(r))
-  if (invalidRows.length > 0) {
-    ui.showAlert('검증 실패', `유효하지 않은 데이터가 ${invalidRows.length}건 포함되어 있습니다. 수정 후 다시 시도해 주세요.`, 'error')
-    return
-  }
-
-  const confirmed = await ui.showConfirm('일괄 등록', `총 ${parsedData.value.length}건, ${formatNumber(totalAmount.value)}원을 정식 전표로 등록하시겠습니까?`, 'info')
+  const confirmed = await ui.showConfirm('일괄 등록', `총 ${parsedData.value.length}건을 정식 전표로 등록하시겠습니까?`, 'info')
   if (!confirmed) return
-
   isSaving.value = true
   try {
-    const res: any = await $fetch('/api/transactions/bulk', {
-      method: 'POST',
-      body: { transactions: parsedData.value }
-    })
-
+    const res: any = await $fetch('/api/transactions/bulk', { method: 'POST', body: { transactions: parsedData.value } })
     if (res.success) {
-      ui.showAlert('등록 완료', `${res.count}건의 헌금 전표가 성공적으로 등록되었습니다.`, 'success')
-      parsedData.value = [] // 데이터 초기화
+      ui.showAlert('등록 완료', `${res.count}건이 성공적으로 등록되었습니다.`, 'success')
+      parsedData.value = []
     }
   } catch (error: any) {
-    ui.showAlert('서버 오류', error.data?.statusMessage || '등록 처리 중 오류가 발생했습니다.', 'error')
+    ui.showAlert('오류', '등록 중 오류가 발생했습니다.', 'error')
   } finally {
     isSaving.value = false
   }
-}
-
-const rowIsValid = (row: any) => {
-  return row.isValid && row.account_code
 }
 </script>

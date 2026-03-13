@@ -151,6 +151,7 @@
                   v-model="form.account_code" 
                   :items="filteredAccounts" 
                   value-key="code" 
+                  label-key="name"
                   class="w-full cursor-pointer"
                   placeholder="계정 선택"
                 />
@@ -252,10 +253,6 @@ const filters = reactive({
   keyword: ''
 })
 
-watch([() => filters.type, pageSize], () => {
-  currentPage.value = 1
-})
-
 const { data: response, refresh, pending } = await useFetch('/api/transactions', {
   query: computed(() => ({
     page: currentPage.value,
@@ -280,6 +277,8 @@ const resetFilters = () => {
 // 2. 모달 및 폼 제어
 const isModalOpen = ref(false)
 const isSaving = ref(false)
+const isMemberSearchOpen = ref(false)
+const memberSearchTerm = ref('')
 
 const form = reactive({
   transaction_date: new Date().toISOString().split('T')[0],
@@ -292,6 +291,18 @@ const form = reactive({
 })
 
 const formAmountStr = ref('') // 콤마 포맷팅용 String 바인딩
+
+// 반응형 감시자들
+watch([() => filters.type, pageSize], () => {
+  currentPage.value = 1
+})
+
+// 성도 검색 모달이 닫힐 때 검색어 초기화 (변수 선언 이후로 이동하여 호이스팅 에러 해결)
+watch(isMemberSearchOpen, (newVal) => {
+  if (!newVal) {
+    memberSearchTerm.value = ''
+  }
+})
 
 const onAmountInput = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -338,8 +349,6 @@ const selectedAccount = computed(() => {
 })
 
 // 4. 성도 검색 연동
-const isMemberSearchOpen = ref(false)
-const memberSearchTerm = ref('')
 const { data: membersRes } = await useFetch('/api/members', { query: { limit: 10000, tab: 'CURRENT' } })
 const allMembers = computed(() => (membersRes.value as any)?.data || [])
 

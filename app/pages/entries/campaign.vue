@@ -101,7 +101,7 @@
               </UFormField>
               
               <UFormField label="상세 설명">
-                <UTextarea v-model="form.description" placeholder="캠페인의 목적 및 안내 문구를 입력하세요." rows="3" class="w-full" />
+                <UTextarea v-model="form.description" placeholder="캠페인의 목적 및 안내 문구를 입력하세요." :rows="3" class="w-full" />
               </UFormField>
 
               <div class="grid grid-cols-2 gap-4">
@@ -122,6 +122,7 @@
                   v-model="form.account_code" 
                   :items="filteredAccounts" 
                   value-key="code" 
+                  label-key="name"
                   class="w-full cursor-pointer"
                   placeholder="계정 선택"
                 />
@@ -183,8 +184,8 @@ const openModal = (campaign?: any) => {
     isEditing.value = true
     Object.assign(form, { 
       ...campaign, 
-      start_date: campaign.start_date.split('T')[0],
-      end_date: campaign.end_date ? campaign.end_date.split('T')[0] : ''
+      start_date: formatDate(campaign.start_date),
+      end_date: campaign.end_date ? formatDate(campaign.end_date) : ''
     })
   } else {
     isEditing.value = false

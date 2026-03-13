@@ -11,21 +11,27 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // 1. 캠페인 정보 및 목표액 확인
+    // 1. 캠페인 정보 및 목표액, 기간 확인
     const campaign = await db.selectFrom('pledge_campaigns')
-      .select(['account_code', 'target_amount'])
+      .select(['account_code', 'target_amount', 'start_date', 'end_date'])
       .where('id', '=', campaignId)
       .executeTakeFirstOrThrow()
 
-    // 2. 월별 집계 쿼리 (1월~12월)
-    // 헌금 데이터(Transactions)를 해당 연도의 월별로 합산
-    const monthlyStats = await db.selectFrom('transactions as t')
+    // 2. 월별 실제 모금액 집계 쿼리 (캠페인 기간 필터링 추가)
+    let baseQuery = db.selectFrom('transactions as t')
       .select([
         sql<string>`TO_CHAR(t.transaction_date, 'MM')`.as('month'),
         sql<number>`SUM(t.amount)`.as('amount')
       ])
       .where('t.account_code', '=', campaign.account_code)
       .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', year)
+      .where('t.transaction_date', '>=', campaign.start_date)
+
+    if (campaign.end_date) {
+      baseQuery = baseQuery.where('t.transaction_date', '<=', campaign.end_date)
+    }
+
+    const monthlyStats = await baseQuery
       .groupBy(sql`TO_CHAR(t.transaction_date, 'MM')`)
       .orderBy(sql`TO_CHAR(t.transaction_date, 'MM')`, 'asc')
       .execute()
@@ -58,7 +64,7 @@ export default defineEventHandler(async (event) => {
     console.error('Fetch monthly stats error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: '월별 통계를 가져오는 중 오류가 발생했습니다.'
+      statusMessage: '월별 모금 통계를 가져오는 중 오류가 발생했습니다.'
     })
   }
 })
