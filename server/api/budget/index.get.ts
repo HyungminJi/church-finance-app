@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`COALESCE(b_current.amount, 0)`.as('thisYearBudget'),
         sql<number>`COALESCE(b_last.amount, 0)`.as('lastYearBudget')
       ])
-      .where('a.type', '=', type)
+      .where('a.type', '=', type as any)
       .where('a.is_active', '=', true)
       /* 
         자연스러운 계층형 숫자 정렬 로직:
