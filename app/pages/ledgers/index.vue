@@ -1,106 +1,314 @@
 <template>
-  <div class="space-y-6">
-    <!-- 기간 선택 -->
-    <div class="flex flex-wrap items-center gap-2">
-      <UButton color="neutral" variant="outline" icon="i-heroicons-chevron-left" size="xs" class="cursor-pointer" />
-      <UButton color="primary" variant="solid" label="오늘" size="sm" class="cursor-pointer font-bold" />
-      <UButton color="neutral" variant="outline" icon="i-heroicons-chevron-right" size="xs" class="cursor-pointer" />
-      
-      <div class="border-l border-gray-300 h-6 mx-2 dark:border-gray-600"></div>
-
-      <UButton color="neutral" variant="ghost" label="이번주" size="sm" class="cursor-pointer" />
-      <UButton color="neutral" variant="ghost" label="이번달" size="sm" class="cursor-pointer" />
-      <UButton color="neutral" variant="ghost" label="1분기" size="sm" class="cursor-pointer" />
-      
-      <div class="flex-grow"></div>
-      
-      <UButton icon="i-heroicons-printer" color="neutral" variant="outline" label="인쇄" class="cursor-pointer font-bold" />
-    </div>
-
-    <!-- 보고서 테이블 (좌우 분할) -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
-        <!-- 수입부 -->
-        <div>
-          <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 font-bold text-center text-blue-700 dark:text-blue-300 border-b border-gray-200 dark:border-gray-700">
-            수입부
-          </div>
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">항목</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">적요</th>
-                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">금액</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="item in incomeItems" :key="item.category">
-                <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ item.category }}</td>
-                <td class="px-4 py-2 text-sm text-gray-500">{{ item.note }}</td>
-                <td class="px-4 py-2 text-sm text-right font-mono">{{ item.amount }}</td>
-              </tr>
-            </tbody>
-          </table>
+  <div>
+    <ClientOnly>
+      <div class="h-[calc(100vh-16rem)] flex flex-col md:flex-row gap-4">
+        <!-- 좌측 계정 트리 -->
+        <div class="w-full md:w-64 bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700 shrink-0">
+        <div class="p-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <span class="text-sm font-bold text-gray-700 dark:text-gray-300">계정과목</span>
+          <UButton 
+            v-if="selectedAccountCode"
+            label="전체조회" 
+            color="primary" 
+            variant="ghost" 
+            size="xs" 
+            class="cursor-pointer" 
+            @click="selectAccount(null)"
+          />
         </div>
+        <div class="flex-1 overflow-y-auto p-2 custom-scrollbar">
+          <ul class="text-sm space-y-1">
+            <li v-for="group in accountTree" :key="group.name" >
+              <div 
+                class="flex items-center p-1.5 rounded cursor-pointer" 
+                @click="group.expanded = !group.expanded"
+              >
+                <UIcon :name="group.expanded ? 'i-heroicons-folder-open' : 'i-heroicons-folder'" class="w-4 h-4 mr-2 text-yellow-500" />
+                <span class="font-bold text-gray-800 dark:text-gray-200">{{ group.name }}</span>
+              </div>
+              <ul v-if="group.expanded" class="pl-4 mt-1 border-l border-gray-200 dark:border-gray-600 ml-2">
+                <li 
+                  v-for="acc in group.children" 
+                  :key="acc.code" 
+                  class="flex items-center p-1.5 hover:bg-blue-50 dark:hover:bg-gray-700 rounded cursor-pointer text-gray-700 dark:text-gray-300 transition-colors" 
+                  :class="{'bg-brand-blue/10 font-bold text-brand-blue dark:text-brand-blue': selectedAccountCode === acc.code}"
+                  @click="selectAccount(acc.code)"
+                >
+                   <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-2" :class="selectedAccountCode === acc.code ? 'text-brand-blue' : 'text-gray-400'" />
+                   <span class="font-mono text-[10px] text-gray-400 mr-2">{{ acc.code }}</span>
+                   <span class="text-sm truncate">{{ acc.name }}</span>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-        <!-- 지출부 -->
-        <div>
-          <div class="bg-red-50 dark:bg-red-900/20 px-4 py-2 font-bold text-center text-red-700 dark:text-red-300 border-b border-gray-200 dark:border-gray-700">
-            지출부
+      <!-- 우측 상세 내역 -->
+      <div class="flex-1 flex flex-col bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 min-w-0">
+        <!-- 상단 컨트롤 패널 -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex flex-col gap-4">
+          <!-- 1행: 기간 설정 및 버튼 -->
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <UInput v-model="startDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="fetchData" />
+              <span class="text-gray-500 font-bold">~</span>
+              <UInput v-model="endDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="fetchData" />
+              
+              <div class="border-l border-gray-300 h-6 mx-2 dark:border-gray-600"></div>
+              
+              <div class="flex space-x-1">
+                <UButton label="이번달" color="neutral" variant="outline" size="xs" class="cursor-pointer bg-white dark:bg-gray-700" @click="setPreset('thisMonth')" />
+                <UButton label="지난달" color="neutral" variant="outline" size="xs" class="cursor-pointer bg-white dark:bg-gray-700" @click="setPreset('lastMonth')" />
+                <UButton label="올해" color="neutral" variant="outline" size="xs" class="cursor-pointer bg-white dark:bg-gray-700" @click="setPreset('thisYear')" />
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <UButton 
+                icon="i-heroicons-arrow-path" 
+                color="neutral" 
+                variant="ghost" 
+                class="cursor-pointer" 
+                :loading="pending"
+                @click="fetchData" 
+              />
+              <UButton 
+                icon="i-heroicons-table-cells" 
+                color="success" 
+                variant="outline" 
+                label="엑셀 다운로드" 
+                class="cursor-pointer font-bold bg-white dark:bg-gray-800" 
+                :disabled="!transactions || transactions.length === 0"
+                @click="downloadExcel"
+              />
+            </div>
           </div>
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+          
+          <!-- 2행: 현재 선택 정보 및 요약 -->
+          <div class="flex justify-between items-end">
+            <div class="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+               <UIcon name="i-heroicons-book-open" class="text-brand-blue" />
+               {{ selectedAccountName }}
+            </div>
+            
+            <div v-if="meta" class="flex gap-6 text-right animate-in fade-in">
+              <div>
+                <span class="text-[10px] font-bold text-gray-400 block uppercase">기간 수입</span>
+                <span class="text-sm font-black text-brand-blue font-mono">{{ formatNumber(meta.period_income) }}</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-gray-400 block uppercase">기간 지출</span>
+                <span class="text-sm font-black text-red-500 font-mono">{{ formatNumber(meta.period_expense) }}</span>
+              </div>
+              <div class="border-l dark:border-gray-700 pl-6">
+                <span class="text-[10px] font-bold text-gray-400 block uppercase">기말 잔액</span>
+                <span class="text-base font-black text-gray-900 dark:text-white font-mono">{{ formatNumber(meta.ending_balance) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 테이블 영역 -->
+        <div class="flex-1 overflow-x-auto overflow-y-auto relative custom-scrollbar">
+          <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-20">
+            <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+          </div>
+          
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
+            <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10 shadow-sm">
               <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">항목</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">적요</th>
-                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">금액</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase whitespace-nowrap">일자</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase whitespace-nowrap">계정</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">적요 / 성도</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase whitespace-nowrap">수입 (대변)</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase whitespace-nowrap">지출 (차변)</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase whitespace-nowrap">잔액</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-               <tr v-for="item in expenseItems" :key="item.category">
-                <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ item.category }}</td>
-                <td class="px-4 py-2 text-sm text-gray-500">{{ item.note }}</td>
-                <td class="px-4 py-2 text-sm text-right font-mono">{{ item.amount }}</td>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
+              <!-- 이월 잔액 행 -->
+              <tr v-if="meta" class="bg-blue-50/50 dark:bg-blue-900/10 font-bold border-b-2 border-blue-100 dark:border-blue-900/30">
+                <td colspan="3" class="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400">전기 이월 ({{ startDate }} 이전)</td>
+                <td class="px-4 py-3 text-right text-sm text-brand-blue font-mono">{{ formatNumber(meta.previous_income) }}</td>
+                <td class="px-4 py-3 text-right text-sm text-red-500 font-mono">{{ formatNumber(meta.previous_expense) }}</td>
+                <td class="px-4 py-3 text-right text-sm font-black text-gray-900 dark:text-white font-mono">{{ formatNumber(meta.previous_balance) }}</td>
+              </tr>
+
+              <!-- 데이터 행 -->
+              <tr v-for="tx in transactions" :key="tx.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{{ tx.date_str }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  <div class="flex flex-col">
+                    <span class="font-bold">{{ tx.account_name }}</span>
+                    <span class="text-[10px] text-gray-400 font-mono">{{ tx.account_code }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                  {{ tx.description || '-' }}
+                  <span v-if="tx.member_name" class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                    {{ tx.member_name }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-brand-blue font-mono font-bold">
+                  {{ tx.income > 0 ? formatNumber(tx.income) : '' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-red-500 font-mono font-bold">
+                  {{ tx.expense > 0 ? formatNumber(tx.expense) : '' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-black text-gray-900 dark:text-white font-mono">
+                  {{ formatNumber(tx.balance) }}
+                </td>
+              </tr>
+              
+              <!-- 빈 데이터 안내 -->
+              <tr v-if="transactions && transactions.length === 0">
+                <td colspan="6" class="px-4 py-20 text-center text-sm text-gray-500 italic">
+                  해당 기간에 기록된 전표가 없습니다.
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      
-      <!-- 합계 요약 -->
-      <div class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div class="text-xs text-gray-500 uppercase">수입합계</div>
-            <div class="text-lg font-bold text-blue-600">1,350,000</div>
-          </div>
-          <div>
-            <div class="text-xs text-gray-500 uppercase">지출합계</div>
-             <div class="text-lg font-bold text-red-600">450,000</div>
-          </div>
-           <div>
-            <div class="text-xs text-gray-500 uppercase">이월금</div>
-             <div class="text-lg font-bold text-gray-700 dark:text-gray-300">24,000,000</div>
-          </div>
-           <div>
-            <div class="text-xs text-gray-500 uppercase">차인잔액</div>
-             <div class="text-lg font-bold text-green-600">24,900,000</div>
-          </div>
-        </div>
+      <!-- 메인 레이아웃 닫기 -->
       </div>
-    </div>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
-const incomeItems = ref([
-  { category: '십일조', note: '김철수 외 2명', amount: '900,000' },
-  { category: '감사헌금', note: '이영희', amount: '100,000' },
-  { category: '주일헌금', note: '무명', amount: '350,000' },
-])
+import { ref, computed, onMounted } from 'vue'
+import { formatNumber } from '~/utils/formatter'
+import { fetchAndDownloadExcel } from '~/utils/excel'
+import { useUIStore } from '~/stores/ui'
 
-const expenseItems = ref([
-  { category: '식대', note: '중식비', amount: '200,000' },
-  { category: '운영비', note: '사무용품', amount: '250,000' },
-])
+const ui = useUIStore()
+
+// 상태 관리
+const selectedAccountCode = ref<string | null>(null)
+const accounts = ref<any[]>([])
+
+// 날짜 초기화 (이번 달 1일 ~ 말일)
+const today = new Date()
+const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+
+const startDate = ref(firstDay.toISOString().split('T')[0])
+const endDate = ref(lastDay.toISOString().split('T')[0])
+
+// 1. 계정과목 로드 및 트리 구성
+const loadAccounts = async () => {
+  try {
+    const res: any = await $fetch('/api/accounts')
+    if (res.success) {
+      accounts.value = res.data
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const accountTree = computed(() => {
+  const groups = [
+    { name: '수입 (INCOME)', type: 'INCOME', expanded: true, children: [] as any[] },
+    { name: '지출 (EXPENSE)', type: 'EXPENSE', expanded: true, children: [] as any[] }
+  ]
+  
+  accounts.value.forEach(acc => {
+    const group = groups.find(g => g.type === acc.type)
+    if (group) group.children.push(acc)
+  })
+  
+  return groups
+})
+
+const selectedAccountName = computed(() => {
+  if (!selectedAccountCode.value) return '총계정원장 (전체)'
+  const acc = accounts.value.find(a => a.code === selectedAccountCode.value)
+  return acc ? `${acc.name} 원장` : '계정 원장'
+})
+
+const selectAccount = (code: string | null) => {
+  selectedAccountCode.value = code
+  fetchData()
+}
+
+// 프리셋 날짜 설정
+const setPreset = (type: 'thisMonth' | 'lastMonth' | 'thisYear') => {
+  const now = new Date()
+  let start, end
+  
+  if (type === 'thisMonth') {
+    start = new Date(now.getFullYear(), now.getMonth(), 1)
+    end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  } else if (type === 'lastMonth') {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    end = new Date(now.getFullYear(), now.getMonth(), 0)
+  } else if (type === 'thisYear') {
+    start = new Date(now.getFullYear(), 0, 1)
+    end = new Date(now.getFullYear(), 11, 31)
+  }
+  
+  if (start && end) {
+    startDate.value = start.toISOString().split('T')[0]
+    endDate.value = end.toISOString().split('T')[0]
+    fetchData()
+  }
+}
+
+// 2. 장부 데이터 로드
+const { data: ledgerRes, pending, refresh } = await useFetch('/api/ledgers', {
+  query: computed(() => ({
+    startDate: startDate.value,
+    endDate: endDate.value,
+    accountCode: selectedAccountCode.value || undefined
+  })),
+  immediate: false,
+  watch: false
+})
+
+const transactions = computed(() => (ledgerRes.value as any)?.data || [])
+const meta = computed(() => (ledgerRes.value as any)?.meta || null)
+
+const fetchData = () => {
+  if (!startDate.value || !endDate.value) {
+    ui.showAlert('알림', '시작일과 종료일을 모두 지정해주세요.', 'warning')
+    return
+  }
+  if (startDate.value > endDate.value) {
+    ui.showAlert('알림', '시작일이 종료일보다 늦을 수 없습니다.', 'warning')
+    return
+  }
+  refresh()
+}
+
+// 3. 엑셀 다운로드
+const downloadExcel = async () => {
+  const mapper = (tx: any) => ({
+    '일자': tx.date_str,
+    '계정코드': tx.account_code,
+    '계정명': tx.account_name,
+    '적요': tx.description || '',
+    '성도명': tx.member_name || '',
+    '수입(대변)': tx.income,
+    '지출(차변)': tx.expense,
+    '잔액': tx.balance
+  })
+  
+  // 첫 행에 이월 잔액 정보 추가를 원할 경우 mapper를 커스텀할 수 있으나, 
+  // API에서 이월행을 포함하지 않으므로 fetchAndDownloadExcel로는 데이터만 매핑됨.
+  const fileName = `원장_${selectedAccountCode.value || '전체'}_${startDate.value}_${endDate.value}`
+  
+  await fetchAndDownloadExcel('/api/ledgers', { 
+    startDate: startDate.value, 
+    endDate: endDate.value, 
+    accountCode: selectedAccountCode.value || undefined 
+  }, mapper, fileName)
+}
+
+onMounted(async () => {
+  await loadAccounts()
+  await refresh()
+})
 </script>

@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { formatNumber } from '~/utils/formatter'
 import { useUIStore } from '~/stores/ui'
 
@@ -148,7 +148,7 @@ const dynamicYearOptions = computed(() => {
     : new Date().getFullYear()
   
   const years = []
-  for (let y = startYear; y <= Math.max(endYear, new Date().getFullYear()); y++) {
+  for (let y = startYear; y <= endYear; y++) {
     years.push(y.toString())
   }
   return years.reverse()
@@ -179,12 +179,16 @@ const handleSearch = async () => {
   await refresh()
 }
 
-watch(selectedCampaignId, (newId) => {
+watch(selectedCampaignId, async (newId) => {
   if (newId) {
+    // 캠페인 변경 시 현재 선택된 연도가 새 캠페인 기간에 포함되는지 확인
     const years = dynamicYearOptions.value
     if (!years.includes(selectedYear.value)) {
+      // 포함되지 않으면 새 캠페인의 가장 최근 연도(배열의 첫 번째 요소)로 변경
       selectedYear.value = years[0]
     }
+    // 데이터 즉시 새로고침
+    await nextTick()
     refresh()
   }
 })

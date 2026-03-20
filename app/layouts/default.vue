@@ -96,9 +96,9 @@ const menuItems = [
 ]
 
 const isPathActive = (path: string) => {
-  if (path === '/' && route.path === '/') return true
-  if (path !== '/' && route.path.startsWith(path)) return true
-  return false
+  const currentPath = route.path
+  if (path === '/') return currentPath === '/'
+  return currentPath === path || currentPath.startsWith(path + '/')
 }
 
 const currentPathLabel = computed(() => {
