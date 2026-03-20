@@ -39,8 +39,8 @@
               </UBadge>
             </div>
             <div class="flex gap-1">
-              <UButton icon="i-heroicons-pencil" color="neutral" variant="ghost" size="xs" @click="openModal(c)" />
-              <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteCampaign(c)" />
+              <UButton class="cursor-pointer" icon="i-heroicons-pencil" color="neutral" variant="ghost" size="xs" @click="openModal(c)" />
+              <UButton class="cursor-pointer" icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteCampaign(c)" />
             </div>
           </div>
 
@@ -92,7 +92,7 @@
                 <UIcon name="i-heroicons-flag" class="text-brand-blue" />
                 {{ isEditing ? '캠페인 수정' : '새 캠페인 등록' }}
               </h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
             </div>
 
             <div class="space-y-4 py-2">
@@ -135,8 +135,8 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-800">
-              <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
-              <UButton :label="isEditing ? '정보 수정' : '캠페인 시작'" color="primary" class="font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="saveCampaign" />
+              <UButton class="cursor-pointer" label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
+              <UButton :label="isEditing ? '정보 수정' : '캠페인 시작'" color="primary" class="cursor-pointer font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="saveCampaign" />
             </div>
           </div>
         </template>

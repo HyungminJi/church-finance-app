@@ -36,8 +36,8 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="px-6 font-bold" @click="refresh()" />
-            <UButton label="초기화" variant="ghost" color="neutral" @click="resetFilters" />
+            <UButton label="조회" color="primary" icon="i-heroicons-magnifying-glass" class="cursor-pointer px-6 font-bold" @click="refresh()" />
+            <UButton class="cursor-pointer" label="초기화" variant="ghost" color="neutral" @click="resetFilters" />
           </div>
         </div>
 
@@ -46,8 +46,8 @@
             총 <span class="font-bold text-blue-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
           </div>
           <div class="flex items-center space-x-2">
-            <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="font-bold" @click="openModal()" />
-            <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="font-bold" @click="downloadExcel" />
+            <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="cursor-pointer font-bold" @click="openModal()" />
+            <UButton icon="i-heroicons-table-cells" color="success" variant="outline" label="엑셀" class="cursor-pointer font-bold" @click="downloadExcel" />
           </div>
         </div>
       </div>
@@ -93,8 +93,8 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(group.created_at) }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-                <UButton label="수정" color="primary" variant="ghost" size="xs" @click="openModal(group)" />
-                <UButton v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" @click="deleteGroup(group)" />
+                <UButton class="cursor-pointer" label="수정" color="primary" variant="ghost" size="xs" @click="openModal(group)" />
+                <UButton class="cursor-pointer" v-if="!group.is_active" label="삭제" color="error" variant="ghost" size="xs" @click="deleteGroup(group)" />
               </td>
             </tr>
             <tr v-if="cellGroups.length === 0 && !pending">
@@ -118,7 +118,7 @@
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">
               {{ isEditing ? '구역 정보 수정' : '신규 구역 등록' }}
             </h3>
-            <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
+            <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
           </div>
 
           <div class="space-y-4 py-2">
@@ -131,7 +131,7 @@
             <UFormField label="구역장(리더)">
               <div class="flex space-x-2">
                 <UInput :model-value="displayValue(form.leader_name)" disabled class="flex-1 bg-gray-50 dark:bg-gray-800" />
-                <UButton label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
+                <UButton class="cursor-pointer" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
               </div>
             </UFormField>
             <div class="flex items-center space-x-2 pt-2">
@@ -140,8 +140,8 @@
           </div>
 
           <div class="flex justify-end space-x-2 pt-6 border-t dark:border-gray-800">
-            <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
-            <UButton :label="isEditing ? '수정 완료' : '등록 하기'" color="primary" class="font-bold px-6 shadow-md" @click="saveGroup" />
+            <UButton class="cursor-pointer" label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
+            <UButton :label="isEditing ? '수정 완료' : '등록 하기'" color="primary" class="cursor-pointer font-bold px-6 shadow-md" @click="saveGroup" />
           </div>
         </div>
       </template>
@@ -158,7 +158,7 @@
         <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4">
           <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">구역장(리더) 선택</h3>
-            <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
+            <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
           </div>
 
           <UInput v-model="memberSearchTerm" placeholder="성도 이름 검색" icon="i-heroicons-magnifying-glass" class="w-full" />
@@ -178,7 +178,7 @@
             </table>
           </div>
           <div class="flex justify-end pt-2">
-            <UButton label="닫기" variant="ghost" color="neutral" @click="isMemberSearchOpen = false" />
+            <UButton class="cursor-pointer" label="닫기" variant="ghost" color="neutral" @click="isMemberSearchOpen = false" />
           </div>
         </div>
       </template>

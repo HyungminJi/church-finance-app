@@ -3,10 +3,10 @@
     <!-- 헤더 -->
     <div class="mb-4 flex justify-end items-center">
       <div class="flex space-x-2">
-        <button class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors">
           추가
         </button>
-        <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors">
           저장
         </button>
       </div>
@@ -37,7 +37,7 @@
               <input type="text" v-model="item.name" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+              <button class="cursor-pointer text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                 삭제
               </button>
             </td>

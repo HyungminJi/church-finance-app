@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex justify-between items-center">
       <h3 class="text-lg font-medium text-gray-900 dark:text-white">누락 확인 요청 목록</h3>
-      <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
+      <button class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
         새로고침
       </button>
     </div>

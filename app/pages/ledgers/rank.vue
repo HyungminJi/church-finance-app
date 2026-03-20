@@ -14,10 +14,10 @@
               <input type="date" class="flex-1 border-gray-300 rounded text-sm p-1.5 dark:bg-gray-700 dark:border-gray-600" />
             </div>
             <div class="mt-2 flex flex-wrap gap-1">
-              <button class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번주</button>
-              <button class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번달</button>
-              <button class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">1분기</button>
-              <button class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
+              <button class="cursor-pointer px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번주</button>
+              <button class="cursor-pointer px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번달</button>
+              <button class="cursor-pointer px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">1분기</button>
+              <button class="cursor-pointer px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
             </div>
           </div>
           <div>
@@ -59,9 +59,9 @@
       </div>
       
       <div class="mt-6 flex justify-end space-x-2 border-t border-gray-200 dark:border-gray-700 pt-4">
-        <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">인쇄</button>
-        <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">엑셀</button>
-        <button class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold text-sm shadow-sm">조회</button>
+        <button class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">인쇄</button>
+        <button class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">엑셀</button>
+        <button class="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold text-sm shadow-sm">조회</button>
       </div>
     </div>
 

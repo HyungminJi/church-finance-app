@@ -7,7 +7,7 @@
         color="success" 
         variant="outline" 
         label="엑셀" 
-        class="bg-white dark:bg-gray-800 font-bold" 
+        class="cursor-pointer bg-white dark:bg-gray-800 font-bold" 
         @click="downloadExcel"
       />
     </div>
@@ -93,7 +93,7 @@
             size="xl"
             label="지출 예산 저장하기" 
             icon="i-heroicons-check-badge"
-            class="font-black px-10 shadow-xl hover:scale-105 transition-transform" 
+            class="cursor-pointer font-black px-10 shadow-xl hover:scale-105 transition-transform" 
             :loading="isSaving"
             @click="saveBudgets"
           />

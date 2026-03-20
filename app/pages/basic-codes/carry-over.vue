@@ -3,7 +3,7 @@
     <!-- 헤더 -->
     <div class="mb-4 flex justify-between items-center">
       <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">초기이월금 등록</h2>
-      <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+      <button class="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
         저장하기
       </button>
     </div>

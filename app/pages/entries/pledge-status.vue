@@ -109,8 +109,8 @@
                   {{ displayValue(p.notes) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-                  <UButton label="수정" color="primary" variant="ghost" size="xs" @click="openModal(p)" />
-                  <UButton label="제외" color="error" variant="ghost" size="xs" @click="deletePledge(p)" />
+                  <UButton class="cursor-pointer" label="수정" color="primary" variant="ghost" size="xs" @click="openModal(p)" />
+                  <UButton class="cursor-pointer" label="제외" color="error" variant="ghost" size="xs" @click="deletePledge(p)" />
                 </td>
               </tr>
               <tr v-if="memberPledges.length === 0 && !pending">
@@ -132,14 +132,14 @@
                 <UIcon name="i-heroicons-user-plus" class="text-brand-blue" />
                 {{ isEditing ? '약정 수정' : '약정 등록' }}
               </h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
             </div>
 
             <div class="space-y-4 py-2">
               <UFormField label="대상 성도" required>
                 <div class="flex space-x-2">
                   <UInput :model-value="form.member_name" disabled placeholder="성도를 검색하세요" class="flex-1 font-bold" icon="i-heroicons-user" />
-                  <UButton v-if="!isEditing" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
+                  <UButton class="cursor-pointer" v-if="!isEditing" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
                 </div>
               </UFormField>
 
@@ -166,8 +166,8 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-800">
-              <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
-              <UButton label="저장 완료" color="primary" class="font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="savePledge" />
+              <UButton class="cursor-pointer" label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
+              <UButton label="저장 완료" color="primary" class="cursor-pointer font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="savePledge" />
             </div>
           </div>
         </template>
@@ -179,7 +179,7 @@
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4 z-[60]">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">성도 검색</h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
             </div>
             <UInput v-model="memberSearchTerm" placeholder="이름 검색" icon="i-heroicons-magnifying-glass" class="w-full" autofocus />
             <div class="max-h-[300px] overflow-y-auto border rounded-lg dark:border-gray-800 custom-scrollbar">

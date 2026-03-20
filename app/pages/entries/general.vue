@@ -48,10 +48,10 @@
         </div>
 
         <div class="flex items-end space-x-2">
-           <button class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
+           <button class="cursor-pointer w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
             입력
           </button>
-           <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200">
+           <button class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200">
             조회
           </button>
         </div>
@@ -82,7 +82,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.note }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold">{{ item.amount }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-red-600 hover:text-red-800 text-xs">삭제</button>
+              <button class="cursor-pointer text-red-600 hover:text-red-800 text-xs">삭제</button>
             </td>
           </tr>
         </tbody>

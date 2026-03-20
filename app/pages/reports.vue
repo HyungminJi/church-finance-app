@@ -8,7 +8,7 @@
           v-for="tab in tabs"
           :key="tab.to"
           :to="tab.to"
-          class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+          class="cursor-pointer whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
           :class="[
             $route.path === tab.to || ($route.path === '/reports' && tab.to === '/reports')
               ? 'border-blue-500 text-blue-600 dark:text-blue-400'

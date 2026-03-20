@@ -3,18 +3,18 @@
     <!-- 헤더 -->
     <div class="mb-4 flex justify-between items-center">
       <div class="flex space-x-2">
-        <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300 transition-colors">
           사용계좌
         </button>
-        <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300 transition-colors">
           미사용계좌
         </button>
       </div>
       <div class="flex space-x-2">
-        <button class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors">
           추가
         </button>
-        <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors">
           저장
         </button>
       </div>

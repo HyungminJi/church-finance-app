@@ -29,10 +29,10 @@
       
       <!-- 액션 버튼 -->
       <div class="flex items-center space-x-2 mt-2 md:mt-0">
-        <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center shadow-sm">
+        <button class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 text-sm font-medium dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center shadow-sm">
           <UIcon name="i-heroicons-table-cells" class="w-4 h-4 mr-1" /> 엑셀
         </button>
-        <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-sm shadow-sm">조회</button>
+        <button class="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-sm shadow-sm">조회</button>
       </div>
     </div>
 

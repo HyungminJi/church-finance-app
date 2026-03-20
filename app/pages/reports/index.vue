@@ -4,8 +4,8 @@
     <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg flex flex-wrap gap-4 items-center">
       <div class="flex items-center space-x-2">
         <label class="text-sm text-gray-700 dark:text-gray-300">기간:</label>
-        <button class="px-2 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600">이번달</button>
-        <button class="px-2 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
+        <button class="cursor-pointer px-2 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600">이번달</button>
+        <button class="cursor-pointer px-2 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
       </div>
       
       <div class="border-l border-gray-300 h-6 dark:border-gray-600"></div>
@@ -27,7 +27,7 @@
 
       <div class="flex-grow"></div>
       
-      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+      <button class="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
         조회
       </button>
     </div>

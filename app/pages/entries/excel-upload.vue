@@ -147,7 +147,7 @@
         </div>
 
         <div class="relative z-10">
-          <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="e => handleFileSelection(e)" />
+          <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileSelection" />
           <UButton 
             color="primary" 
             label="컴퓨터에서 파일 선택" 

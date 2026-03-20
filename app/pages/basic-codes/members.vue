@@ -12,7 +12,7 @@
                 @click="activeTab = tab.id"
                 :variant="activeTab === tab.id ? 'solid' : 'ghost'"
                 :color="activeTab === tab.id ? (tab.id === 'CURRENT' ? 'primary' : 'error') : 'neutral'"
-                class="px-6 py-1.5 font-bold transition-all duration-200"
+                class="cursor-pointer px-6 py-1.5 font-bold transition-all duration-200"
               >
                 {{ tab.label }} ({{ stats[tab.id === 'CURRENT' ? 'current' : 'removed'] }})
               </UButton>
@@ -51,15 +51,15 @@
             </div>
             <div class="flex justify-between items-center mt-6">
               <div class="flex gap-2">
-                <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="px-8 font-bold">조회하기</UButton>
-                <UButton variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
+                <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="cursor-pointer px-8 font-bold">조회하기</UButton>
+                <UButton class="cursor-pointer" variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
               </div>
               <div class="flex gap-2 items-center">
-                <UButton icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" @click="downloadTemplate" class="font-bold">양식받기</UButton>
+                <UButton icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" @click="downloadTemplate" class="cursor-pointer font-bold">양식받기</UButton>
                 <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleFileUpload" />
-                <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="() => fileInput?.click()" class="font-bold">대량등록</UButton>
-                <UButton icon="i-heroicons-user-plus" color="primary" @click="() => openModal()" class="font-bold">성도추가</UButton>
-                <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="font-bold">엑셀</UButton>
+                <UButton icon="i-heroicons-cloud-arrow-up" color="neutral" variant="outline" @click="() => fileInput?.click()" class="cursor-pointer font-bold">대량등록</UButton>
+                <UButton icon="i-heroicons-user-plus" color="primary" @click="() => openModal()" class="cursor-pointer font-bold">성도추가</UButton>
+                <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="cursor-pointer font-bold">엑셀</UButton>
               </div>
             </div>
           </div>
@@ -113,11 +113,11 @@
             </template>
             <template #actions-cell="{ row }">
               <div class="flex gap-1">
-                <UButton variant="ghost" color="primary" size="xs" @click="() => openModal(row.original)">수정</UButton>
-                <UButton v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="() => removeMember(row.original)">제적</UButton>
+                <UButton class="cursor-pointer" variant="ghost" color="primary" size="xs" @click="() => openModal(row.original)">수정</UButton>
+                <UButton class="cursor-pointer" v-if="activeTab === 'CURRENT'" variant="ghost" color="warning" size="xs" @click="() => removeMember(row.original)">제적</UButton>
                 <template v-else>
-                  <UButton variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
-                  <UButton variant="ghost" color="error" size="xs" @click="() => deleteMember(row.original)">삭제</UButton>
+                  <UButton class="cursor-pointer" variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
+                  <UButton class="cursor-pointer" variant="ghost" color="error" size="xs" @click="() => deleteMember(row.original)">삭제</UButton>
                 </template>
               </div>
             </template>
@@ -141,7 +141,7 @@
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ isEditing ? '성도 정보 수정' : '신규 성도 추가' }}
               </h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -210,8 +210,8 @@
               </div>
             </div>
             <div class="flex justify-end gap-2 mt-6">
-              <UButton variant="ghost" color="neutral" @click="isModalOpen = false">취소</UButton>
-              <UButton color="primary" :loading="isSaving" @click="saveMember">{{ isEditing ? '수정 완료' : '등록 완료' }}</UButton>
+              <UButton class="cursor-pointer" variant="ghost" color="neutral" @click="isModalOpen = false">취소</UButton>
+              <UButton class="cursor-pointer" color="primary" :loading="isSaving" @click="saveMember">{{ isEditing ? '수정 완료' : '등록 완료' }}</UButton>
             </div>
           </div>
         </template>

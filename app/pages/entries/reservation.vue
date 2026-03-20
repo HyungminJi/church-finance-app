@@ -5,7 +5,7 @@
         <label class="text-sm text-gray-700 dark:text-gray-300">예약일자:</label>
         <input type="date" class="border-gray-300 rounded text-sm dark:bg-gray-700 dark:border-gray-600" />
       </div>
-      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+      <button class="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
         조회
       </button>
     </div>

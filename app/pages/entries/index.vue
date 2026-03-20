@@ -13,7 +13,7 @@
               @click="filters.type = t.value"
               :variant="filters.type === t.value ? 'solid' : 'ghost'"
               :color="filters.type === t.value ? t.color : 'neutral'"
-              class="px-6 py-1.5 font-bold transition-all duration-200"
+              class="cursor-pointer px-6 py-1.5 font-bold transition-all duration-200"
             >
               {{ t.label }}
             </UButton>
@@ -36,12 +36,12 @@
           </div>
           <div class="flex justify-between items-center mt-6">
             <div class="flex gap-2">
-              <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="refresh()" class="px-8 font-bold">조회하기</UButton>
-              <UButton variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
+              <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="refresh()" class="cursor-pointer px-8 font-bold">조회하기</UButton>
+              <UButton class="cursor-pointer" variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
             </div>
             <div class="flex gap-2 items-center">
-              <UButton icon="i-heroicons-pencil-square" color="primary" @click="openModal()" class="font-bold shadow-md">새 전표 작성</UButton>
-              <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="font-bold">엑셀</UButton>
+              <UButton icon="i-heroicons-pencil-square" color="primary" @click="openModal()" class="cursor-pointer font-bold shadow-md">새 전표 작성</UButton>
+              <UButton icon="i-heroicons-table-cells" color="success" variant="outline" @click="downloadExcel" class="cursor-pointer font-bold">엑셀</UButton>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@
                   {{ displayValue(t.description) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <UButton label="삭제" color="error" variant="ghost" size="xs" @click="deleteTransaction(t)" />
+                  <UButton class="cursor-pointer" label="삭제" color="error" variant="ghost" size="xs" @click="deleteTransaction(t)" />
                 </td>
               </tr>
               <tr v-if="transactions.length === 0 && !pending">
@@ -118,13 +118,13 @@
                 <UIcon name="i-heroicons-pencil-square" class="text-brand-blue" />
                 새 전표 작성
               </h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
             </div>
 
             <!-- 전표 유형 선택 (수입/지출) -->
             <div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-full">
               <UButton
-                class="flex-1 justify-center py-2 font-bold"
+                class="cursor-pointer flex-1 justify-center py-2 font-bold"
                 :variant="form.type === 'INCOME' ? 'solid' : 'ghost'"
                 :color="form.type === 'INCOME' ? 'primary' : 'neutral'"
                 @click="changeFormType('INCOME')"
@@ -132,7 +132,7 @@
                 수입 (헌금 등)
               </UButton>
               <UButton
-                class="flex-1 justify-center py-2 font-bold"
+                class="cursor-pointer flex-1 justify-center py-2 font-bold"
                 :variant="form.type === 'EXPENSE' ? 'solid' : 'ghost'"
                 :color="form.type === 'EXPENSE' ? 'error' : 'neutral'"
                 @click="changeFormType('EXPENSE')"
@@ -163,9 +163,9 @@
                   <div class="flex space-x-2">
                     <div class="relative flex-1">
                       <UInput :model-value="form.member_name" disabled placeholder="성도를 검색하여 선택하세요" class="w-full" icon="i-heroicons-user" />
-                      <UButton v-if="form.member_id" icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute right-1 top-1 w-6 h-6 p-0" @click="clearMember" />
+                      <UButton v-if="form.member_id" icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="cursor-pointer absolute right-1 top-1 w-6 h-6 p-0" @click="clearMember" />
                     </div>
-                    <UButton label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
+                    <UButton class="cursor-pointer" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
                   </div>
                   <p class="text-xs text-gray-500 mt-1">* 헌금자 매핑을 해야 기부금 영수증 발급이 가능합니다.</p>
                 </UFormField>
@@ -190,8 +190,8 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-800">
-              <UButton label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
-              <UButton label="전표 저장하기" color="primary" class="font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="saveTransaction" />
+              <UButton class="cursor-pointer" label="취소" color="neutral" variant="ghost" @click="isModalOpen = false" />
+              <UButton label="전표 저장하기" color="primary" class="cursor-pointer font-black px-8 shadow-md" size="lg" :loading="isSaving" @click="saveTransaction" />
             </div>
           </div>
         </template>
@@ -203,7 +203,7 @@
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4 z-[60]">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">성도 검색</h3>
-              <UButton type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
+              <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
             </div>
             <UInput v-model="memberSearchTerm" placeholder="성도 이름 검색" icon="i-heroicons-magnifying-glass" class="w-full" autofocus />
             <div class="max-h-[300px] overflow-y-auto border rounded-lg dark:border-gray-800 custom-scrollbar">

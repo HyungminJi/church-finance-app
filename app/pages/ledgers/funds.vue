@@ -2,19 +2,19 @@
   <div class="space-y-6">
     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap gap-4 items-center">
       <div class="flex items-center space-x-2">
-        <button class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">&lt;</button>
-        <button class="px-4 py-1 bg-blue-50 text-blue-700 font-medium rounded dark:bg-blue-900/30 dark:text-blue-300">오늘</button>
-        <button class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">&gt;</button>
+        <button class="cursor-pointer px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">&lt;</button>
+        <button class="cursor-pointer px-4 py-1 bg-blue-50 text-blue-700 font-medium rounded dark:bg-blue-900/30 dark:text-blue-300">오늘</button>
+        <button class="cursor-pointer px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">&gt;</button>
         <div class="border-l border-gray-300 h-6 mx-2 dark:border-gray-600"></div>
-        <button class="px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번주</button>
-        <button class="px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번달</button>
-        <button class="px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
+        <button class="cursor-pointer px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번주</button>
+        <button class="cursor-pointer px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번달</button>
+        <button class="cursor-pointer px-4 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">이번년도</button>
       </div>
       <div class="flex-grow"></div>
-      <button class="px-4 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center">
+      <button class="cursor-pointer px-4 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center">
         <UIcon name="i-heroicons-printer" class="w-4 h-4 mr-2" /> 인쇄
       </button>
-      <button class="px-4 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center">
+      <button class="cursor-pointer px-4 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 flex items-center">
         <UIcon name="i-heroicons-table-cells" class="w-4 h-4 mr-2" /> 엑셀
       </button>
     </div>
@@ -47,7 +47,7 @@
         </label>
       </div>
       <div class="flex-grow"></div>
-      <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">조회 적용</button>
+      <button class="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">조회 적용</button>
     </div>
 
     <!-- 와이드 테이블 영역 -->
