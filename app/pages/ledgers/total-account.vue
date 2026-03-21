@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col gap-4">
+    <div class="no-print bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col gap-4">
       <!-- 1행: 기간 및 기본 버튼 -->
       <div class="flex flex-wrap items-center gap-2">
         <button @click="moveDate('prev')" class="cursor-pointer px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600">&lt;</button>
