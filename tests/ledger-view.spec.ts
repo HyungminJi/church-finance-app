@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('장부(원장) 조회 테스트 (UC-04)', () => {
   test.beforeEach(async ({ page }) => {
     // 장부 조회 화면 진입
-    await page.goto('/ledgers/ledger');
+    await page.goto('/ledgers');
   });
 
   test('장부 화면 렌더링 및 기본 요소 확인', async ({ page }) => {
