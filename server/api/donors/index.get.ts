@@ -33,12 +33,15 @@ export default defineEventHandler(async (event) => {
     if (type === 'CELL_GROUP') {
       return await db.selectFrom('donors as d')
         .innerJoin('cell_groups as cg', 'd.id', 'cg.donor_id')
+        .leftJoin('members as m', 'cg.leader_id', 'm.id')
+        .leftJoin('donors as ld', 'm.donor_id', 'ld.id') // 리더의 성도 이름 조인
         .select([
           'd.id as donor_id',
           'd.donor_type',
           'cg.id as group_id',
           'cg.name',
           'cg.leader_id',
+          'ld.name as leader_name',
           'd.created_at'
         ])
         .where('d.donor_type', '=', 'CELL_GROUP')
