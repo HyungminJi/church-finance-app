@@ -25,30 +25,56 @@
             </div>
           </div>
 
-          <!-- 요약 통계 카드 (복원) -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4">
+          <!-- 요약 통계 카드 (개선된 대시보드형) -->
+          <div v-if="activeDonorTab === 'MEMBER'" class="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
               <div class="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                 <UIcon name="i-heroicons-users" class="w-5 h-5 text-brand-blue" />
               </div>
               <div>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">전체 등록수</p>
-                <p class="text-lg font-black font-mono">{{ formatNumber(paginationInfo.totalCount) }}</p>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">누적 등록</p>
+                <p class="text-lg font-black font-mono">{{ formatNumber(globalStats?.total || 0) }}</p>
               </div>
             </div>
-            <!-- 타입별 추가 통계는 API 보완 후 반영 예정 -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+              <div class="p-2.5 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                <UIcon name="i-heroicons-check-circle" class="w-5 h-5 text-brand-green" />
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">출석 성도</p>
+                <p class="text-lg font-black font-mono text-brand-blue">{{ formatNumber(globalStats?.current || 0) }}</p>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+              <div class="p-2.5 bg-red-50 dark:bg-red-900/30 rounded-lg">
+                <UIcon name="i-heroicons-minus-circle" class="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">제적 인원</p>
+                <p class="text-lg font-black font-mono text-red-500">{{ formatNumber(globalStats?.removed || 0) }}</p>
+              </div>
+            </div>
+            <div class="bg-brand-blue/5 dark:bg-blue-900/10 p-4 rounded-xl border-2 border-brand-blue/20 shadow-sm flex items-center gap-4">
+              <div class="p-2.5 bg-brand-blue rounded-lg">
+                <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p class="text-[10px] text-brand-blue font-black uppercase tracking-wider">현재 조회 결과</p>
+                <p class="text-lg font-black font-mono text-brand-blue">{{ formatNumber(paginationInfo.totalCount) }}</p>
+              </div>
+            </div>
           </div>
 
           <!-- 통합 검색 필터 -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <UFormField label="명칭/이름">
-                <UInput v-model="filters.keyword" placeholder="검색어 입력" icon="i-heroicons-magnifying-glass" class="w-full" @keyup.enter="refresh" />
+                <UInput v-model="filters.keyword" placeholder="이름 또는 키워드" icon="i-heroicons-magnifying-glass" class="w-full" @keyup.enter="refresh" />
               </UFormField>
               
               <template v-if="activeDonorTab === 'MEMBER'">
                 <UFormField label="전화번호">
-                  <UInput v-model="filters.phone" placeholder="번호 입력" icon="i-heroicons-phone" class="w-full" />
+                  <UInput v-model="filters.phone" placeholder="번호 검색" icon="i-heroicons-phone" class="w-full" @keyup.enter="refresh" />
                 </UFormField>
                 <UFormField label="직분">
                   <USelectMenu v-model="filters.role" :items="roles" value-key="code" placeholder="전체 직분" class="w-full" />
@@ -61,8 +87,17 @@
                 </UFormField>
               </template>
 
+              <template v-if="activeDonorTab === 'CELL_GROUP'">
+                <UFormField label="상위 소속">
+                  <USelectMenu v-model="filters.parent" :items="parentGroups" placeholder="전체 소속" class="w-full" />
+                </UFormField>
+                <UFormField label="상태">
+                  <USelectMenu v-model="filters.isActive" :items="statusOptions" value-key="value" class="w-full" />
+                </UFormField>
+              </template>
+
               <template v-if="activeDonorTab === 'ORGANIZATION'">
-                <UFormField label="기관유형">
+                <UFormField label="단체 유형">
                   <UInput v-model="filters.orgType" placeholder="유형 입력" class="w-full" />
                 </UFormField>
               </template>
@@ -145,7 +180,17 @@
                   <UButton v-else class="cursor-pointer" variant="ghost" color="success" size="xs" @click="() => reRegisterMember(row.original)">재등록</UButton>
                 </template>
 
-                <UButton class="cursor-pointer" variant="ghost" color="error" size="xs" @click="() => deleteDonor(row.original)">삭제</UButton>
+                <!-- 삭제 버튼 (성도는 제적된 상태에서만, 나머지는 항상 노출) -->
+                <UButton 
+                  v-if="activeDonorTab !== 'MEMBER' || row.original.removed_date"
+                  class="cursor-pointer" 
+                  variant="ghost" 
+                  color="error" 
+                  size="xs" 
+                  @click="() => deleteDonor(row.original)"
+                >
+                  삭제
+                </UButton>
               </div>
             </template>
           </UTable>
@@ -158,7 +203,7 @@
       </div>
 
       <!-- 통합 등록/수정 모달 -->
-      <UModal v-model:open="isModalOpen" :title="`${activeDonorLabel} ${isEditing ? '수정' : '등록'}`" :ui="{ content: 'max-w-2xl' }">
+      <UModal v-model:open="isModalOpen" :title="`${activeDonorLabel} ${isEditing ? '수정' : '등록'}`" description="상세 정보를 입력하거나 수정할 수 있습니다." :ui="{ content: 'max-w-2xl' }">
         <template #content>
           <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
@@ -211,20 +256,26 @@
 
               <!-- 2. 구역/조직 상세 필드 -->
               <template v-if="activeDonorTab === 'CELL_GROUP'">
+                <UFormField label="상위 소속" class="col-span-2">
+                  <UInput v-model="form.details.parent_group" placeholder="예: 1교구, 청년부 등" class="w-full" />
+                </UFormField>
                 <UFormField label="구역장(리더)" class="col-span-2">
                   <div class="flex space-x-2">
                     <UInput :model-value="displayValue(form.details.leader_name)" disabled class="flex-1 bg-gray-50 dark:bg-gray-800" />
                     <UButton class="cursor-pointer" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isLeaderSearchOpen = true" />
                   </div>
                 </UFormField>
+                <UFormField label="활성 여부" class="col-span-2">
+                  <UCheckbox v-model="form.details.is_active" label="현재 활성 구역으로 사용함" />
+                </UFormField>
               </template>
 
-              <!-- 3. 외부기관 상세 필드 -->
+              <!-- 3. 단체 상세 필드 -->
               <template v-if="activeDonorTab === 'ORGANIZATION'">
-                <UFormField label="기관 유형"><UInput v-model="form.details.org_type" placeholder="예: 선교단체, 타교회" class="w-full" /></UFormField>
+                <UFormField label="단체 유형"><UInput v-model="form.details.org_type" placeholder="예: 선교단체, 타교회" class="w-full" /></UFormField>
                 <UFormField label="연락처"><UInput v-model="form.details.contact_info" class="w-full" /></UFormField>
                 <UFormField label="설명" class="col-span-2"><UTextarea v-model="form.details.description" class="w-full" /></UFormField>
-                <UFormField label="활성 여부"><UCheckbox v-model="form.details.is_active" label="현재 활동 중인 기관임" /></UFormField>
+                <UFormField label="활성 여부"><UCheckbox v-model="form.details.is_active" label="현재 활동 중인 단체임" /></UFormField>
               </template>
             </div>
 
@@ -237,7 +288,7 @@
       </UModal>
 
       <!-- 구역장 검색 모달 (복원) -->
-      <UModal v-model:open="isLeaderSearchOpen" title="구역장 선택">
+      <UModal v-model:open="isLeaderSearchOpen" title="구역장 선택" description="리스트에서 성도를 선택하여 구역장으로 지정합니다.">
         <template #content>
           <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
@@ -277,7 +328,7 @@ const currentUserRole = computed(() => currentUser.value?.role || 4)
 const donorTabs = [
   { id: 'MEMBER', label: '성도 관리' },
   { id: 'CELL_GROUP', label: '구역/조직 관리' },
-  { id: 'ORGANIZATION', label: '외부기관 관리' }
+  { id: 'ORGANIZATION', label: '단체 관리' }
 ]
 
 const activeDonorTab = ref('MEMBER')
@@ -293,13 +344,22 @@ const filters = reactive({
   email: '',
   cellGroupId: null,
   role: null,
-  status: 'CURRENT', // MEMBER 전용: CURRENT, REMOVED
-  orgType: ''
+  status: 'CURRENT', // MEMBER 전역: CURRENT, REMOVED, ALL
+  orgType: '',
+  parent: 'all', // CELL_GROUP 전용
+  isActive: 'all' // CELL_GROUP 전용
 })
+
+const statusOptions = [
+  { label: '전체', value: 'all' },
+  { label: '활성', value: 'true' },
+  { label: '비활성', value: 'false' }
+]
 
 const memberStatusOptions = [
   { id: 'CURRENT', label: '출석 성도' },
-  { id: 'REMOVED', label: '제적 성도' }
+  { id: 'REMOVED', label: '제적 성도' },
+  { id: 'ALL', label: '전체 보기' }
 ]
 
 // 2. 데이터 페칭
@@ -313,7 +373,9 @@ const { data: response, refresh, pending } = await useFetch('/api/donors', {
 })
 
 const donors = computed(() => (response.value as any)?.data || [])
-const paginationInfo = computed(() => (response.value as any)?.pagination || { totalPages: 0, totalCount: 0, limit: 10 })
+const paginationInfo = computed(() => (response.value as any)?.pagination || { totalCount: 0, totalPages: 0, page: 1, limit: 10 })
+const globalStats = computed(() => (response.value as any)?.stats || { total: 0, current: 0, removed: 0 })
+const parentGroups = computed(() => ['all', ...((response.value as any)?.parentGroups || [])])
 
 // 기초 데이터 (직분, 구역 등)
 const { data: rolesRes } = await useFetch('/api/common-codes', { query: { group: 'CHURCH_ROLE' } })
@@ -340,12 +402,14 @@ const currentColumns = computed(() => {
   } else if (activeDonorTab.value === 'CELL_GROUP') {
     return [
       { accessorKey: 'name', header: '조직/구역명' },
+      { accessorKey: 'parent_group', header: '상위 소속' },
       { accessorKey: 'leader_name', header: '구역장(리더)' },
+      { accessorKey: 'is_active', header: '상태' },
       { accessorKey: 'actions', header: '관리' }
     ]
   } else {
     return [
-      { accessorKey: 'name', header: '기관/단체명' },
+      { accessorKey: 'name', header: '단체명' },
       { accessorKey: 'org_type', header: '유형' },
       { accessorKey: 'contact_info', header: '연락처' },
       { accessorKey: 'is_active', header: '상태' },
@@ -486,7 +550,15 @@ const reRegisterMember = async (member: any) => {
 
 // 헬퍼 함수
 const resetFilters = () => {
-  filters.keyword = ''; filters.phone = ''; filters.email = ''; filters.cellGroupId = null; filters.role = null; filters.status = 'CURRENT'; filters.orgType = ''
+  filters.keyword = ''; 
+  filters.phone = ''; 
+  filters.email = ''; 
+  filters.cellGroupId = null; 
+  filters.role = null; 
+  filters.status = 'CURRENT'; 
+  filters.orgType = '';
+  filters.parent = 'all'; // 구역 초기화 추가
+  filters.isActive = 'all'; // 구역 상태 초기화 추가
   refresh()
 }
 
@@ -537,7 +609,7 @@ const downloadExcel = async () => {
   const mapper = (d: any) => {
     if (activeDonorTab.value === 'MEMBER') return { '이름': d.name, '직분': d.church_role_name, '구역': d.cell_group_name, '연락처': d.phone_number }
     if (activeDonorTab.value === 'CELL_GROUP') return { '구역명': d.name, '리더': d.leader_name }
-    return { '기관명': d.name, '유형': d.org_type, '연락처': d.contact_info }
+    return { '단체명': d.name, '유형': d.org_type, '연락처': d.contact_info }
   }
   await fetchAndDownloadExcel('/api/donors', { ...filters, type: activeDonorTab.value }, mapper, `${activeDonorLabel.value}명단`)
 }

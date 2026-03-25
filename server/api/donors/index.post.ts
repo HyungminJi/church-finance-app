@@ -38,7 +38,9 @@ export default defineEventHandler(async (event) => {
           .values({
             donor_id: donor.id,
             name: name,
-            leader_id: details.leader_id
+            leader_id: details.leader_id,
+            parent_group: details.parent_group,
+            is_active: details.is_active ?? true
           })
           .execute()
       } else if (donor_type === 'ORGANIZATION') {

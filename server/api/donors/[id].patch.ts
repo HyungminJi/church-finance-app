@@ -39,7 +39,9 @@ export default defineEventHandler(async (event) => {
         await trx.updateTable('cell_groups')
           .set({
             name: name,
-            leader_id: details.leader_id
+            leader_id: details.leader_id,
+            parent_group: details.parent_group,
+            is_active: details.is_active ?? true
           })
           .where('donor_id', '=', id)
           .execute()
