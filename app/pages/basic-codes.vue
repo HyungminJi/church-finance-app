@@ -30,9 +30,7 @@ const route = useRoute()
 
 const tabs = [
   { name: '계정과목등록', to: '/basic-codes' },
-  // { name: '계좌/외화 코드등록', to: '/basic-codes/bank-accounts' }, // TODO: 연관 테이블 없음
-  // { name: '예배코드관리', to: '/basic-codes/worships' }, // TODO: 연관 테이블 없음
-  { name: '성도 목록', to: '/basic-codes/members' },
-  { name: '구역 목록', to: '/basic-codes/cell-groups' },
+  { name: '자금/통장관리', to: '/basic-codes/bank-accounts' },
+  { name: '헌금자 통합관리', to: '/basic-codes/donors' },
 ]
 </script>

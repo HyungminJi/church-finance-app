@@ -61,7 +61,7 @@
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">구분</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">계정과목</th>
                 <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">금액</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">헌금자(성도)</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">헌금자/지출처</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">적요</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">관리</th>
               </tr>
@@ -84,9 +84,9 @@
                   {{ formatNumber(t.amount) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span v-if="t.member_name" class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1">
-                    <UIcon name="i-heroicons-user" class="w-3 h-3" />
-                    {{ t.member_name }}
+                  <span v-if="t.donor_name" class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1">
+                    <UIcon :name="t.donor_type === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="w-3 h-3" />
+                    {{ t.donor_name }}
                   </span>
                   <span v-else class="text-gray-300">-</span>
                 </td>
@@ -157,17 +157,28 @@
                 />
               </UFormField>
 
-              <!-- 수입일 때만 노출되는 성도 검색 -->
-              <div v-if="form.type === 'INCOME'" class="col-span-2 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                <UFormField label="헌금자 (성도 매핑)">
+              <UFormField :label="form.type === 'INCOME' ? '입금계좌' : '출금계좌'" required>
+                <USelectMenu 
+                  v-model="form.fund_id" 
+                  :items="allFunds" 
+                  value-key="id" 
+                  label-key="name"
+                  class="w-full cursor-pointer"
+                  placeholder="자금/통장 선택"
+                />
+              </UFormField>
+
+              <!-- 헌금자/지출처 검색 영역 (통합) -->
+              <div class="col-span-2 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                <UFormField :label="form.type === 'INCOME' ? '헌금자 (매핑)' : '지출처 (매핑)'">
                   <div class="flex space-x-2">
                     <div class="relative flex-1">
-                      <UInput :model-value="form.member_name" disabled placeholder="성도를 검색하여 선택하세요" class="w-full" icon="i-heroicons-user" />
-                      <UButton v-if="form.member_id" icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="cursor-pointer absolute right-1 top-1 w-6 h-6 p-0" @click="clearMember" />
+                      <UInput :model-value="form.donor_name" disabled :placeholder="form.type === 'INCOME' ? '헌금자를 검색하여 선택하세요' : '지출처를 검색하여 선택하세요'" class="w-full" icon="i-heroicons-user-group" />
+                      <UButton v-if="form.donor_id" icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="cursor-pointer absolute right-1 top-1 w-6 h-6 p-0" @click="clearMember" />
                     </div>
                     <UButton class="cursor-pointer" label="검색" color="neutral" variant="outline" icon="i-heroicons-magnifying-glass" @click="isMemberSearchOpen = true" />
                   </div>
-                  <p class="text-xs text-gray-500 mt-1">* 헌금자 매핑을 해야 기부금 영수증 발급이 가능합니다.</p>
+                  <p v-if="form.type === 'INCOME'" class="text-xs text-gray-500 mt-1">* 헌금자(성도/구역/기관) 매핑을 해야 정확한 통계 및 영수증 관리가 가능합니다.</p>
                 </UFormField>
               </div>
 
@@ -197,25 +208,33 @@
         </template>
       </UModal>
 
-      <!-- 성도 검색 모달 (모달 안의 모달) -->
-      <UModal v-model:open="isMemberSearchOpen" title="성도 검색" description="이름이나 전화번호로 성도를 검색합니다." :ui="{ content: 'max-w-md' }">
+      <!-- 헌금자/지출처 검색 모달 (통합) -->
+      <UModal v-model:open="isMemberSearchOpen" title="헌금자/지출처 검색" description="이름이나 명칭으로 검색합니다." :ui="{ content: 'max-w-md' }">
         <template #content>
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-4 z-[60]">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">성도 검색</h3>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">헌금자/지출처 검색</h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isMemberSearchOpen = false" />
             </div>
-            <UInput v-model="memberSearchTerm" placeholder="성도 이름 검색" icon="i-heroicons-magnifying-glass" class="w-full" autofocus />
+            <UInput v-model="memberSearchTerm" placeholder="이름 또는 기관명 검색" icon="i-heroicons-magnifying-glass" class="w-full" autofocus />
             <div class="max-h-[300px] overflow-y-auto border rounded-lg dark:border-gray-800 custom-scrollbar">
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                  <tr v-for="m in filteredMembers" :key="m.id" class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors" @click="selectMember(m)">
-                    <td class="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white">{{ m.name }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-500">{{ displayValue(m.church_role_name) }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-500 text-right">{{ formatPhoneNumber(m.phone_number) }}</td>
+                  <tr v-for="d in filteredMembers" :key="d.id" class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors" @click="selectMember(d)">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white">
+                      <div class="flex items-center gap-2">
+                        <UIcon :name="d.donor_type === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="w-4 h-4 text-gray-400" />
+                        {{ d.name }}
+                      </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500 text-right">
+                      <UBadge variant="subtle" size="xs" color="neutral">
+                        {{ d.donor_type === 'MEMBER' ? '성도' : d.donor_type === 'CELL_GROUP' ? '구역' : '외부기관' }}
+                      </UBadge>
+                    </td>
                   </tr>
                   <tr v-if="filteredMembers.length === 0">
-                    <td colspan="3" class="px-4 py-8 text-center text-sm text-gray-500 italic">검색 결과가 없습니다.</td>
+                    <td colspan="2" class="px-4 py-8 text-center text-sm text-gray-500 italic">검색 결과가 없습니다.</td>
                   </tr>
                 </tbody>
               </table>
@@ -284,10 +303,12 @@ const form = reactive({
   transaction_date: new Date().toISOString().split('T')[0],
   type: 'INCOME' as 'INCOME' | 'EXPENSE',
   account_code: null as string | null,
+  fund_id: null as string | null,
   amount: 0,
   description: '',
-  member_id: null as string | null,
-  member_name: ''
+  donor_id: null as string | null,
+  donor_name: '',
+  donor_type: '' as 'MEMBER' | 'CELL_GROUP' | 'ORGANIZATION' | ''
 })
 
 const formAmountStr = ref('') // 콤마 포맷팅용 String 바인딩
@@ -297,7 +318,7 @@ watch([() => filters.type, pageSize], () => {
   currentPage.value = 1
 })
 
-// 성도 검색 모달이 닫힐 때 검색어 초기화 (변수 선언 이후로 이동하여 호이스팅 에러 해결)
+// 헌금자/지출처 검색 모달이 닫힐 때 검색어 초기화
 watch(isMemberSearchOpen, (newVal) => {
   if (!newVal) {
     memberSearchTerm.value = ''
@@ -322,10 +343,12 @@ const openModal = () => {
   form.transaction_date = new Date().toISOString().split('T')[0]
   form.type = 'INCOME'
   form.account_code = null
+  form.fund_id = null
   form.amount = 0
   form.description = ''
-  form.member_id = null
-  form.member_name = ''
+  form.donor_id = null
+  form.donor_name = ''
+  form.donor_type = ''
   formAmountStr.value = ''
   isModalOpen.value = true
 }
@@ -339,6 +362,9 @@ const changeFormType = (type: 'INCOME' | 'EXPENSE') => {
 const { data: accountsRes } = await useFetch('/api/accounts')
 const allAccounts = computed(() => (accountsRes.value as any)?.data || [])
 
+const { data: fundsRes } = await useFetch('/api/funds')
+const allFunds = computed(() => (fundsRes.value as any)?.data || [])
+
 // 현재 선택된 타입과 Level=2(입력가능 계정)만 필터링
 const filteredAccounts = computed(() => {
   return allAccounts.value.filter((a: any) => a.type === form.type && a.level === 2 && a.is_active)
@@ -348,37 +374,50 @@ const selectedAccount = computed(() => {
   return filteredAccounts.value.find((a: any) => a.code === form.account_code)
 })
 
-// 4. 성도 검색 연동
-const { data: membersRes } = await useFetch('/api/members', { query: { limit: 10000, tab: 'CURRENT' } })
-const allMembers = computed(() => (membersRes.value as any)?.data || [])
+// 계정 선택 시 기본 통장이 설정되어 있다면 자동 매핑
+watch(() => form.account_code, (newCode) => {
+  if (newCode) {
+    const account = filteredAccounts.value.find((a: any) => a.code === newCode)
+    if (account && account.default_fund_id) {
+      form.fund_id = account.default_fund_id
+    }
+  }
+})
+
+// 4. 통합 헌금자(Donors) 검색 연동
+const { data: donorsRes } = await useFetch('/api/donors', { query: { type: 'ALL' } })
+const allDonors = computed(() => (donorsRes.value as any)?.data || [])
 
 const filteredMembers = computed(() => {
-  if (!memberSearchTerm.value) return allMembers.value.slice(0, 30)
-  return allMembers.value.filter((m: any) => 
-    m.name.includes(memberSearchTerm.value) || 
-    (m.phone_number && m.phone_number.includes(memberSearchTerm.value))
+  if (!memberSearchTerm.value) return allDonors.value.slice(0, 30)
+  const term = memberSearchTerm.value.toLowerCase()
+  return allDonors.value.filter((d: any) => 
+    d.name.toLowerCase().includes(term)
   )
 })
 
-const selectMember = (m: any) => {
-  form.member_id = m.id
-  form.member_name = m.name
+const selectMember = (d: any) => {
+  form.donor_id = d.id
+  form.donor_name = d.name
+  form.donor_type = d.donor_type
   isMemberSearchOpen.value = false
 }
 
 const clearMember = () => {
-  form.member_id = null
-  form.member_name = ''
+  form.donor_id = null
+  form.donor_name = ''
+  form.donor_type = ''
 }
 
 // 5. CRUD 로직
 const saveTransaction = async () => {
   if (!form.transaction_date) { ui.showAlert('입력 오류', '전표 일자를 선택해주세요.', 'warning'); return }
   if (!form.account_code) { ui.showAlert('입력 오류', '계정과목을 선택해주세요.', 'warning'); return }
+  if (!form.fund_id) { ui.showAlert('입력 오류', '자금(통장)을 선택해주세요.', 'warning'); return }
   if (form.amount <= 0) { ui.showAlert('입력 오류', '금액은 0보다 커야 합니다.', 'warning'); return }
-  if (form.type === 'INCOME' && !form.member_id) {
-    const confirmNoMember = await ui.showConfirm('확인', '헌금자를 지정하지 않고 무명으로 저장하시겠습니까?', 'info')
-    if (!confirmNoMember) return
+  if (form.type === 'INCOME' && !form.donor_id) {
+    const confirmNoDonor = await ui.showConfirm('확인', '헌금자를 지정하지 않고 무명으로 저장하시겠습니까?', 'info')
+    if (!confirmNoDonor) return
   }
 
   isSaving.value = true
@@ -386,9 +425,10 @@ const saveTransaction = async () => {
     const payload = {
       transaction_date: form.transaction_date,
       account_code: form.account_code,
+      fund_id: form.fund_id,
       amount: form.amount,
       description: form.description,
-      member_id: form.type === 'INCOME' ? form.member_id : null // 지출이면 성도 정보 NULL
+      donor_id: form.donor_id
     }
 
     const res: any = await $fetch('/api/transactions', { method: 'POST', body: payload })
@@ -428,7 +468,7 @@ const downloadExcel = async () => {
     '계정코드': t.account_code,
     '계정과목': t.account_name,
     '금액': t.amount,
-    '성도명': displayValue(t.member_name),
+    '헌금자/지출처': displayValue(t.donor_name),
     '적요': displayValue(t.description)
   })
   await fetchAndDownloadExcel('/api/transactions', filters, mapper, '전표목록')

@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     
     // 1. Validation
-    if (!body.transaction_date || !body.account_code || body.amount === undefined) {
-      throw createError({ statusCode: 400, statusMessage: '필수 항목(일자, 계정코드, 금액)이 누락되었습니다.' })
+    if (!body.transaction_date || !body.account_code || !body.fund_id || body.amount === undefined) {
+      throw createError({ statusCode: 400, statusMessage: '필수 항목(일자, 계정코드, 자금코드, 금액)이 누락되었습니다.' })
     }
 
     if (Number(body.amount) <= 0) {
@@ -18,9 +18,10 @@ export default defineEventHandler(async (event) => {
       .values({
         transaction_date: body.transaction_date,
         account_code: body.account_code,
+        fund_id: body.fund_id,
         amount: Number(body.amount),
         description: body.description || null,
-        member_id: body.member_id || null
+        donor_id: body.donor_id || null
       })
       .returningAll()
       .executeTakeFirstOrThrow()

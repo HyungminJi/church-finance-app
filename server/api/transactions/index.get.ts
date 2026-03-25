@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   try {
     let baseQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
-      .leftJoin('members as m', 't.member_id', 'm.id')
+      .leftJoin('donors as d', 't.donor_id', 'd.id')
 
     // 1. 유형 필터 (수입/지출)
     if (type && type !== 'ALL') {
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     if (keyword) {
       baseQuery = baseQuery.where((eb) => eb.or([
         eb('t.description', 'ilike', `%${keyword}%`),
-        eb('m.name', 'ilike', `%${keyword}%`)
+        eb('d.name', 'ilike', `%${keyword}%`)
       ]))
     }
 
@@ -60,8 +60,9 @@ export default defineEventHandler(async (event) => {
         'a.type as account_type',
         't.amount',
         't.description',
-        't.member_id',
-        'm.name as member_name',
+        't.donor_id',
+        'd.name as donor_name',
+        'd.donor_type',
         't.created_at'
       ])
       .orderBy('t.transaction_date', 'desc')

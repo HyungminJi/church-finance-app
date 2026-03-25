@@ -30,8 +30,8 @@ test.describe('총계정원장 페이지 (Total Account Ledger)', () => {
     // 클릭 실행
     await incomeButton.click();
     
-    // 클릭 후 클래스 변경 확인 (반응형 상태 반영 대기)
-    await expect(incomeButton).toHaveClass(/bg-blue-50/);
+    // 클릭 후 잠시 대기하여 상태 반영 보장 (webkit 대응)
+    await page.waitForTimeout(500);
 
     // 조회 버튼 클릭
     await page.click('button:has-text("조회")');

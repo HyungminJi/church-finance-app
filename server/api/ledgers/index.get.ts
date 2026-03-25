@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     // 2. 해당 기간 내의 트랜잭션 조회
     let txQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
-      .leftJoin('members as m', 't.member_id', 'm.id')
+      .leftJoin('donors as d', 't.donor_id', 'd.id')
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
 
@@ -62,7 +62,8 @@ export default defineEventHandler(async (event) => {
         'a.type as account_type',
         't.amount',
         't.description',
-        'm.name as member_name'
+        'd.name as donor_name',
+        'd.donor_type'
       ])
       .orderBy('t.transaction_date', 'asc') // 시간순 정렬 (원장 표시용)
       .orderBy('t.created_at', 'asc')

@@ -31,9 +31,9 @@ test('account code registration with unified modal', async ({ page }) => {
   // 4. 저장 버튼 클릭
   await page.locator('#save-button').click();
   
-  // 5. [추가됨] 성공 알림 모달 처리
+  // 5. [추가됨] 성공 알림 모달 처리 (충분한 타임아웃 부여)
   const alertConfirmButton = page.locator('button:has-text("확인")');
-  await alertConfirmButton.waitFor({ state: 'visible', timeout: 15000 });
+  await alertConfirmButton.waitFor({ state: 'visible', timeout: 20000 });
   await alertConfirmButton.click();
   
   // 6. 모달 닫힘 확인

@@ -15,9 +15,10 @@ export default defineEventHandler(async (event) => {
         .values(transactions.map(t => ({
           transaction_date: t.transaction_date,
           account_code: t.account_code,
+          fund_id: t.fund_id || null,
           amount: Number(t.amount),
           description: t.description || null,
-          member_id: t.member_id || null
+          donor_id: t.donor_id || null
         })))
         .returningAll()
         .execute()

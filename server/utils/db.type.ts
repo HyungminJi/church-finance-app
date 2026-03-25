@@ -8,10 +8,20 @@ export interface AccountsTable {
   created_at: Generated<Date>
   parent_code: string | null
   level: number
+  default_fund_id: string | null
+}
+
+// 최상위 헌금자 (Donor Supertype)
+export interface DonorsTable {
+  id: Generated<string>
+  donor_type: 'MEMBER' | 'CELL_GROUP' | 'ORGANIZATION'
+  name: string
+  created_at: Generated<Date>
 }
 
 export interface MembersTable {
   id: Generated<string>
+  donor_id: string // donors 참조
   name: string
   phone_number: string
   spouse_name: string | null
@@ -30,9 +40,21 @@ export interface MembersTable {
 
 export interface CellGroupsTable {
   id: Generated<string>
+  donor_id: string // donors 참조
   name: string
   leader_id: string | null
   parent_group: string | null
+  is_active: boolean | null
+  created_at: Generated<Date>
+}
+
+export interface OrganizationsTable {
+  id: Generated<string>
+  donor_id: string // donors 참조
+  name: string
+  org_type: string | null
+  contact_info: string | null
+  description: string | null
   is_active: boolean | null
   created_at: Generated<Date>
 }
@@ -64,12 +86,28 @@ export interface BudgetsTable {
 
 export interface TransactionsTable {
   id: Generated<string>
+  transaction_date: string | Date
   account_code: string
   amount: number
-  transaction_date: string | Date
   description: string | null
-  member_id: string | null
+  donor_id: string | null // 기존 member_id 대체
+  receipt_id: string | null
+  fund_id: string | null
   created_at: Generated<Date>
+}
+
+export interface FundsTable {
+  id: Generated<string>
+  name: string
+  bank_name: string | null
+  account_number: string | null
+  book_type: string | null
+  category: string | null
+  initial_balance: number
+  description: string | null
+  is_active: boolean | null
+  created_at: Generated<Date>
+  updated_at: Generated<Date>
 }
 
 export interface UsersTable {
@@ -92,6 +130,7 @@ export interface PledgeCampaignsTable {
   target_amount: number
   account_code: string
   is_active: boolean | null
+  fund_id: string | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
 }
@@ -106,10 +145,26 @@ export interface MemberPledgesTable {
   created_at: Generated<Date>
 }
 
+export interface ReceiptsTable {
+  id: Generated<string>
+  receipt_number: string
+  member_id: string
+  target_year: number
+  total_amount: number
+  issued_date: Generated<string | Date>
+  issued_by: string | null
+  status: 'ISSUED' | 'CANCELLED'
+  notes: string | null
+  created_at: Generated<Date>
+  updated_at: Generated<Date>
+}
+
 export interface Database {
   accounts: AccountsTable
+  donors: DonorsTable
   members: MembersTable
   cell_groups: CellGroupsTable
+  organizations: OrganizationsTable
   common_groups: CommonGroupsTable
   common_codes: CommonCodesTable
   budgets: BudgetsTable
@@ -117,4 +172,6 @@ export interface Database {
   users: UsersTable
   pledge_campaigns: PledgeCampaignsTable
   member_pledges: MemberPledgesTable
+  funds: FundsTable
+  receipts: ReceiptsTable
 }

@@ -146,8 +146,9 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ tx.description || '-' }}
-                  <span v-if="tx.member_name" class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                    {{ tx.member_name }}
+                  <span v-if="tx.donor_name" class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                    <UIcon :name="tx.donor_type === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="w-2.5 h-2.5 mr-1 text-gray-400" />
+                    {{ tx.donor_name }}
                   </span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-brand-blue font-mono font-bold">
