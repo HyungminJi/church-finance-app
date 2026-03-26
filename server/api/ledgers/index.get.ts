@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const startDate = query.startDate as string
   const endDate = query.endDate as string
   const accountCode = query.accountCode as string // 특정 계정코드 선택 시
+  const fundId = query.fundId as string // 특정 자금(통장) 선택 시
   
   if (!startDate || !endDate) {
     throw createError({
@@ -22,8 +23,11 @@ export default defineEventHandler(async (event) => {
       .where('t.transaction_date', '<', startDate)
       
     if (accountCode) {
-      // 특정 계정인 경우 해당 계정의 총합만 계산 (단식부기에서 수입은 +, 지출은 +로 저장되지만 잔액은 수입-지출)
       previousBalanceQuery = previousBalanceQuery.where('t.account_code', '=', accountCode)
+    }
+
+    if (fundId) {
+      previousBalanceQuery = previousBalanceQuery.where('t.fund_id', '=', fundId)
     }
 
     const prevResult = await previousBalanceQuery
@@ -35,12 +39,7 @@ export default defineEventHandler(async (event) => {
 
     const prevIncome = Number(prevResult?.prev_income || 0)
     const prevExpense = Number(prevResult?.prev_expense || 0)
-    // 계정에 상관없이 잔액은 수입 누적 - 지출 누적
     let previousBalance = prevIncome - prevExpense
-
-    // 단, 지출 전용 계정만 조회할 때는 누적 지출액을 잔액으로 표기하는 것이 자연스러울 수 있으나
-    // 일반적인 단식부기 원장에서는 "전체 현금 잔액" 또는 "해당 계정의 발생 누적"을 의미합니다.
-    // 여기서는 수입-지출을 기본 잔액으로 하되 클라이언트에서 유연하게 사용할 수 있도록 값을 모두 넘겨줍니다.
 
     // 2. 해당 기간 내의 트랜잭션 조회
     let txQuery = db.selectFrom('transactions as t')
@@ -51,6 +50,10 @@ export default defineEventHandler(async (event) => {
 
     if (accountCode) {
       txQuery = txQuery.where('t.account_code', '=', accountCode)
+    }
+
+    if (fundId) {
+      txQuery = txQuery.where('t.fund_id', '=', fundId)
     }
 
     const transactions = await txQuery
@@ -65,11 +68,11 @@ export default defineEventHandler(async (event) => {
         'd.name as donor_name',
         'd.donor_type'
       ])
-      .orderBy('t.transaction_date', 'asc') // 시간순 정렬 (원장 표시용)
+      .orderBy('t.transaction_date', 'asc')
       .orderBy('t.created_at', 'asc')
       .execute()
 
-    // 3. 런타임 잔액 계산 (서버에서 미리 계산하여 전달)
+    // 3. 런타임 잔액 계산
     let currentBalance = previousBalance
     let totalIncome = 0
     let totalExpense = 0

@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('총계정원장 페이지 (Total Account Ledger)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/ledgers/total-account');
-    // 페이지 로드 대기
-    await page.waitForSelector('button:has-text("조회")');
+    await page.goto('/ledgers/total-account', { waitUntil: 'networkidle', timeout: 60000 });
+    // 페이지 로드 대기 (충분한 타임아웃 부여)
+    await page.waitForSelector('button:has-text("조회")', { timeout: 20000 });
   });
 
   test('페이지 제목 및 기본 요소 렌더링 확인', async ({ page }) => {

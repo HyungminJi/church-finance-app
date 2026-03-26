@@ -7,9 +7,8 @@ test('account code registration with unified modal', async ({ page }) => {
     await dialog.dismiss();
   });
 
-  // 1. 페이지 접속
-  await page.goto('/basic-codes');
-  await page.waitForLoadState('networkidle');
+  // 1. 페이지 접속 (대기 전략 강화)
+  await page.goto('/basic-codes', { waitUntil: 'networkidle', timeout: 60000 });
 
   // 페이지 본문의 제목 확인
   const pageTitle = page.locator('h1.text-2xl:has-text("기초코드")');

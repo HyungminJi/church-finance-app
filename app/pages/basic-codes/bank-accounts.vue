@@ -91,7 +91,7 @@
             </template>
             
             <template #current_balance-cell="{ row }">
-              <div class="text-right">
+              <div class="text-left">
                 <div class="font-mono font-black text-sm text-gray-900 dark:text-white">
                   {{ formatNumber(row.original.current_balance) }}
                 </div>
@@ -116,7 +116,7 @@
             </template>
 
             <template #actions-cell="{ row }">
-              <div class="flex gap-1 justify-end">
+              <div class="flex gap-1 justify-start">
                 <UTooltip text="상세 장부 보기">
                   <UButton class="cursor-pointer" variant="ghost" color="neutral" icon="i-heroicons-list-bullet" size="xs" @click="goToLedger(row.original)" />
                 </UTooltip>
@@ -258,9 +258,9 @@ const columns = [
   { accessorKey: 'name', header: '자금/통장명' },
   { accessorKey: 'category', header: '분류' },
   { accessorKey: 'account_number', header: '계좌번호' },
-  { accessorKey: 'current_balance', header: '현재 잔액', class: 'text-right' },
+  { accessorKey: 'current_balance', header: '현재 잔액' },
   { accessorKey: 'is_active', header: '상태' },
-  { accessorKey: 'actions', header: '관리', class: 'text-right' }
+  { accessorKey: 'actions', header: '관리' }
 ]
 
 // 3. 폼 및 모달 제어

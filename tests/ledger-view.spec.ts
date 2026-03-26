@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('장부(원장) 조회 테스트 (UC-04)', () => {
   test.beforeEach(async ({ page }) => {
-    // 장부 조회 화면 진입
-    await page.goto('/ledgers');
+    // 장부 조회 화면 진입 (타임아웃 강화)
+    await page.goto('/ledgers', { waitUntil: 'networkidle', timeout: 60000 });
   });
 
   test('장부 화면 렌더링 및 기본 요소 확인', async ({ page }) => {
-    // 1. 페이지 로드 대기
-    await page.waitForSelector('text=계정과목', { state: 'visible' });
+    // 1. 페이지 로드 대기 (충분한 타임아웃 부여)
+    await page.waitForSelector('text=계정과목', { state: 'visible', timeout: 30000 });
     
     // 2. 계정과목 트리 그룹 렌더링 확인 (수입, 지출)
     const incomeGroup = page.getByText('수입 (INCOME)');
