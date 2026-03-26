@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const endDate = query.endDate as string
   const accountCode = query.accountCode as string // 특정 계정코드 선택 시
   const fundId = query.fundId as string // 특정 자금(통장) 선택 시
+  const accountType = query.type as 'INCOME' | 'EXPENSE' // [추가] 계정 그룹(수입/지출) 필터
   
   if (!startDate || !endDate) {
     throw createError({
@@ -24,6 +25,9 @@ export default defineEventHandler(async (event) => {
       
     if (accountCode) {
       previousBalanceQuery = previousBalanceQuery.where('t.account_code', '=', accountCode)
+    } else if (accountType) {
+      // [추가] 계정 유형(수입/지출) 그룹 조회 시
+      previousBalanceQuery = previousBalanceQuery.where('a.type', '=', accountType)
     }
 
     if (fundId) {
@@ -50,6 +54,9 @@ export default defineEventHandler(async (event) => {
 
     if (accountCode) {
       txQuery = txQuery.where('t.account_code', '=', accountCode)
+    } else if (accountType) {
+      // [추가] 계정 유형(수입/지출) 그룹 조회 시
+      txQuery = txQuery.where('a.type', '=', accountType)
     }
 
     if (fundId) {

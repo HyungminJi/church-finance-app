@@ -17,7 +17,7 @@ test.describe('장부(원장) 조회 테스트 (UC-04)', () => {
     await expect(expenseGroup).toBeVisible();
 
     // 3. 전기 이월 행 확인 (텍스트 매칭 유연하게 처리 및 충분한 대기)
-    const prevBalanceRow = page.locator('td').filter({ hasText: /전기 이월/ });
+    const prevBalanceRow = page.locator('td').filter({ hasText: /전기 ?이월/ });
     await expect(prevBalanceRow.first()).toBeVisible({ timeout: 10000 });
 
     // 4. 기간 설정 요소 확인 (오늘/이번달 등의 프리셋 버튼들)
