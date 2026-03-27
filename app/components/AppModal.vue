@@ -4,6 +4,7 @@
     :prevent-close="ui.type === 'prompt'"
     :title="ui.title || defaultTitle"
     :description="ui.message"
+    :ui="{ wrapper: 'z-[10000]' }"
   >
     <template #content>
       <div class="p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">

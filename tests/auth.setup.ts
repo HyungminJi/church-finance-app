@@ -3,10 +3,10 @@ import { test as setup, expect } from '@playwright/test';
 const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
-  // 1. 로그인 페이지 접속
-  await page.goto('/auth/login', { waitUntil: 'networkidle' });
+  // 1. 로그인 페이지 접속 (대기 전략 및 타임아웃 강화)
+  await page.goto('/auth/login', { waitUntil: 'networkidle', timeout: 60000 });
 
-  // 2. 요소 로드 대기
+  // 2. 요소 로드 대기 (안전한 타임아웃 부여)
   const idInput = page.locator('input[placeholder="아이디를 입력하세요"]');
   await idInput.waitFor({ state: 'visible', timeout: 30000 });
 
