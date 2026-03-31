@@ -428,11 +428,39 @@ const downloadExcel = () => {
 onMounted(() => refresh())
 </script>
 
-<style scoped>
+<style>
+/* 
+  인쇄 미리보기 시 모달 가려짐 문제를 해결하기 위한 전역 가시성 역전 전략 
+  scoped를 제거하여 Teleport된 모달 요소까지 완벽하게 제어합니다.
+*/
 @media print {
-  .no-print { display: none !important; }
-  .print-box { display: block !important; padding: 20px; background: #ffffff; }
+  /* 1. 일단 화면의 모든 요소를 숨깁니다. (포탈로 나간 모달 포함) */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* 2. 인쇄할 영수증 영역과 그 하위 요소들만 다시 보이게 설정합니다. */
+  #print-receipt-content,
+  #print-receipt-content * {
+    visibility: visible !important;
+  }
+
+  /* 3. 영수증 영역을 종이 최상단(0,0)에 고정합니다. */
+  #print-receipt-content {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* 배경색 및 스타일 유실 방지 */
+  * { 
+    -webkit-print-color-adjust: exact !important; 
+    print-color-adjust: exact !important; 
+  }
 }
+
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
 </style>
