@@ -6,9 +6,9 @@
         <!-- 기간 선택 -->
         <div class="flex items-center space-x-2">
           <label class="text-sm font-bold text-gray-700 dark:text-gray-300">조회 기간:</label>
-          <UInput v-model="startDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="refresh" />
+          <UInput v-model="startDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="() => refresh()" />
           <span class="text-gray-500 font-bold">~</span>
-          <UInput v-model="endDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="refresh" />
+          <UInput v-model="endDate" type="date" class="w-36 font-mono text-sm cursor-pointer" @change="() => refresh()" />
         </div>
         
         <div class="border-l border-gray-300 h-6 dark:border-gray-600"></div>
@@ -27,7 +27,7 @@
           variant="ghost" 
           class="cursor-pointer" 
           :loading="pending"
-          @click="refresh" 
+          @click="() => refresh()" 
         />
         <UButton 
           icon="i-heroicons-table-cells" 
@@ -156,7 +156,7 @@
           
           <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             <div v-for="(item, idx) in statData.slice(0, 6)" :key="idx" class="flex items-center gap-3">
-              <span class="w-3 h-3 rounded-full shrink-0 shadow-sm" :style="{ backgroundColor: chartColors[idx % chartColors.length] }"></span>
+              <span class="w-3 h-3 rounded-full shrink-0 shadow-sm" :style="{ backgroundColor: chartColors[(idx as number) % chartColors.length] }"></span>
               <span class="text-xs font-bold text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ item.label }}</span>
               <span class="text-xs font-black font-mono text-gray-400 ml-auto">{{ calculateRate(item.amount) }}%</span>
             </div>

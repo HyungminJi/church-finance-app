@@ -1,4 +1,4 @@
-import { db } from '../server/utils/db.js'
+import { db } from '../app/server/utils/db'
 
 async function check() {
   const data = await db.selectFrom('transactions as t')

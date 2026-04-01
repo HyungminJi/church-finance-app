@@ -134,11 +134,12 @@ const { data: response, refresh, pending } = await useFetch('/api/budget', {
 
 const budgetData = ref<any[]>([])
 
-watch(response, (newVal) => {
+watch(response, (newVal: any) => {
   if (newVal?.data) {
     budgetData.value = newVal.data.map((item: any) => ({ ...item }))
   }
 }, { immediate: true })
+
 
 // 2. 계층형 합계 계산 로직 (반응성 유지)
 const processedBudgets = computed(() => {

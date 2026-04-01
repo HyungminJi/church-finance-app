@@ -105,7 +105,7 @@
 
             <div class="flex justify-between items-center mt-6 pt-4 border-t dark:border-gray-800">
               <div class="flex gap-2">
-                <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="refresh" class="cursor-pointer px-8 font-bold">조회하기</UButton>
+                <UButton icon="i-heroicons-magnifying-glass" color="primary" @click="() => refresh()" class="cursor-pointer px-8 font-bold">조회하기</UButton>
                 <UButton class="cursor-pointer" variant="ghost" color="neutral" @click="resetFilters">초기화</UButton>
               </div>
               <div class="flex gap-2 items-center">
@@ -143,17 +143,17 @@
             <template #user_role-cell="{ row }">
               <UBadge 
                 v-if="row.original.user_role" 
-                :color="getRoleBadgeColor(row.original.user_role)" 
+                :color="getRoleBadgeColor(row.original.user_role as number)" 
                 variant="solid" 
                 class="font-bold px-2.5 py-0.5"
               >
-                {{ getRoleInfo(row.original.user_role).label }}
+                {{ getRoleInfo(row.original.user_role as number).label }}
               </UBadge>
               <span v-else class="text-gray-300">-</span>
             </template>
 
             <template #phone_number-cell="{ row }">
-              {{ formatPhoneNumber(row.original.phone_number) }}
+              {{ formatPhoneNumber(row.original.phone_number as string) }}
             </template>
 
             <template #is_active-cell="{ row }">
@@ -164,7 +164,7 @@
 
             <template #removed_date-cell="{ row }">
               <span v-if="row.original.removed_date" class="text-red-600 dark:text-red-400 font-bold">
-                {{ formatDate(row.original.removed_date) }}
+                {{ formatDate(row.original.removed_date as string) }}
               </span>
               <span v-else>-</span>
             </template>
@@ -568,9 +568,9 @@ const getRoleBadgeColor = (role: any) => {
 
 const dynamicSysRoles = computed(() => {
   const currentVal = form.user_role ? parseInt(form.user_role as any) : null
-  let filtered = sysRoles.value.filter(r => r.code >= currentUserRole.value)
-  if (currentVal !== null && !filtered.some(r => r.code === currentVal)) {
-    const originalRole = sysRoles.value.find(r => r.code === currentVal)
+  let filtered = sysRoles.value.filter((r: any) => r.code >= currentUserRole.value)
+  if (currentVal !== null && !filtered.some((r: any) => r.code === currentVal)) {
+    const originalRole = sysRoles.value.find((r: any) => r.code === currentVal)
     if (originalRole) filtered = [originalRole, ...filtered]
   }
   return filtered

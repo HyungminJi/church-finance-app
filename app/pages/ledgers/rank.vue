@@ -102,8 +102,8 @@
                 class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group">
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <div class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-black text-sm shadow-sm"
-                     :class="getRankStyle(idx)">
-                  {{ idx + 1 }}
+                     :class="getRankStyle(idx as number)">
+                  {{ (idx as number) + 1 }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">

@@ -21,7 +21,7 @@
             <UButton icon="i-heroicons-plus-circle" color="primary" @click="() => openModal()" class="cursor-pointer font-bold px-6 shadow-md text-sm">
               자금/통장 추가
             </UButton>
-            <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" :loading="pending" @click="refresh" class="cursor-pointer" />
+            <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" :loading="pending" @click="() => refresh()" class="cursor-pointer" />
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@
             </template>
 
             <template #category-cell="{ row }">
-              <UBadge variant="subtle" :color="getCategoryColor(row.original.category)" class="font-bold px-2 py-0.5">
+              <UBadge variant="subtle" :color="getCategoryColor(row.original.category as string)" class="font-bold px-2 py-0.5">
                 {{ row.original.category || '미분류' }}
               </UBadge>
             </template>
@@ -93,9 +93,9 @@
             <template #current_balance-cell="{ row }">
               <div class="text-left">
                 <div class="font-mono font-black text-sm text-gray-900 dark:text-white">
-                  {{ formatNumber(row.original.current_balance) }}
+                  {{ formatNumber(row.original.current_balance as number) }}
                 </div>
-                <div class="text-[9px] text-gray-400">초기: {{ formatNumber(row.original.initial_balance) }}</div>
+                <div class="text-[9px] text-gray-400">초기: {{ formatNumber(row.original.initial_balance as number) }}</div>
               </div>
             </template>
 

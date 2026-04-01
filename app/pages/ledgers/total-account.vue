@@ -211,17 +211,18 @@ const fetchLedger = async () => {
   
   pending.value = true
   try {
-    const response = await $fetch('/api/ledgers/total', {
+    const response: any = await $fetch('/api/reports/summary', {
       params: {
         startDate: startDate.value,
         endDate: endDate.value,
         type: typeFilter.value
       }
     })
-    
+
     if (response.success) {
       accounts.value = response.data
     }
+
   } catch (error) {
     console.error('Failed to fetch total accounts:', error)
     alert('총계정원장 데이터를 불러오는 중 오류가 발생했습니다.')

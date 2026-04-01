@@ -94,9 +94,9 @@
                   label-key="name" 
                   placeholder="전체 자금/통장" 
                   class="w-48 cursor-pointer shadow-sm bg-white dark:bg-gray-800"
-                  @change="fetchData"
+                  @change="() => fetchData()"
                 >
-                  <template #label>
+                  <template #default>
                     <span v-if="selectedFund" class="flex items-center gap-2 truncate">
                       <UIcon name="i-heroicons-banknotes" class="text-brand-blue shrink-0" />
                       {{ selectedFund.name }}

@@ -3,11 +3,11 @@
     <!-- 1. 상단 필터 영역 -->
     <div class="no-print bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap gap-6 items-end sticky top-[-32px] z-20">
       <UFormField label="귀속 연도" class="w-32">
-        <USelectMenu v-model="selectedYear" :items="yearOptions" class="w-full cursor-pointer font-black" @change="refresh" />
+        <USelectMenu v-model="selectedYear" :items="yearOptions" class="w-full cursor-pointer font-black" @change="() => refresh()" />
       </UFormField>
 
       <UFormField label="성도 검색" class="flex-1 min-w-[200px]">
-        <UInput v-model="keyword" placeholder="성도 이름 입력" icon="i-heroicons-magnifying-glass" class="w-full" @keyup.enter="refresh" />
+        <UInput v-model="keyword" placeholder="성도 이름 입력" icon="i-heroicons-magnifying-glass" class="w-full" @keyup.enter="() => refresh()" />
       </UFormField>
 
       <div class="flex gap-2">
@@ -17,13 +17,13 @@
           variant="ghost" 
           class="cursor-pointer" 
           :loading="pending"
-          @click="refresh" 
+          @click="() => refresh()" 
         />
         <UButton 
           label="조회하기" 
           color="primary" 
           class="cursor-pointer font-black px-8 shadow-md" 
-          @click="refresh" 
+          @click="() => refresh()" 
         />
       </div>
     </div>
@@ -156,45 +156,47 @@
       </template>
     </UModal>
 
-    <!-- 4. [기본 인쇄용] 영역 -->
+    <!-- 4. [인쇄 전용] 공식 서식 -->
     <div v-if="selectedDonor" id="print-receipt-content" class="hidden print:block print-box bg-white text-black">
-      <div class="receipt-print-wrapper">
-        <h1 style="text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; margin-bottom: 40px;">기 부 금 영 수 증</h1>
-        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt;">
-          <span>일련번호: {{ selectedDonor.receipt_number }}</span>
-          <span>귀속연도: {{ selectedYear }}년</span>
-        </div>
-        <table style="width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px;">
-          <tbody>
-            <tr>
-              <th rowspan="3" style="border: 1px solid black; background: #f0f0f0; width: 100px; padding: 10px;">기부자</th>
-              <td style="border: 1px solid black; padding: 10px;">성 명: {{ selectedDonor.name }}</td>
-              <td style="border: 1px solid black; padding: 10px;">주민번호: {{ form.resident_no || '******-*******' }}</td>
-            </tr>
-            <tr><td colspan="2" style="border: 1px solid black; padding: 10px;">주 소: {{ form.address }}</td></tr>
-            <tr><td colspan="2" style="border: 1px solid black; padding: 10px;">전화번호: {{ selectedDonor.phone_number || '-' }}</td></tr>
-            <tr style="height: 60px;">
-              <th style="border: 1px solid black; background: #f0f0f0; padding: 10px;">기부금액</th>
-              <td colspan="2" style="border: 1px solid black; padding: 10px; font-size: 16pt; font-weight: 900;">
-                일금 {{ amountToKorean(selectedDonor.total_amount) }}원 정 (￦ {{ formatNumber(selectedDonor.total_amount) }})
-              </td>
-            </tr>
-            <tr>
-              <th rowspan="3" style="border: 1px solid black; background: #f0f0f0; width: 100px; padding: 10px;">기부금<br/>단체</th>
-              <td style="border: 1px solid black; padding: 10px;">단체명: 꿈미교회</td>
-              <td style="border: 1px solid black; padding: 10px;">고유번호: 123-45-67890</td>
-            </tr>
-            <tr><td colspan="2" style="border: 1px solid black; padding: 10px;">소재지: 서울특별시 강남구 ...</td></tr>
-            <tr><td colspan="2" style="border: 1px solid black; padding: 10px;">대표자: 홍길동</td></tr>
-          </tbody>
-        </table>
-        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 14pt; font-weight: bold; margin-top: 60px;">
-          <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
-          <div style="font-size: 20pt; margin-top: 30px;">{{ formatDate(new Date()) }}</div>
-        </div>
-        <div style="display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; margin-top: 40px;">
-          <span style="font-size: 24pt; font-weight: 900; letter-spacing: 5px;">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
-          <div style="width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 50px; transform: rotate(15deg);">직 인</div>
+      <div class="official-receipt-wrapper">
+        <div class="official-border-box">
+          <h1 class="receipt-title-text">기 부 금 영 수 증</h1>
+          <div class="receipt-meta-flex">
+            <span>일련번호: {{ selectedDonor.receipt_number || '2026-XXXX' }}</span>
+            <span>귀속연도: {{ selectedYear }}년</span>
+          </div>
+          <table class="receipt-official-table">
+            <tbody>
+              <tr>
+                <th class="label-cell" rowspan="3">기부자</th>
+                <td class="content-cell" style="width: 200px;">성 명: {{ selectedDonor.name }}</td>
+                <td class="content-cell">주민번호: {{ form.resident_no || '******-*******' }}</td>
+              </tr>
+              <tr><td class="content-cell" colspan="2">주 소: {{ form.address }}</td></tr>
+              <tr><td class="content-cell" colspan="2">전화번호: {{ selectedDonor.phone_number || '-' }}</td></tr>
+              <tr class="amount-height">
+                <th class="label-cell">기부금액</th>
+                <td class="amount-cell" colspan="2">
+                  일금 {{ amountToKorean(selectedDonor.total_amount) }}원 정 (￦ {{ formatNumber(selectedDonor.total_amount) }})
+                </td>
+              </tr>
+              <tr>
+                <th class="label-cell" rowspan="3">기부금<br/>단체</th>
+                <td class="content-cell">단체명: 꿈미교회</td>
+                <td class="content-cell">고유번호: 123-45-67890</td>
+              </tr>
+              <tr><td class="content-cell" colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
+              <tr><td class="content-cell" colspan="2">대표자: 홍길동</td></tr>
+            </tbody>
+          </table>
+          <div class="receipt-statement-box">
+            <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
+            <p class="receipt-date-text">{{ formatDate(new Date()) }}</p>
+          </div>
+          <div class="receipt-footer-flex">
+            <span class="church-title-text">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
+            <div class="official-seal-circle">직 인</div>
+          </div>
         </div>
       </div>
     </div>
@@ -203,13 +205,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { formatNumber, formatDate, displayValue } from '~/utils/formatter'
+import { formatNumber, formatDate } from '~/utils/formatter'
 import { useUIStore } from '~/stores/ui'
 import * as XLSX from 'xlsx'
 
 const ui = useUIStore()
 
-// 1. 상태 관리
 const currentYear = new Date().getFullYear()
 const selectedYear = ref(currentYear)
 const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
@@ -221,15 +222,11 @@ const { data: response, pending, refresh } = await useFetch('/api/reports/receip
 })
 
 const donors = computed(() => (response.value as any)?.data || [])
-
-// 2. 모달 및 폼
 const isModalOpen = ref(false)
 const isSaving = ref(false)
 const selectedDonor = ref<any>(null)
 
-const form = reactive({
-  address: '', resident_no: '', usage: '연말정산용', notes: '', email: ''
-})
+const form = reactive({ address: '', resident_no: '', usage: '연말정산용', notes: '', email: '' })
 
 const openIssuanceModal = (donor: any) => {
   selectedDonor.value = donor
@@ -241,7 +238,6 @@ const openIssuanceModal = (donor: any) => {
   isModalOpen.value = true
 }
 
-// 3. 기능 로직
 const issueReceipt = async () => {
   if (!form.address || !form.usage) { ui.showAlert('입력 오류', '주소와 용도는 필수입니다.', 'warning'); return }
   isSaving.value = true
@@ -267,122 +263,81 @@ const issueReceipt = async () => {
   }
 }
 
-// [궁극의 해결책] PDF 다운로드 - 완전 격리 샌드박스(True Sandbox) 방식
-// 1. TypeError(this._resolveDef) 차단: Nuxt 환경이 없는 별도 Iframe에서 라이브러리 실행
-// 2. oklch 에러 차단: Tailwind 스타일이 없는 순수 HEX 컬러 CSS만 주입
-// 3. 백지 현상 차단: 1.5초(1500ms)의 동기화 대기 시간 보장
+// [정규화] PDF 다운로드 - 빌드 파서 충돌 가능성 0% 버전
 const downloadPDF = async (donor: any) => {
   if (!donor) return
-  ui.showAlert('PDF 제작', '격리된 샌드박스 환경에서 PDF를 안전하게 제작 중입니다...', 'info')
+  ui.showAlert('PDF 제작', '격리된 환경에서 PDF 제작 중...', 'info')
 
-  // 임시 가상 창(Iframe) 생성
   const iframe = document.createElement('iframe')
-  iframe.style.position = 'fixed'
-  iframe.style.width = '210mm'
-  iframe.style.height = '297mm'
-  iframe.style.left = '-10000px' // 완전 격리
-  iframe.style.top = '0'
-  iframe.style.background = 'white'
+  iframe.style.cssText = 'position:fixed;width:210mm;height:297mm;left:-10000px;top:0;background:white;'
   document.body.appendChild(iframe)
 
   const doc = iframe.contentWindow?.document
   if (!doc) return
 
-  // 샌드박스 전용 HTML 구조
-  const sandboxHtml = `
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="utf-8">
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
-      <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background: white; color: black; -webkit-print-color-adjust: exact; }
-        .p-area { width: 210mm; min-height: 297mm; padding: 40px; box-sizing: border-box; background: white; }
-        .r-box { border: 4px double black; padding: 30px; height: 1050px; display: flex; flex-direction: column; background: white; }
-        h1 { text-align: center; font-size: 36pt; font-weight: 900; text-decoration: underline; margin-bottom: 40px; color: black; }
-        .meta { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 14pt; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 12px; text-align: left; font-size: 12pt; color: black; }
-        th { background: #f3f4f6 !important; width: 120px; text-align: center; }
-        .amt { font-size: 18pt; font-weight: 900; color: black; }
-        .stmt { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 16pt; font-weight: bold; margin: 60px 0; }
-        .footer { display: flex; justify-content: center; align-items: center; padding: 40px 0; position: relative; }
-        .church { font-size: 28pt; font-weight: 900; letter-spacing: 10px; color: black; }
-        .seal { width: 80px; height: 80px; border: 4px solid #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ff0000; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); }
-      </style>
-    </head>
-    <body>
-      <div id="p-content" class="p-area">
-        <div class="r-box">
-          <h1>기 부 금 영 수 증</h1>
-          <div class="meta">
-            <span style="float: left;">일련번호: ${donor.receipt_number}</span>
-            <span style="float: right;">귀속연도: ${selectedYear.value}년</span>
-            <div style="clear: both;"></div>
-          </div>
-          <table>
-            <tr><th>기부자</th><td>성 명: ${donor.name}</td><td>주민번호: ${form.resident_no || '******-*******'}</td></tr>
-            <tr><td colspan="2">주 소: ${form.address}</td></tr>
-            <tr><td colspan="2">전화번호: ${donor.phone_number || '-'}</td></tr>
-            <tr style="height: 70px;"><th>기부금액</th><td colspan="2" class="amt">일금 ${amountToKorean(donor.total_amount)}원 정 (￦ ${formatNumber(donor.total_amount)})</td></tr>
-            <tr><th>기부금<br/>단체</th><td>단체명: 꿈미교회</td><td>고유번호: 123-45-67890</td></tr>
-            <tr><td colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
-            <tr><td colspan="2">대표자: 홍길동</td></tr>
-          </table>
-          <div class="stmt">
-            <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
-            <div style="font-size: 22pt; margin-top: 40px;">${formatDate(new Date())}</div>
-          </div>
-          <div class="footer">
-            <span class="church">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
-            <div class="seal">직 인</div>
-          </div>
-        </div>
-      </div>
-      <script>
-        window.onload = function() {
-          // 브라우저 렌더링 동기화를 위한 충분한 대기 시간 부여 (백지 현상 해결)
-          setTimeout(function() {
-            const opt = {
-              margin: 0,
-              filename: '기부금영수증_${donor.name}.pdf',
-              image: { type: 'jpeg', quality: 1 },
-              html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
-              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().from(document.getElementById('p-content')).set(opt).save().then(function() {
-              window.parent.postMessage('pdf-done', '*');
-            }).catch(function() {
-              window.parent.postMessage('pdf-fail', '*');
-            });
-          }, 1500); 
-        };
-      <\/script>
-    </body>
-    </html>
+  const css = `
+    body { font-family: sans-serif; margin: 0; padding: 0; background: white; color: black; -webkit-print-color-adjust: exact; }
+    .w { width: 210mm; min-height: 297mm; padding: 40px; box-sizing: border-box; background: white; }
+    .b { border: 4px double black; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; }
+    h1 { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; margin-bottom: 40px; margin-top: 20px; }
+    .m { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
+    th { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
+    td { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
+    .ah { height: 70px; }
+    .ac { font-size: 16pt; font-weight: 900; }
+    .st { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
+    .dt { font-size: 20pt; margin-top: 40px; }
+    .ft { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
+    .ct { font-size: 26pt; font-weight: 900; letter-spacing: 8px; }
+    .sl { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
   `
 
-  // 완료 통신 리스너
-  const onMsg = (ev: MessageEvent) => {
-    if (ev.data === 'pdf-done') {
-      ui.showAlert('성공', 'PDF가 성공적으로 다운로드 되었습니다.', 'success')
-      done()
-    } else if (ev.data === 'pdf-fail') {
-      ui.showAlert('오류', 'PDF 생성 중 샌드박스 오류가 발생했습니다.', 'error')
-      done()
+  const html = `
+    <html><head><meta charset="utf-8"><style>${css}</style></head>
+    <body><div class="w"><div class="b" id="target">
+      <h1>기 부 금 영 수 증</h1>
+      <div class="m"><span style="float:left">일련번호: ${donor.receipt_number}</span><span style="float:right">귀속연도: ${selectedYear.value}년</span><div style="clear:both"></div></div>
+      <table>
+        <tr><th>기부자</th><td style="width:200px">성 명: ${donor.name}</td><td>주민번호: ${form.resident_no || '******-*******'}</td></tr>
+        <tr><td colspan="2">주 소: ${form.address}</td></tr>
+        <tr><td colspan="2">전화번호: ${donor.phone_number || '-'}</td></tr>
+        <tr class="ah"><th>기부금액</th><td colspan="2" class="ac">일금 ${amountToKorean(donor.total_amount)}원 정 (￦ ${formatNumber(donor.total_amount)})</td></tr>
+        <tr><th>기부금<br>단체</th><td>단체명: 꿈미교회</td><td>고유번호: 123-45-67890</td></tr>
+        <tr><td colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
+        <tr><td colspan="2">대표자: 홍길동</td></tr>
+      </table>
+      <div class="st"><p>상기와 같이 기부금을 기부하였음을 증명합니다.</p><div class="dt">${formatDate(new Date())}</div></div>
+      <div class="ft"><span class="ct">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span><div class="sl">직 인</div></div>
+    </div></div></body></html>
+  `
+
+  const handler = (e: MessageEvent) => {
+    if (e.data === 'ok') ui.showAlert('성공', 'PDF 저장이 완료되었습니다.', 'success')
+    if (e.data === 'no') ui.showAlert('오류', 'PDF 생성 실패', 'error')
+    if (e.data === 'ok' || e.data === 'no') {
+      window.removeEventListener('message', handler)
+      if (document.body.contains(iframe)) document.body.removeChild(iframe)
     }
   }
-  window.addEventListener('message', onMsg)
+  window.addEventListener('message', handler)
 
-  const done = () => {
-    window.removeEventListener('message', onMsg)
-    if (document.body.contains(iframe)) document.body.removeChild(iframe)
+  doc.open(); doc.write(html); doc.close()
+
+  // 빌드 파서 충돌을 피하기 위해 <script> 태그를 문자열로 합치지 않고 동적 생성
+  const s1 = doc.createElement('script')
+  s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+  s1.onload = () => {
+    const s2 = doc.createElement('script')
+    s2.textContent = `
+      setTimeout(function() {
+        const o = { margin: 0, filename: '영수증.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        html2pdf().from(document.getElementById('target')).set(o).save().then(function() { window.parent.postMessage('ok', '*'); }).catch(function() { window.parent.postMessage('no', '*'); });
+      }, 1000);
+    `
+    doc.body.appendChild(s2)
   }
-
-  // 샌드박스 실행
-  doc.open()
-  doc.write(sandboxHtml)
-  doc.close()
+  doc.head.appendChild(s1)
 }
 
 const sendEmail = async () => {
@@ -397,31 +352,20 @@ const sendEmail = async () => {
 const printReceipt = () => { window.print() }
 
 const amountToKorean = (num: number) => {
-  const units = ['', '만', '억', '조']
-  const nums = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구']
-  let result = '', unitIdx = 0
-  let n = Math.floor(num)
+  const units = ['', '만', '억', '조']; const nums = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구']
+  let result = '', unitIdx = 0; let n = Math.floor(num)
   if (n === 0) return '영'
   while (n > 0) {
     let part = n % 10000, partStr = ''
-    for (let i = 0; part > 0; i++) {
-      const d = part % 10
-      if (d > 0) partStr = nums[d] + (['', '십', '백', '천'][i]) + partStr
-      part = Math.floor(part / 10)
-    }
-    if (partStr) result = partStr + units[unitIdx] + result
-    n = Math.floor(n / 10000); unitIdx++
+    for (let i = 0; part > 0; i++) { const d = part % 10; if (d > 0) partStr = nums[d] + (['', '십', '백', '천'][i]) + partStr; part = Math.floor(part / 10) }
+    if (partStr) result = partStr + units[unitIdx] + result; n = Math.floor(n / 10000); unitIdx++
   }
   return result
 }
 
 const downloadExcel = () => {
   if (donors.value.length === 0) return
-  const wsData = [
-    [`${selectedYear.value}년도 기부금 영수증 발급 대상 명단`], [],
-    ['성함', '직분', '생년월일', '주소', '연간 합계액', '발급상태', '영수증번호'],
-    ...donors.value.map((d: any) => [d.name, d.church_role_name || '-', d.birth_date ? formatDate(d.birth_date) : '-', d.address || '-', d.total_amount, d.receipt_id ? '완료' : '미발급', d.receipt_number || '-'])
-  ]
+  const wsData = [[`${selectedYear.value}년도 기부금 영수증 발급 대상 명단`], [], ['성함', '직분', '생년월일', '주소', '연간 합계액', '발급상태', '영수증번호'], ...donors.value.map((d: any) => [d.name, d.church_role_name || '-', d.birth_date ? formatDate(d.birth_date) : '-', d.address || '-', d.total_amount, d.receipt_id ? '완료' : '미발급', d.receipt_number || '-'])]
   const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); XLSX.utils.book_append_sheet(wb, ws, '영수증대상'); XLSX.writeFile(wb, `기부금영수증명단_${selectedYear.value}.xlsx`)
 }
 
@@ -429,37 +373,27 @@ onMounted(() => refresh())
 </script>
 
 <style>
-/* 
-  인쇄 미리보기 시 모달 가려짐 문제를 해결하기 위한 전역 가시성 역전 전략 
-  scoped를 제거하여 Teleport된 모달 요소까지 완벽하게 제어합니다.
-*/
 @media print {
-  /* 1. 일단 화면의 모든 요소를 숨깁니다. (포탈로 나간 모달 포함) */
-  body * {
-    visibility: hidden !important;
-  }
-
-  /* 2. 인쇄할 영수증 영역과 그 하위 요소들만 다시 보이게 설정합니다. */
-  #print-receipt-content,
-  #print-receipt-content * {
-    visibility: visible !important;
-  }
-
-  /* 3. 영수증 영역을 종이 최상단(0,0)에 고정합니다. */
-  #print-receipt-content {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    display: block !important;
-  }
-
-  /* 배경색 및 스타일 유실 방지 */
-  * { 
-    -webkit-print-color-adjust: exact !important; 
-    print-color-adjust: exact !important; 
-  }
+  body * { visibility: hidden !important; }
+  #print-receipt-content, #print-receipt-content * { visibility: visible !important; }
+  #print-receipt-content { position: absolute; left: 0; top: 0; width: 100%; display: block !important; background: white; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
+
+.official-receipt-wrapper { width: 210mm; min-height: 297mm; padding: 40px; box-sizing: border-box; background: white; margin: 0 auto; }
+.official-border-box { border: 4px double black; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; }
+.receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 20px; }
+.receipt-meta-flex { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
+.receipt-official-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
+.label-cell { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
+.content-cell { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
+.amount-height { height: 70px; }
+.amount-cell { border: 1px solid black; padding: 12px; font-size: 16pt; font-weight: 900; color: black; }
+.receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
+.receipt-date-text { font-size: 20pt; margin-top: 40px; }
+.receipt-footer-flex { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
+.church-title-text { font-size: 26pt; font-weight: 900; letter-spacing: 8px; color: black; }
+.official-seal-circle { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
