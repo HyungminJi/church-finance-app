@@ -159,7 +159,7 @@
     <!-- 4. [인쇄 전용] 공식 서식 -->
     <div v-if="selectedDonor" id="print-receipt-content" class="hidden print:block print-box bg-white text-black">
       <div class="official-receipt-wrapper">
-        <div class="official-border-box">
+        <div class="official-border-box" id="target">
           <h1 class="receipt-title-text">기 부 금 영 수 증</h1>
           <div class="receipt-meta-flex">
             <span>일련번호: {{ selectedDonor.receipt_number || '2026-XXXX' }}</span>
@@ -186,7 +186,7 @@
                 <td class="content-cell">고유번호: 123-45-67890</td>
               </tr>
               <tr><td class="content-cell" colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
-              <tr><td class="content-cell" colspan="2">대표자: 홍길동</td></tr>
+              <tr><td colspan="2" class="content-cell">대표자: 홍길동</td></tr>
             </tbody>
           </table>
           <div class="receipt-statement-box">
@@ -211,6 +211,7 @@ import * as XLSX from 'xlsx'
 
 const ui = useUIStore()
 
+// 1. 상태 관리
 const currentYear = new Date().getFullYear()
 const selectedYear = ref(currentYear)
 const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
@@ -222,11 +223,15 @@ const { data: response, pending, refresh } = await useFetch('/api/reports/receip
 })
 
 const donors = computed(() => (response.value as any)?.data || [])
+
+// 2. 모달 및 폼
 const isModalOpen = ref(false)
 const isSaving = ref(false)
 const selectedDonor = ref<any>(null)
 
-const form = reactive({ address: '', resident_no: '', usage: '연말정산용', notes: '', email: '' })
+const form = reactive({
+  address: '', resident_no: '', usage: '연말정산용', notes: '', email: ''
+})
 
 const openIssuanceModal = (donor: any) => {
   selectedDonor.value = donor
@@ -238,6 +243,7 @@ const openIssuanceModal = (donor: any) => {
   isModalOpen.value = true
 }
 
+// 3. 기능 로직
 const issueReceipt = async () => {
   if (!form.address || !form.usage) { ui.showAlert('입력 오류', '주소와 용도는 필수입니다.', 'warning'); return }
   isSaving.value = true
@@ -263,10 +269,17 @@ const issueReceipt = async () => {
   }
 }
 
-// [정규화] PDF 다운로드 - 빌드 파서 충돌 가능성 0% 버전
+// PDF 다운로드 - 인쇄용 마스터 구조 100% 동일 복사
 const downloadPDF = async (donor: any) => {
   if (!donor) return
-  ui.showAlert('PDF 제작', '격리된 환경에서 PDF 제작 중...', 'info')
+  ui.showAlert('PDF 제작', '1페이지에 딱 맞는 깔끔한 PDF를 생성 중입니다...', 'info')
+
+  if (!(window as any).html2pdf) {
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    document.head.appendChild(script)
+    await new Promise(resolve => script.onload = resolve)
+  }
 
   const iframe = document.createElement('iframe')
   iframe.style.cssText = 'position:fixed;width:210mm;height:297mm;left:-10000px;top:0;background:white;'
@@ -275,45 +288,76 @@ const downloadPDF = async (donor: any) => {
   const doc = iframe.contentWindow?.document
   if (!doc) return
 
+  // 아래 <style> 태그에 있는 CSS를 100% 그대로 복사 (단, 브라우저 강제 설정을 위해 body 여백만 0으로)
   const css = `
-    body { font-family: sans-serif; margin: 0; padding: 0; background: white; color: black; -webkit-print-color-adjust: exact; }
-    .w { width: 210mm; min-height: 297mm; padding: 40px; box-sizing: border-box; background: white; }
-    .b { border: 4px double black; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; }
-    h1 { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; margin-bottom: 40px; margin-top: 20px; }
-    .m { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
-    th { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
-    td { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
-    .ah { height: 70px; }
-    .ac { font-size: 16pt; font-weight: 900; }
-    .st { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
-    .dt { font-size: 20pt; margin-top: 40px; }
-    .ft { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
-    .ct { font-size: 26pt; font-weight: 900; letter-spacing: 8px; }
-    .sl { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin: 0; padding: 0; background: white; color: black; font-family: sans-serif; }
+    .official-receipt-wrapper { width: 210mm; height: 297mm; padding: 40px; box-sizing: border-box; background: white; margin: 0 auto; overflow: hidden; }
+    .official-border-box { border: none; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; box-sizing: border-box; }
+    .receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 10px; }
+    .receipt-meta-flex { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
+    .receipt-official-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
+    .label-cell { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
+    .content-cell { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
+    .amount-height { height: 70px; }
+    .amount-cell { border: 1px solid black; padding: 12px; font-size: 16pt; font-weight: 900; color: black; }
+    .receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
+    .receipt-date-text { font-size: 20pt; margin-top: 40px; }
+    .receipt-footer-flex { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
+    .church-title-text { font-size: 26pt; font-weight: 900; letter-spacing: 8px; color: black; }
+    .official-seal-circle { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
   `
 
+  // 위의 <template> 안의 인쇄용 HTML 구조를 100% 그대로 복사 (단지 Vue 변수만 템플릿 리터럴로 변경)
   const html = `
     <html><head><meta charset="utf-8"><style>${css}</style></head>
-    <body><div class="w"><div class="b" id="target">
-      <h1>기 부 금 영 수 증</h1>
-      <div class="m"><span style="float:left">일련번호: ${donor.receipt_number}</span><span style="float:right">귀속연도: ${selectedYear.value}년</span><div style="clear:both"></div></div>
-      <table>
-        <tr><th>기부자</th><td style="width:200px">성 명: ${donor.name}</td><td>주민번호: ${form.resident_no || '******-*******'}</td></tr>
-        <tr><td colspan="2">주 소: ${form.address}</td></tr>
-        <tr><td colspan="2">전화번호: ${donor.phone_number || '-'}</td></tr>
-        <tr class="ah"><th>기부금액</th><td colspan="2" class="ac">일금 ${amountToKorean(donor.total_amount)}원 정 (￦ ${formatNumber(donor.total_amount)})</td></tr>
-        <tr><th>기부금<br>단체</th><td>단체명: 꿈미교회</td><td>고유번호: 123-45-67890</td></tr>
-        <tr><td colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
-        <tr><td colspan="2">대표자: 홍길동</td></tr>
-      </table>
-      <div class="st"><p>상기와 같이 기부금을 기부하였음을 증명합니다.</p><div class="dt">${formatDate(new Date())}</div></div>
-      <div class="ft"><span class="ct">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span><div class="sl">직 인</div></div>
-    </div></div></body></html>
+    <body>
+      <div class="official-receipt-wrapper">
+        <div class="official-border-box" id="target">
+          <h1 class="receipt-title-text">기 부 금 영 수 증</h1>
+          <div class="receipt-meta-flex">
+            <span>일련번호: ${donor.receipt_number || '2026-XXXX'}</span>
+            <span>귀속연도: ${selectedYear.value}년</span>
+          </div>
+          <table class="receipt-official-table">
+            <tbody>
+              <tr>
+                <th class="label-cell" rowspan="3">기부자</th>
+                <td class="content-cell" style="width: 200px;">성 명: ${donor.name}</td>
+                <td class="content-cell">주민번호: ${form.resident_no || '******-*******'}</td>
+              </tr>
+              <tr><td class="content-cell" colspan="2">주 소: ${form.address}</td></tr>
+              <tr><td class="content-cell" colspan="2">전화번호: ${donor.phone_number || '-'}</td></tr>
+              <tr class="amount-height">
+                <th class="label-cell">기부금액</th>
+                <td class="amount-cell" colspan="2">
+                  일금 ${amountToKorean(donor.total_amount)}원 정 (￦ ${formatNumber(donor.total_amount)})
+                </td>
+              </tr>
+              <tr>
+                <th class="label-cell" rowspan="3">기부금<br/>단체</th>
+                <td class="content-cell">단체명: 꿈미교회</td>
+                <td class="content-cell">고유번호: 123-45-67890</td>
+              </tr>
+              <tr><td class="content-cell" colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
+              <tr><td colspan="2" class="content-cell">대표자: 홍길동</td></tr>
+            </tbody>
+          </table>
+          <div class="receipt-statement-box">
+            <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
+            <p class="receipt-date-text">${formatDate(new Date())}</p>
+          </div>
+          <div class="receipt-footer-flex">
+            <span class="church-title-text">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
+            <div class="official-seal-circle">직 인</div>
+          </div>
+        </div>
+      </div>
+    </body></html>
   `
 
   const handler = (e: MessageEvent) => {
-    if (e.data === 'ok') ui.showAlert('성공', 'PDF 저장이 완료되었습니다.', 'success')
+    if (e.data === 'ok') ui.showAlert('성공', '1페이지에 딱 맞는 PDF가 성공적으로 저장되었습니다.', 'success')
     if (e.data === 'no') ui.showAlert('오류', 'PDF 생성 실패', 'error')
     if (e.data === 'ok' || e.data === 'no') {
       window.removeEventListener('message', handler)
@@ -324,16 +368,15 @@ const downloadPDF = async (donor: any) => {
 
   doc.open(); doc.write(html); doc.close()
 
-  // 빌드 파서 충돌을 피하기 위해 <script> 태그를 문자열로 합치지 않고 동적 생성
   const s1 = doc.createElement('script')
   s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
   s1.onload = () => {
     const s2 = doc.createElement('script')
     s2.textContent = `
       setTimeout(function() {
-        const o = { margin: 0, filename: '영수증.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        const o = { margin: 0, filename: '기부금영수증_${donor.name}.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         html2pdf().from(document.getElementById('target')).set(o).save().then(function() { window.parent.postMessage('ok', '*'); }).catch(function() { window.parent.postMessage('no', '*'); });
-      }, 1000);
+      }, 1500);
     `
     doc.body.appendChild(s2)
   }
@@ -373,23 +416,55 @@ onMounted(() => refresh())
 </script>
 
 <style>
+/* [2페이지 넘침 방지 및 여백 최적화] */
 @media print {
+  @page {
+    size: A4;
+    margin: 0 !important; /* 브라우저 강제 머리글/바닥글 여백 삭제 */
+  }
+  body { margin: 0 !important; padding: 0 !important; }
   body * { visibility: hidden !important; }
   #print-receipt-content, #print-receipt-content * { visibility: visible !important; }
-  #print-receipt-content { position: absolute; left: 0; top: 0; width: 100%; display: block !important; background: white; }
+  #print-receipt-content { 
+    position: absolute !important; 
+    left: 0 !important; 
+    top: 0 !important; 
+    width: 210mm !important; 
+    height: 297mm !important; 
+    display: block !important; 
+    background: white !important;
+    overflow: hidden; /* 2페이지 생성 물리적 차단 */
+  }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 
-.official-receipt-wrapper { width: 210mm; min-height: 297mm; padding: 40px; box-sizing: border-box; background: white; margin: 0 auto; }
-.official-border-box { border: 4px double black; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; }
-.receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 20px; }
+/* [인쇄/PDF 100% 일치 마스터 CSS] */
+.official-receipt-wrapper { 
+  width: 210mm; 
+  height: 297mm; 
+  padding: 40px; 
+  box-sizing: border-box; 
+  background: white; 
+  margin: 0 auto; 
+  overflow: hidden; /* 2페이지 차단 */
+}
+.official-border-box { 
+  border: none; 
+  padding: 30px; 
+  height: 1000px; /* 내용을 1페이지 안에 가두는 고정 높이 */
+  display: flex; 
+  flex-direction: column; 
+  background: white; 
+  box-sizing: border-box; 
+}
+.receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 10px; }
 .receipt-meta-flex { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
 .receipt-official-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
 .label-cell { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
 .content-cell { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
 .amount-height { height: 70px; }
 .amount-cell { border: 1px solid black; padding: 12px; font-size: 16pt; font-weight: 900; color: black; }
-.receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
+.receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 40px 0; }
 .receipt-date-text { font-size: 20pt; margin-top: 40px; }
 .receipt-footer-flex { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
 .church-title-text { font-size: 26pt; font-weight: 900; letter-spacing: 8px; color: black; }
