@@ -158,46 +158,103 @@
 
     <!-- 4. [인쇄 전용] 공식 서식 -->
     <div v-if="selectedDonor" id="print-receipt-content" class="hidden print:block print-box bg-white text-black">
-      <div class="official-receipt-wrapper">
-        <div class="official-border-box" id="target">
-          <h1 class="receipt-title-text">기 부 금 영 수 증</h1>
-          <div class="receipt-meta-flex">
-            <span>일련번호: {{ selectedDonor.receipt_number || '2026-XXXX' }}</span>
-            <span>귀속연도: {{ selectedYear }}년</span>
-          </div>
-          <table class="receipt-official-table">
+      <div class="receipt-page">
+        <div class="receipt-header-wrap">
+          <table class="receipt-serial-table">
             <tbody>
               <tr>
-                <th class="label-cell" rowspan="3">기부자</th>
-                <td class="content-cell" style="width: 200px;">성 명: {{ selectedDonor.name }}</td>
-                <td class="content-cell">주민번호: {{ form.resident_no || '******-*******' }}</td>
+                <td>일련번호</td>
+                <td>{{ selectedDonor.receipt_number || '2026-XXXX' }}</td>
               </tr>
-              <tr><td class="content-cell" colspan="2">주 소: {{ form.address }}</td></tr>
-              <tr><td class="content-cell" colspan="2">전화번호: {{ selectedDonor.phone_number || '-' }}</td></tr>
-              <tr class="amount-height">
-                <th class="label-cell">기부금액</th>
-                <td class="amount-cell" colspan="2">
-                  일금 {{ amountToKorean(selectedDonor.total_amount) }}원 정 (￦ {{ formatNumber(selectedDonor.total_amount) }})
-                </td>
-              </tr>
-              <tr>
-                <th class="label-cell" rowspan="3">기부금<br/>단체</th>
-                <td class="content-cell">단체명: 꿈미교회</td>
-                <td class="content-cell">고유번호: 123-45-67890</td>
-              </tr>
-              <tr><td class="content-cell" colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
-              <tr><td colspan="2" class="content-cell">대표자: 홍길동</td></tr>
             </tbody>
           </table>
-          <div class="receipt-statement-box">
-            <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
-            <p class="receipt-date-text">{{ formatDate(new Date()) }}</p>
-          </div>
-          <div class="receipt-footer-flex">
-            <span class="church-title-text">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
-            <div class="official-seal-circle">직 인</div>
-          </div>
+          <h1 class="receipt-main-title">기부금 영수증</h1>
         </div>
+
+        <table class="receipt-main-table">
+          <tbody>
+            <tr><td colspan="4" class="td-section-title">1. 기부자</td></tr>
+            <tr>
+              <td class="td-label-spaced" style="width: 15%;">성 명</td>
+              <td class="td-center" style="width: 35%;">{{ selectedDonor.name }}</td>
+              <td class="td-label" style="width: 20%;">주민등록번호<br>(사업자등록번호)</td>
+              <td class="td-center" style="width: 30%;">{{ form.resident_no || '******-*******' }}</td>
+            </tr>
+            <tr>
+              <td class="td-label-spaced">주 소</td>
+              <td colspan="3">{{ form.address }}</td>
+            </tr>
+
+            <tr><td colspan="4" class="td-section-title">2. 기부금 단체</td></tr>
+            <tr>
+              <td class="td-label" style="letter-spacing: 5px;">교 회 명</td>
+              <td class="td-center">대한예수교장로회 창세교회</td>
+              <td class="td-label">교회고유번호</td>
+              <td class="td-center">224-82-70302</td>
+            </tr>
+            <tr>
+              <td class="td-label" style="letter-spacing: 5px;">소 재 지</td>
+              <td colspan="3" class="td-center">군포시 번영로 557번길 42(금정동)</td>
+            </tr>
+
+            <tr><td colspan="4" class="td-section-title">3. 기부내용</td></tr>
+            <tr>
+              <td colspan="4" style="padding: 0; border: none;">
+                <table class="nested-table">
+                  <tbody>
+                    <tr>
+                      <th style="width: 15%;">유 형</th>
+                      <th style="width: 10%;">코 드</th>
+                      <th style="width: 25%;">년 월 일</th>
+                      <th style="width: 25%;">헌 금 내 역</th>
+                      <th style="width: 25%;">금 액</th>
+                    </tr>
+                    <tr>
+                      <td>종교단체기부금</td>
+                      <td>41</td>
+                      <td>{{ selectedYear }}년 1월~12월</td>
+                      <td>{{ form.usage || '선교헌금' }}</td>
+                      <td style="text-align: right;">{{ formatNumber(selectedDonor.total_amount) }}</td>
+                    </tr>
+                    <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr>
+                      <td colspan="4" style="border-right: 1px solid black;"></td>
+                      <td style="text-align: right;">{{ formatNumber(selectedDonor.total_amount) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="4" style="padding: 0;">
+                <div class="receipt-bottom-content">
+                  <p class="receipt-bottom-text">소득세법 제34조, 조세특례제한법 제73조 및 동법 제88조의 4의 규정에 의한 기부금을 위와 같이 기부하였음을 증명하여 주시기 바랍니다.</p>
+                  
+                  <div class="receipt-sign-row">
+                    <p>{{ formatDate(new Date()) }}</p>
+                    <p style="margin-top: 10px;">신청인 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ selectedDonor.name }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)</p>
+                  </div>
+                  
+                  <div class="receipt-sign-row-center">
+                    <p>위와 같이 기부금을 기부하였음을 증명합니다.</p>
+                  </div>
+                  
+                  <div class="receipt-sign-row">
+                    <p>{{ formatDate(new Date()) }}</p>
+                    <div class="seal-container" style="margin-top: 10px;">
+                      <p class="receipt-church-name">대한예수교장로회 창세교회</p>
+                      <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; 남 명 철 &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
+                      <div class="seal-stamp">직인</div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -230,14 +287,14 @@ const isSaving = ref(false)
 const selectedDonor = ref<any>(null)
 
 const form = reactive({
-  address: '', resident_no: '', usage: '연말정산용', notes: '', email: ''
+  address: '', resident_no: '', usage: '선교헌금', notes: '', email: ''
 })
 
 const openIssuanceModal = (donor: any) => {
   selectedDonor.value = donor
   form.address = donor.address || ''
   form.resident_no = '' 
-  form.usage = '연말정산용'
+  form.usage = '선교헌금'
   form.notes = donor.notes || ''
   form.email = donor.email || ''
   isModalOpen.value = true
@@ -269,10 +326,10 @@ const issueReceipt = async () => {
   }
 }
 
-// PDF 다운로드 - 인쇄용 마스터 구조 100% 동일 복사
+// [완성형] PDF 다운로드 - 사용자가 수정한 CSS 값 완벽 반영
 const downloadPDF = async (donor: any) => {
   if (!donor) return
-  ui.showAlert('PDF 제작', '1페이지에 딱 맞는 깔끔한 PDF를 생성 중입니다...', 'info')
+  ui.showAlert('PDF 제작', '사용자가 수정한 최적의 양식으로 PDF를 추출합니다.', 'info')
 
   if (!(window as any).html2pdf) {
     const script = document.createElement('script')
@@ -288,85 +345,149 @@ const downloadPDF = async (donor: any) => {
   const doc = iframe.contentWindow?.document
   if (!doc) return
 
-  // 아래 <style> 태그에 있는 CSS를 100% 그대로 복사 (단, 브라우저 강제 설정을 위해 body 여백만 0으로)
+  // 사용자가 수정한 print_preview_test.html의 CSS를 그대로 반영
   const css = `
-    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { margin: 0; padding: 0; background: white; color: black; font-family: sans-serif; }
-    .official-receipt-wrapper { width: 210mm; height: 297mm; padding: 40px; box-sizing: border-box; background: white; margin: 0 auto; overflow: hidden; }
-    .official-border-box { border: none; padding: 30px; height: 1000px; display: flex; flex-direction: column; background: white; box-sizing: border-box; }
-    .receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 10px; }
-    .receipt-meta-flex { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
-    .receipt-official-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
-    .label-cell { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
-    .content-cell { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
-    .amount-height { height: 70px; }
-    .amount-cell { border: 1px solid black; padding: 12px; font-size: 16pt; font-weight: 900; color: black; }
-    .receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 60px 0; }
-    .receipt-date-text { font-size: 20pt; margin-top: 40px; }
-    .receipt-footer-flex { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
-    .church-title-text { font-size: 26pt; font-weight: 900; letter-spacing: 8px; color: black; }
-    .official-seal-circle { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 11pt; }
+    .receipt-page { width: 210mm; height: 285mm; padding: 8mm 15mm; background: white; margin: 0 auto; box-sizing: border-box; color: black; overflow: hidden; }
+    .receipt-header-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-top: 10mm; margin-bottom: 5mm; }
+    .receipt-serial-table { grid-column: 1; width: max-content; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
+    .receipt-serial-table td { border: 1px solid black; padding: 6px 12px; }
+    .receipt-main-title { grid-column: 2; font-size: 28pt; font-weight: normal; margin: 0; letter-spacing: 15px; padding-left: 15px; white-space: nowrap; }
+    .receipt-main-table { width: 100%; border-collapse: collapse; border: 1px solid black; }
+    .receipt-main-table td { border: 1px solid black; padding: 12px; }
+    .td-center { text-align: center; }
+    .td-section-title { padding: 12px; font-weight: normal; }
+    .td-label { text-align: center; }
+    .td-label-spaced { text-align: center; letter-spacing: 10px; padding-left: 10px; } 
+    .nested-table { width: 100%; border-collapse: collapse; text-align: center; }
+    .nested-table th, .nested-table td { padding: 10px; font-weight: normal; border-bottom: 1px solid black; border-right: 1px solid black; border-top: none; border-left: none; }
+    .nested-table th:last-child, .nested-table td:last-child { border-right: none; }
+    .nested-table tr:last-child td { border-bottom: none; }
+    .receipt-bottom-content { padding: 10px; font-size: 12pt; line-height: 1.8; }
+    .receipt-bottom-text { text-indent: 10px; }
+    .receipt-sign-row { text-align: right; margin-top: 10px; }
+    .receipt-sign-row-center { text-align: center; margin-top: 10px; }
+    .receipt-church-name { font-size: 18pt; font-weight: bold; margin-bottom: 15px; margin-right: 80px; letter-spacing: 5px; }
+    .receipt-pastor-name { font-size: 14pt; margin-right: 60px; }
+    .seal-container { position: relative; display: inline-block; text-align: right; }
+    .seal-stamp { position: absolute; right: 0; top: -10px; width: 70px; height: 70px; border: 2px solid red; border-radius: 50%; color: red; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16pt; transform: rotate(15deg); }
   `
 
-  // 위의 <template> 안의 인쇄용 HTML 구조를 100% 그대로 복사 (단지 Vue 변수만 템플릿 리터럴로 변경)
-  const html = `
-    <html><head><meta charset="utf-8"><style>${css}</style></head>
-    <body>
-      <div class="official-receipt-wrapper">
-        <div class="official-border-box" id="target">
-          <h1 class="receipt-title-text">기 부 금 영 수 증</h1>
-          <div class="receipt-meta-flex">
-            <span>일련번호: ${donor.receipt_number || '2026-XXXX'}</span>
-            <span>귀속연도: ${selectedYear.value}년</span>
-          </div>
-          <table class="receipt-official-table">
-            <tbody>
-              <tr>
-                <th class="label-cell" rowspan="3">기부자</th>
-                <td class="content-cell" style="width: 200px;">성 명: ${donor.name}</td>
-                <td class="content-cell">주민번호: ${form.resident_no || '******-*******'}</td>
-              </tr>
-              <tr><td class="content-cell" colspan="2">주 소: ${form.address}</td></tr>
-              <tr><td class="content-cell" colspan="2">전화번호: ${donor.phone_number || '-'}</td></tr>
-              <tr class="amount-height">
-                <th class="label-cell">기부금액</th>
-                <td class="amount-cell" colspan="2">
-                  일금 ${amountToKorean(donor.total_amount)}원 정 (￦ ${formatNumber(donor.total_amount)})
-                </td>
-              </tr>
-              <tr>
-                <th class="label-cell" rowspan="3">기부금<br/>단체</th>
-                <td class="content-cell">단체명: 꿈미교회</td>
-                <td class="content-cell">고유번호: 123-45-67890</td>
-              </tr>
-              <tr><td class="content-cell" colspan="2">소재지: 서울특별시 강남구 ...</td></tr>
-              <tr><td colspan="2" class="content-cell">대표자: 홍길동</td></tr>
-            </tbody>
-          </table>
-          <div class="receipt-statement-box">
-            <p>상기와 같이 기부금을 기부하였음을 증명합니다.</p>
-            <p class="receipt-date-text">${formatDate(new Date())}</p>
-          </div>
-          <div class="receipt-footer-flex">
-            <span class="church-title-text">꿈 미 교 회 &nbsp; 대 표 &nbsp; 홍 길 동</span>
-            <div class="official-seal-circle">직 인</div>
-          </div>
-        </div>
+  const htmlContent = `
+    <div class="receipt-page" id="target">
+      <div class="receipt-header-wrap">
+        <table class="receipt-serial-table">
+          <tbody>
+            <tr>
+              <td>일련번호</td>
+              <td>${donor.receipt_number || '2026-XXXX'}</td>
+            </tr>
+          </tbody>
+        </table>
+        <h1 class="receipt-main-title">기부금 영수증</h1>
       </div>
-    </body></html>
+
+      <table class="receipt-main-table">
+        <tbody>
+          <tr><td colspan="4" class="td-section-title">1. 기부자</td></tr>
+          <tr>
+            <td class="td-label-spaced" style="width: 15%;">성 명</td>
+            <td class="td-center" style="width: 35%;">${donor.name}</td>
+            <td class="td-label" style="width: 20%;">주민등록번호<br>(사업자등록번호)</td>
+            <td class="td-center" style="width: 30%;">${form.resident_no || '******-*******'}</td>
+          </tr>
+          <tr>
+            <td class="td-label-spaced">주 소</td>
+            <td colspan="3">${form.address}</td>
+          </tr>
+
+          <tr><td colspan="4" class="td-section-title">2. 기부금 단체</td></tr>
+          <tr>
+            <td class="td-label" style="letter-spacing: 5px;">교 회 명</td>
+            <td class="td-center">대한예수교장로회 창세교회</td>
+            <td class="td-label">교회고유번호</td>
+            <td class="td-center">224-82-70302</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="letter-spacing: 5px;">소 재 지</td>
+            <td colspan="3" class="td-center">군포시 번영로 557번길 42(금정동)</td>
+          </tr>
+
+          <tr><td colspan="4" class="td-section-title">3. 기부내용</td></tr>
+          <tr>
+            <td colspan="4" style="padding: 0; border: none;">
+              <table class="nested-table">
+                <tbody>
+                  <tr>
+                    <th style="width: 15%;">유 형</th>
+                    <th style="width: 10%;">코 드</th>
+                    <th style="width: 25%;">년 월 일</th>
+                    <th style="width: 25%;">헌 금 내 역</th>
+                    <th style="width: 25%;">금 액</th>
+                  </tr>
+                  <tr>
+                    <td>종교단체기부금</td>
+                    <td>41</td>
+                    <td>${selectedYear.value}년 1월~12월</td>
+                    <td>${form.usage || '선교헌금'}</td>
+                    <td style="text-align: right;">${formatNumber(donor.total_amount)}</td>
+                  </tr>
+                  <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                  <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                  <tr style="height: 40px;"><td></td><td></td><td></td><td></td><td></td></tr>
+                  <tr>
+                    <td colspan="4" style="border-right: 1px solid black;"></td>
+                    <td style="text-align: right;">${formatNumber(donor.total_amount)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="4" style="padding: 0;">
+              <div class="receipt-bottom-content">
+                <p class="receipt-bottom-text">소득세법 제34조, 조세특례제한법 제73조 및 동법 제88조의 4의 규정에 의한 기부금을 위와 같이 기부하였음을 증명하여 주시기 바랍니다.</p>
+                <div class="receipt-sign-row">
+                  <p>${formatDate(new Date())}</p>
+                  <p style="margin-top: 10px;">신청인 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${donor.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)</p>
+                </div>
+                <div class="receipt-sign-row-center">
+                  <p>위와 같이 기부금을 기부하였음을 증명합니다.</p>
+                </div>
+                <div class="receipt-sign-row">
+                  <p>${formatDate(new Date())}</p>
+                  <div class="seal-container" style="margin-top: 10px;">
+                    <p class="receipt-church-name">대한예수교장로회 창세교회</p>
+                    <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; 남 명 철 &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
+                    <div class="seal-stamp">직인</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   `
+  
+  // 보안 취약점(XSS 등)으로 인해 사용이 권장되지 않는 doc.write 대신,
+  // 안전한 DOM API(innerHTML 및 createElement)를 사용하여 문서를 구성합니다.
+  const styleEl = doc.createElement('style')
+  styleEl.textContent = css
+  doc.head.appendChild(styleEl)
+
+  const container = doc.createElement('div')
+  container.innerHTML = htmlContent
+  doc.body.appendChild(container)
 
   const handler = (e: MessageEvent) => {
-    if (e.data === 'ok') ui.showAlert('성공', '1페이지에 딱 맞는 PDF가 성공적으로 저장되었습니다.', 'success')
-    if (e.data === 'no') ui.showAlert('오류', 'PDF 생성 실패', 'error')
-    if (e.data === 'ok' || e.data === 'no') {
-      window.removeEventListener('message', handler)
-      if (document.body.contains(iframe)) document.body.removeChild(iframe)
-    }
+    if (e.data === 'ok') { ui.showAlert('성공', '사용자가 수정한 양식과 100% 동일한 PDF가 저장되었습니다.', 'success'); done() }
+    if (e.data === 'no') { ui.showAlert('오류', 'PDF 생성 실패', 'error'); done() }
   }
+  const done = () => { window.removeEventListener('message', handler); if (document.body.contains(iframe)) document.body.removeChild(iframe) }
   window.addEventListener('message', handler)
-
-  doc.open(); doc.write(html); doc.close()
 
   const s1 = doc.createElement('script')
   s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
@@ -416,11 +537,11 @@ onMounted(() => refresh())
 </script>
 
 <style>
-/* [2페이지 넘침 방지 및 여백 최적화] */
+/* [사용자 극찬 디자인 복구] 인쇄 가시성 역전 전략 적용 */
 @media print {
   @page {
     size: A4;
-    margin: 0 !important; /* 브라우저 강제 머리글/바닥글 여백 삭제 */
+    margin: 0 !important;
   }
   body { margin: 0 !important; padding: 0 !important; }
   body * { visibility: hidden !important; }
@@ -430,45 +551,39 @@ onMounted(() => refresh())
     left: 0 !important; 
     top: 0 !important; 
     width: 210mm !important; 
-    height: 297mm !important; 
     display: block !important; 
     background: white !important;
-    overflow: hidden; /* 2페이지 생성 물리적 차단 */
   }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 
-/* [인쇄/PDF 100% 일치 마스터 CSS] */
-.official-receipt-wrapper { 
-  width: 210mm; 
-  height: 297mm; 
-  padding: 40px; 
-  box-sizing: border-box; 
-  background: white; 
-  margin: 0 auto; 
-  overflow: hidden; /* 2페이지 차단 */
-}
-.official-border-box { 
-  border: none; 
-  padding: 30px; 
-  height: 1000px; /* 내용을 1페이지 안에 가두는 고정 높이 */
-  display: flex; 
-  flex-direction: column; 
-  background: white; 
-  box-sizing: border-box; 
-}
-.receipt-title-text { text-align: center; font-size: 32pt; font-weight: 900; text-decoration: underline; text-underline-offset: 10px; margin-bottom: 40px; color: black; margin-top: 10px; }
-.receipt-meta-flex { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 5px; font-weight: bold; font-size: 12pt; margin-bottom: 20px; }
-.receipt-official-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 20px; }
-.label-cell { border: 1px solid black; background: #f3f4f6 !important; width: 120px; text-align: center; font-weight: bold; padding: 12px; font-size: 11pt; }
-.content-cell { border: 1px solid black; padding: 12px; text-align: left; font-size: 11pt; color: black; }
-.amount-height { height: 70px; }
-.amount-cell { border: 1px solid black; padding: 12px; font-size: 16pt; font-weight: 900; color: black; }
-.receipt-statement-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 15pt; font-weight: bold; margin: 40px 0; }
-.receipt-date-text { font-size: 20pt; margin-top: 40px; }
-.receipt-footer-flex { display: flex; justify-content: center; align-items: center; position: relative; padding: 40px 0; }
-.church-title-text { font-size: 26pt; font-weight: 900; letter-spacing: 8px; color: black; }
-.official-seal-circle { width: 80px; height: 80px; border: 4px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: red; font-weight: 900; position: absolute; right: 60px; transform: rotate(15deg); font-size: 18px; }
+/* [원본 PDF 완벽 구현 마스터 CSS] - 사용자가 수정한 print_preview_test.html 값 100% 반영 */
+.receipt-page { padding: 0mm 8mm 0mm 0mm; background: white; margin: 0 auto; box-sizing: border-box; color: black; font-family: "Malgun Gothic", "맑은 고딕", sans-serif; font-size: 11pt; }
+.receipt-header-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 5mm; }
+.receipt-serial-table { grid-column: 1; width: max-content; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
+.receipt-serial-table td { border: 1px solid black; padding: 6px 12px; text-align: center; }
+.receipt-main-title { grid-column: 2; font-size: 28pt; font-weight: normal; margin: 0; letter-spacing: 15px; padding-left: 15px; white-space: nowrap; }
+
+.receipt-main-table { width: 100%; border-collapse: collapse; border: 1px solid black; }
+.receipt-main-table td { border: 1px solid black; padding: 12px; }
+.td-center { text-align: center; }
+.td-section-title { padding: 12px; font-weight: normal; }
+.td-label { text-align: center; }
+.td-label-spaced { text-align: center; letter-spacing: 10px; padding-left: 10px; } 
+
+.nested-table { width: 100%; border-collapse: collapse; text-align: center; }
+.nested-table th, .nested-table td { padding: 10px; font-weight: normal; border-bottom: 1px solid black; border-right: 1px solid black; border-top: none; border-left: none; }
+.nested-table th:last-child, .nested-table td:last-child { border-right: none; }
+.nested-table tr:last-child td { border-bottom: none; }
+
+.receipt-bottom-content { padding: 10px; font-size: 12pt; line-height: 1.8; }
+.receipt-bottom-text { text-indent: 10px; }
+.receipt-sign-row { text-align: right; margin-top: 10px; }
+.receipt-sign-row-center { text-align: center; margin-top: 10px; }
+.receipt-church-name { font-size: 18pt; font-weight: bold; margin-bottom: 15px; margin-right: 80px; letter-spacing: 5px;}
+.receipt-pastor-name { font-size: 14pt; margin-right: 60px; }
+.seal-container { position: relative; display: inline-block; text-align: right; }
+.seal-stamp { position: absolute; right: 0; top: -10px; width: 70px; height: 70px; border: 2px solid red; border-radius: 50%; color: red; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16pt; transform: rotate(15deg); }
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
