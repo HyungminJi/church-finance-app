@@ -1,6 +1,7 @@
 import { db } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
     
@@ -10,6 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const result = await db.insertInto('member_pledges')
       .values({
+        church_id: session.user.church_id,
         campaign_id: body.campaign_id,
         member_id: body.member_id,
         pledge_amount: Number(body.pledge_amount),

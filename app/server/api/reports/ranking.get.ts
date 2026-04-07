@@ -2,9 +2,9 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   // 1. 권한 체크 (Admin 이상만 가능)
-  const session = await getUserSession(event)
-  if (!session.user || Number(session.user.role) > 2) {
+  if (Number(session.user.role) > 2) {
     throw createError({
       statusCode: 403,
       statusMessage: '헌금자 순위 조회 권한이 없습니다.'
@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
         .on('cc_role.group_code', '=', 'CHURCH_ROLE')
       )
       .leftJoin('cell_groups as cg', 'm.cell_group_id', 'cg.id')
+      .where('t.church_id', '=', session.user.church_id)
       .where('a.type', '=', 'INCOME')
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)

@@ -209,13 +209,14 @@ const totalAmount = computed(() => statData.value.reduce((acc: number, curr: any
 const totalCount = computed(() => statData.value.reduce((acc: number, curr: any) => acc + Number(curr.count), 0))
 
 // 3. 기능 함수
-const calculateRate = (amount: number) => {
-  if (totalAmount.value === 0) return '0.0'
+const calculateRate = (amount: number | string) => {
+  if (!totalAmount.value || totalAmount.value === 0) return '0.0'
   return ((Number(amount) / totalAmount.value) * 100).toFixed(1)
 }
 
 const changeMode = (newMode: any) => {
   mode.value = newMode
+  currentPage.value = 1 // 페이지 초기화 (필요시)
   refresh()
 }
 
@@ -235,16 +236,16 @@ const setPreset = (type: 'thisMonth' | 'thisYear') => {
 }
 
 const generateConicGradient = () => {
-  if (statData.value.length === 0) return '#e5e7eb'
+  if (statData.value.length === 0 || totalAmount.value === 0) return '#e5e7eb'
   let current = 0
   const slices = statData.value.slice(0, 7).map((item: any, idx: number) => {
     const rate = (Number(item.amount) / totalAmount.value) * 100
     const start = current
     current += rate
-    return `${chartColors[idx % chartColors.length]} ${start}% ${current}%`
+    return `${chartColors[idx % chartColors.length]} ${start.toFixed(2)}% ${current.toFixed(2)}%`
   })
-  if (current < 100) {
-    slices.push(`#e5e7eb ${current}% 100%`)
+  if (current < 99.9) { // 부동소수점 오차 고려
+    slices.push(`#e5e7eb ${current.toFixed(2)}% 100%`)
   }
   return `conic-gradient(${slices.join(', ')})`
 }

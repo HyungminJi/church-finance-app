@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
   const { donor_type, name, details } = body
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
           // donor_type은 변경하지 않는 것이 원칙이나 필요시 수정 가능하도록 구성
         })
         .where('id', '=', id)
+        .where('church_id', '=', session.user.church_id)
         .execute()
 
       // 2. 타입에 따라 하위 테이블 상세 정보 업데이트
@@ -34,6 +36,13 @@ export default defineEventHandler(async (event) => {
             updated_at: new Date()
           })
           .where('donor_id', '=', id)
+          .where(({ exists, selectFrom }) => 
+            exists(
+              selectFrom('donors as d')
+                .whereRef('d.id', '=', 'members.donor_id')
+                .where('d.church_id', '=', session.user.church_id)
+            )
+          )
           .execute()
       } else if (donor_type === 'CELL_GROUP') {
         await trx.updateTable('cell_groups')
@@ -44,6 +53,13 @@ export default defineEventHandler(async (event) => {
             is_active: details.is_active ?? true
           })
           .where('donor_id', '=', id)
+          .where(({ exists, selectFrom }) => 
+            exists(
+              selectFrom('donors as d')
+                .whereRef('d.id', '=', 'cell_groups.donor_id')
+                .where('d.church_id', '=', session.user.church_id)
+            )
+          )
           .execute()
       } else if (donor_type === 'ORGANIZATION') {
         await trx.updateTable('organizations')
@@ -55,6 +71,13 @@ export default defineEventHandler(async (event) => {
             is_active: details.is_active ?? true
           })
           .where('donor_id', '=', id)
+          .where(({ exists, selectFrom }) => 
+            exists(
+              selectFrom('donors as d')
+                .whereRef('d.id', '=', 'organizations.donor_id')
+                .where('d.church_id', '=', session.user.church_id)
+            )
+          )
           .execute()
       }
     })

@@ -1,5 +1,19 @@
 import type { Generated } from 'kysely'
 
+export interface ChurchesTable {
+  id: Generated<string>
+  name: string
+  representative_name: string | null
+  registration_number: string | null
+  address: string | null
+  phone_number: string | null
+  seal_image_path: string | null
+  logo_image_path: string | null
+  is_active: boolean | null
+  created_at: Generated<Date>
+  updated_at: Generated<Date>
+}
+
 export interface AccountsTable {
   code: string
   name: string
@@ -9,6 +23,7 @@ export interface AccountsTable {
   parent_code: string | null
   level: number
   default_fund_id: string | null
+  church_id: string
 }
 
 // 최상위 헌금자 (Donor Supertype)
@@ -17,6 +32,7 @@ export interface DonorsTable {
   donor_type: 'MEMBER' | 'CELL_GROUP' | 'ORGANIZATION'
   name: string
   created_at: Generated<Date>
+  church_id: string
 }
 
 export interface MembersTable {
@@ -82,6 +98,7 @@ export interface BudgetsTable {
   amount: number
   fiscal_year: number
   created_at: Generated<Date>
+  church_id: string
 }
 
 export interface TransactionsTable {
@@ -94,6 +111,7 @@ export interface TransactionsTable {
   receipt_id: string | null
   fund_id: string | null
   created_at: Generated<Date>
+  church_id: string
 }
 
 export interface FundsTable {
@@ -108,6 +126,7 @@ export interface FundsTable {
   is_active: boolean | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
+  church_id: string
 }
 
 export interface UsersTable {
@@ -119,6 +138,7 @@ export interface UsersTable {
   member_id: string | null
   created_at: Generated<Date>
   last_login_at: Date | null
+  church_id: string
 }
 
 export interface PledgeCampaignsTable {
@@ -133,6 +153,7 @@ export interface PledgeCampaignsTable {
   fund_id: string | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
+  church_id: string
 }
 
 export interface MemberPledgesTable {
@@ -143,6 +164,7 @@ export interface MemberPledgesTable {
   pledge_date: Generated<string | Date>
   notes: string | null
   created_at: Generated<Date>
+  church_id: string
 }
 
 export interface ReceiptsTable {
@@ -157,9 +179,11 @@ export interface ReceiptsTable {
   notes: string | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
+  church_id: string
 }
 
 export interface Database {
+  churches: ChurchesTable
   accounts: AccountsTable
   donors: DonorsTable
   members: MembersTable

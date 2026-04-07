@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const body = await readBody(event)
   const { donors, type } = body
 
@@ -17,6 +18,7 @@ export default defineEventHandler(async (event) => {
           // 1. donor 생성
           const donor = await trx.insertInto('donors')
             .values({
+              church_id: session.user.church_id,
               donor_type: 'MEMBER',
               name: item['성함'] || item['이름']
             })

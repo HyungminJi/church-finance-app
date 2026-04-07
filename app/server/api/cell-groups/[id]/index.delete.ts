@@ -1,6 +1,7 @@
 import { db } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -11,13 +12,19 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // 1. 활성 상태인지 확인
-    const group = await db.selectFrom('cell_groups')
-      .where('id', '=', id)
-      .select('is_active')
+    // 1. 활성 상태인지 확인 (현재 교회의 구역인지도 함께 확인)
+    const group = await db.selectFrom('cell_groups as cg')
+      .innerJoin('donors as d', 'cg.donor_id', 'd.id')
+      .where('cg.id', '=', id)
+      .where('d.church_id', '=', session.user.church_id)
+      .select('cg.is_active')
       .executeTakeFirst()
     
-    if (group?.is_active) {
+    if (!group) {
+      throw createError({ statusCode: 404, statusMessage: '구역 정보를 찾을 수 없습니다.' })
+    }
+
+    if (group.is_active) {
       throw createError({
         statusCode: 400,
         statusMessage: '활성 상태의 구역은 삭제할 수 없습니다. 먼저 비활성 상태로 변경해 주세요.'
@@ -26,7 +33,9 @@ export default defineEventHandler(async (event) => {
 
     // 2. 성도 테이블에서 해당 구역을 참조하고 있는지 확인
     const memberCount = await db.selectFrom('members')
-      .where('cell_group_id', '=', id)
+      .innerJoin('donors as d', 'members.donor_id', 'd.id')
+      .where('members.cell_group_id', '=', id)
+      .where('d.church_id', '=', session.user.church_id)
       .select(({ fn }) => fn.countAll().as('total'))
       .executeTakeFirst()
     
@@ -39,6 +48,13 @@ export default defineEventHandler(async (event) => {
 
     await db.deleteFrom('cell_groups')
       .where('id', '=', id)
+      .where(({ exists, selectFrom }) => 
+        exists(
+          selectFrom('donors as d')
+            .whereRef('d.id', '=', 'cell_groups.donor_id')
+            .where('d.church_id', '=', session.user.church_id)
+        )
+      )
       .execute()
 
     return { success: true }

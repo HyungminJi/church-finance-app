@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
   const limit = parseInt(query.limit as string) || 10
@@ -16,12 +17,14 @@ export default defineEventHandler(async (event) => {
 
   try {
     let baseQuery = db.selectFrom('members')
+      .innerJoin('donors as d', 'members.donor_id', 'd.id')
       .leftJoin('cell_groups', 'members.cell_group_id', 'cell_groups.id')
       .leftJoin('users', 'members.id', 'users.member_id')
       .leftJoin('common_codes', (join) => join
         .onRef('members.church_role', '=', 'common_codes.code')
         .on('common_codes.group_code', '=', 'CHURCH_ROLE')
       )
+      .where('d.church_id', '=', session.user.church_id)
     
     // 탭 필터링
     if (tab === 'CURRENT') {
@@ -88,13 +91,19 @@ export default defineEventHandler(async (event) => {
 
     // 통계 조회
     const statsResult = await db.selectFrom('members')
+      .innerJoin('donors as d', 'members.donor_id', 'd.id')
+      .where('d.church_id', '=', session.user.church_id)
       .select((eb) => [
-        eb.selectFrom('members')
-          .where('removed_date', 'is', null)
+        eb.selectFrom('members as m2')
+          .innerJoin('donors as d2', 'm2.donor_id', 'd2.id')
+          .where('m2.removed_date', 'is', null)
+          .where('d2.church_id', '=', session.user.church_id)
           .select((eb) => eb.fn.countAll().as('count'))
           .as('currentCount'),
-        eb.selectFrom('members')
-          .where('removed_date', 'is not', null)
+        eb.selectFrom('members as m3')
+          .innerJoin('donors as d3', 'm3.donor_id', 'd3.id')
+          .where('m3.removed_date', 'is not', null)
+          .where('d3.church_id', '=', session.user.church_id)
           .select((eb) => eb.fn.countAll().as('count'))
           .as('removedCount')
       ])

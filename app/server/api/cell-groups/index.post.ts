@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const body = await readBody(event)
 
   if (!body.name) {
@@ -15,6 +16,7 @@ export default defineEventHandler(async (event) => {
       // 1. 도너 수퍼타입 레코드 생성
       const donor = await trx.insertInto('donors')
         .values({
+          church_id: session.user.church_id,
           donor_type: 'CELL_GROUP',
           name: body.name
         })

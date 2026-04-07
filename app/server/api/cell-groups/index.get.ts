@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const searchName = query.name as string
   const searchParent = query.parent as string
@@ -9,6 +10,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     let baseQuery = db.selectFrom('cell_groups')
+      .innerJoin('donors as d', 'cell_groups.donor_id', 'd.id')
       .leftJoin('members as leader', 'cell_groups.leader_id', 'leader.id')
       .select([
         'cell_groups.id',
@@ -19,6 +21,7 @@ export default defineEventHandler(async (event) => {
         'cell_groups.created_at',
         'leader.name as leader_name'
       ])
+      .where('d.church_id', '=', session.user.church_id)
 
     if (searchName) {
       baseQuery = baseQuery.where('cell_groups.name', 'ilike', `%${searchName}%`)
@@ -38,14 +41,16 @@ export default defineEventHandler(async (event) => {
 
     // 상위 소속(parent_group) 목록 추출 (필터용)
     const parentGroupsResult = await db.selectFrom('cell_groups')
+      .innerJoin('donors as d', 'cell_groups.donor_id', 'd.id')
       .select([
-        'parent_group',
-        sql`CASE WHEN parent_group ~ '[0-9]' THEN CAST(regexp_replace(parent_group, '[^0-9]', '', 'g') AS NUMERIC) ELSE NULL END`.as('sort_val')
+        'cell_groups.parent_group',
+        sql`CASE WHEN cell_groups.parent_group ~ '[0-9]' THEN CAST(regexp_replace(cell_groups.parent_group, '[^0-9]', '', 'g') AS NUMERIC) ELSE NULL END`.as('sort_val')
       ])
       .distinct()
-      .where('parent_group', 'is not', null)
+      .where('cell_groups.parent_group', 'is not', null)
+      .where('d.church_id', '=', session.user.church_id)
       .orderBy('sort_val', 'asc')
-      .orderBy('parent_group', 'asc')
+      .orderBy('cell_groups.parent_group', 'asc')
       .execute()
     const parentGroups = parentGroupsResult.map(r => r.parent_group)
 

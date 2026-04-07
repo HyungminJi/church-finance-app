@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
     
@@ -12,6 +13,7 @@ export default defineEventHandler(async (event) => {
     // 2. 데이터 삽입
     const result = await db.insertInto('funds')
       .values({
+        church_id: session.user.church_id,
         name: body.name,
         bank_name: body.bank_name || null,
         account_number: body.account_number || null,

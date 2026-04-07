@@ -3,8 +3,8 @@ import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   // 관리자 권한 확인 (role: 1 또는 2)
-  const session = await getUserSession(event)
-  if (!session?.user || session.user.role > 2) {
+  const session = await requireUserSession(event)
+  if (session.user.role > 2) {
     throw createError({
       statusCode: 403,
       statusMessage: '사용자 등록 권한이 없습니다. (관리자 전용)'
@@ -42,10 +42,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 성도 정보 조회
+  // 성도 정보 조회 (현재 교회의 성도인지 확인)
   const member = await db.selectFrom('members')
-    .selectAll()
-    .where('id', '=', member_id)
+    .innerJoin('donors as d', 'members.donor_id', 'd.id')
+    .selectAll('members')
+    .where('members.id', '=', member_id)
+    .where('d.church_id', '=', session.user.church_id)
     .executeTakeFirst()
 
   if (!member) {
@@ -62,6 +64,7 @@ export default defineEventHandler(async (event) => {
     const result = await db.transaction().execute(async (trx) => {
       const newUser = await trx.insertInto('users')
         .values({
+          church_id: session.user.church_id,
           login_id,
           password_hash,
           role: Number(role),

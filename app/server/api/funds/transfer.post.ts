@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
     
@@ -19,8 +20,16 @@ export default defineEventHandler(async (event) => {
     }
 
     // 1. 통장 정보 확인
-    const fromFund = await db.selectFrom('funds').where('id', '=', from_fund_id).selectAll().executeTakeFirst()
-    const toFund = await db.selectFrom('funds').where('id', '=', to_fund_id).selectAll().executeTakeFirst()
+    const fromFund = await db.selectFrom('funds')
+      .where('id', '=', from_fund_id)
+      .where('church_id', '=', session.user.church_id)
+      .selectAll()
+      .executeTakeFirst()
+    const toFund = await db.selectFrom('funds')
+      .where('id', '=', to_fund_id)
+      .where('church_id', '=', session.user.church_id)
+      .selectAll()
+      .executeTakeFirst()
 
     if (!fromFund || !toFund) {
       throw createError({ statusCode: 404, statusMessage: '계좌 정보를 찾을 수 없습니다.' })
@@ -33,6 +42,7 @@ export default defineEventHandler(async (event) => {
       // 출금 전표 (지출) - 임시로 기타지출(50-03) 사용, 혹은 적절한 지출 계정
       await trx.insertInto('transactions')
         .values({
+          church_id: session.user.church_id,
           transaction_date,
           account_code: '50-03', // 기타지출 (임시)
           fund_id: from_fund_id,
@@ -44,6 +54,7 @@ export default defineEventHandler(async (event) => {
       // 입금 전표 (수입) - 임시로 기타수입(90-03) 사용
       await trx.insertInto('transactions')
         .values({
+          church_id: session.user.church_id,
           transaction_date,
           account_code: '90-03', // 기타수입 (임시)
           fund_id: to_fund_id,

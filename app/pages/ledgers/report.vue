@@ -40,140 +40,164 @@
           variant="outline" 
           label="엑셀" 
           class="cursor-pointer font-bold bg-white dark:bg-gray-800" 
+          :disabled="!reportData.length"
           @click="downloadExcel"
         />
       </div>
     </div>
 
     <!-- 보고서 본문 -->
-    <div id="printable-report" class="space-y-6">
-      <!-- 제목 (인쇄 전용) -->
-      <div class="hidden print:block text-center space-y-2 mb-8">
-        <h1 class="text-2xl font-black underline decoration-double underline-offset-8">재 정 보 고 서</h1>
-        <p class="text-sm text-gray-600 font-mono">{{ startDate }} ~ {{ endDate }}</p>
-      </div>
+    <ClientOnly>
+      <div id="printable-report" class="space-y-6">
+        <!-- 제목 (인쇄 전용) -->
+        <div class="hidden print:block text-center space-y-2 mb-8">
+          <h1 class="text-2xl font-black underline decoration-double underline-offset-8">재 정 보 고 서</h1>
+          <p class="text-sm text-gray-600 font-mono">{{ startDate }} ~ {{ endDate }}</p>
+        </div>
 
-      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
-          
-          <!-- [수입부] -->
-          <div class="flex flex-col">
-            <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-3 font-black text-center text-blue-800 dark:text-blue-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <span>수 입 부 (INCOME)</span>
-              <span v-if="meta" class="text-xs font-mono">합계: {{ formatNumber(meta.total_income_actual) }}</span>
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
+            
+            <!-- [수입부] -->
+            <div class="flex flex-col">
+              <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-3 font-black text-center text-blue-800 dark:text-blue-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-arrow-trending-up" class="text-blue-500" />
+                  수 입 부 (INCOME)
+                </span>
+                <span v-if="meta" class="text-xs font-mono bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded text-blue-700 dark:text-blue-200">
+                  합계: {{ formatNumber(meta.total_income_actual) }}
+                </span>
+              </div>
+              <div class="flex-1 overflow-x-auto custom-scrollbar">
+                <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                  <thead class="bg-gray-50 dark:bg-gray-900/50 sticky top-0">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-[11px] font-black text-gray-500 uppercase">계정항목</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">예산액</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">실적액</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">집행(%)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+                    <tr v-if="incomeItems.length === 0">
+                      <td colspan="4" class="px-3 py-10 text-center text-gray-400 italic text-xs">기록된 수입 내역이 없습니다.</td>
+                    </tr>
+                    <tr v-for="item in incomeItems" :key="item.code" :class="getRowClass(item)">
+                      <td class="px-3 py-2 text-sm" :style="{ paddingLeft: (item.level * 12 + 12) + 'px' }">
+                        <span :class="{'font-black text-gray-900 dark:text-white': item.level < 2}">{{ item.name }}</span>
+                        <span v-if="item.level === 2" class="text-[10px] text-gray-400 font-mono ml-1">{{ item.code }}</span>
+                      </td>
+                      <td class="px-3 py-2 text-right text-sm font-mono text-gray-500">{{ formatNumber(item.budget_amount) }}</td>
+                      <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-brand-blue' : 'text-gray-400'">
+                        {{ formatNumber(item.actual_amount) }}
+                      </td>
+                      <td class="px-3 py-2 text-right text-xs font-mono font-bold" :class="getPercentColor(calculatePercent(item.actual_amount, item.budget_amount))">
+                        {{ calculatePercent(item.actual_amount, item.budget_amount) }}%
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="flex-1 overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-[11px] font-bold text-gray-500 uppercase">계정항목</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">예산액</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">실적액</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">비고(%)</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
-                  <tr v-for="item in incomeItems" :key="item.code" :class="getRowClass(item)">
-                    <td class="px-3 py-2 text-sm" :style="{ paddingLeft: (item.level * 12 + 12) + 'px' }">
-                      <span :class="{'font-bold text-gray-900 dark:text-white': item.level < 2}">{{ item.name }}</span>
-                      <span v-if="item.level === 2" class="text-[10px] text-gray-400 font-mono ml-1">{{ item.code }}</span>
-                    </td>
-                    <td class="px-3 py-2 text-right text-sm font-mono text-gray-500">{{ formatNumber(item.budget_amount) }}</td>
-                    <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-brand-blue' : 'text-gray-400'">
-                      {{ formatNumber(item.actual_amount) }}
-                    </td>
-                    <td class="px-3 py-2 text-right text-xs font-mono text-gray-400">
-                      {{ calculatePercent(item.actual_amount, item.budget_amount) }}%
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <!-- [지출부] -->
+            <div class="flex flex-col">
+              <div class="bg-red-50 dark:bg-red-900/30 px-4 py-3 font-black text-center text-red-800 dark:text-red-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-arrow-trending-down" class="text-red-500" />
+                  지 출 부 (EXPENSE)
+                </span>
+                <span v-if="meta" class="text-xs font-mono bg-red-100 dark:bg-red-800 px-2 py-0.5 rounded text-red-700 dark:text-red-200">
+                  합계: {{ formatNumber(meta.total_expense_actual) }}
+                </span>
+              </div>
+              <div class="flex-1 overflow-x-auto custom-scrollbar">
+                <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                  <thead class="bg-gray-50 dark:bg-gray-900/50 sticky top-0">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-[11px] font-black text-gray-500 uppercase">계정항목</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">예산액</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">실적액</th>
+                      <th class="px-3 py-2 text-right text-[11px] font-black text-gray-500 uppercase">집행(%)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+                    <tr v-if="expenseItems.length === 0">
+                      <td colspan="4" class="px-3 py-10 text-center text-gray-400 italic text-xs">기록된 지출 내역이 없습니다.</td>
+                    </tr>
+                    <tr v-for="item in expenseItems" :key="item.code" :class="getRowClass(item)">
+                      <td class="px-3 py-2 text-sm" :style="{ paddingLeft: (item.level * 12 + 12) + 'px' }">
+                        <span :class="{'font-black text-gray-900 dark:text-white': item.level < 2}">{{ item.name }}</span>
+                        <span v-if="item.level === 2" class="text-[10px] text-gray-400 font-mono ml-1">{{ item.code }}</span>
+                      </td>
+                      <td class="px-3 py-2 text-right text-sm font-mono text-gray-500">{{ formatNumber(item.budget_amount) }}</td>
+                      <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-red-500' : 'text-gray-400'">
+                        {{ formatNumber(item.actual_amount) }}
+                      </td>
+                      <td class="px-3 py-2 text-right text-xs font-mono font-bold" :class="getPercentColor(calculatePercent(item.actual_amount, item.budget_amount))">
+                        {{ calculatePercent(item.actual_amount, item.budget_amount) }}%
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <!-- [지출부] -->
-          <div class="flex flex-col">
-            <div class="bg-red-50 dark:bg-red-900/30 px-4 py-3 font-black text-center text-red-800 dark:text-red-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <span>지 출 부 (EXPENSE)</span>
-              <span v-if="meta" class="text-xs font-mono">합계: {{ formatNumber(meta.total_expense_actual) }}</span>
-            </div>
-            <div class="flex-1 overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-[11px] font-bold text-gray-500 uppercase">계정항목</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">예산액</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">실적액</th>
-                    <th class="px-3 py-2 text-right text-[11px] font-bold text-gray-500 uppercase">비고(%)</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
-                  <tr v-for="item in expenseItems" :key="item.code" :class="getRowClass(item)">
-                    <td class="px-3 py-2 text-sm" :style="{ paddingLeft: (item.level * 12 + 12) + 'px' }">
-                      <span :class="{'font-bold text-gray-900 dark:text-white': item.level < 2}">{{ item.name }}</span>
-                      <span v-if="item.level === 2" class="text-[10px] text-gray-400 font-mono ml-1">{{ item.code }}</span>
-                    </td>
-                    <td class="px-3 py-2 text-right text-sm font-mono text-gray-500">{{ formatNumber(item.budget_amount) }}</td>
-                    <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-red-500' : 'text-gray-400'">
-                      {{ formatNumber(item.actual_amount) }}
-                    </td>
-                    <td class="px-3 py-2 text-right text-xs font-mono text-gray-400">
-                      {{ calculatePercent(item.actual_amount, item.budget_amount) }}%
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- [하단 요약 섹션] -->
-        <div class="bg-gray-50 dark:bg-gray-900/80 border-t border-gray-200 dark:border-gray-700 p-6 print:py-4">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-8 print:gap-4 text-center">
-            <div class="space-y-1">
-              <div class="text-[10px] font-black text-gray-500 uppercase tracking-widest">전기 이월금</div>
-              <div class="text-xl font-mono font-black text-gray-700 dark:text-gray-300">
-                {{ formatNumber(meta?.previousBalance || 0) }}
+          <!-- [하단 요약 섹션] -->
+          <div class="bg-gray-50 dark:bg-gray-900/80 border-t border-gray-200 dark:border-gray-700 p-6 print:py-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 print:gap-4 text-center">
+              <div class="space-y-1">
+                <div class="text-[10px] font-black text-gray-500 uppercase tracking-widest">전기 이월금</div>
+                <div class="text-xl font-mono font-black text-gray-700 dark:text-gray-300">
+                  {{ formatNumber(meta?.previousBalance || 0) }}
+                </div>
               </div>
-            </div>
-            <div class="space-y-1">
-              <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest">당기 수입액</div>
-              <div class="text-xl font-mono font-black text-brand-blue">
-                {{ formatNumber(meta?.total_income_actual || 0) }}
+              <div class="space-y-1">
+                <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest">당기 수입액</div>
+                <div class="text-xl font-mono font-black text-brand-blue">
+                  {{ formatNumber(meta?.total_income_actual || 0) }}
+                </div>
               </div>
-            </div>
-            <div class="space-y-1">
-              <div class="text-[10px] font-black text-red-500 uppercase tracking-widest">당기 지출액</div>
-              <div class="text-xl font-mono font-black text-red-500">
-                {{ formatNumber(meta?.total_expense_actual || 0) }}
+              <div class="space-y-1">
+                <div class="text-[10px] font-black text-red-500 uppercase tracking-widest">당기 지출액</div>
+                <div class="text-xl font-mono font-black text-red-500">
+                  {{ formatNumber(meta?.total_expense_actual || 0) }}
+                </div>
               </div>
-            </div>
-            <div class="space-y-1 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-inner border border-gray-200 dark:border-gray-700">
-              <div class="text-[10px] font-black text-green-600 uppercase tracking-widest">차인 차기 이월금</div>
-              <div class="text-2xl font-mono font-black text-gray-900 dark:text-white">
-                {{ formatNumber(meta?.endingBalance || 0) }}
+              <div class="space-y-1 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-inner border border-gray-200 dark:border-gray-700">
+                <div class="text-[10px] font-black text-green-600 uppercase tracking-widest">차인 차기 이월금</div>
+                <div class="text-2xl font-mono font-black text-gray-900 dark:text-white">
+                  {{ formatNumber(meta?.endingBalance || 0) }}
+                </div>
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- 인쇄용 날인 공간 (하단 고정) -->
+        <div class="hidden print:grid grid-cols-3 gap-4 mt-12 text-center">
+          <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
+            <span class="text-xs mb-8 text-gray-500">담당자</span>
+            <span class="text-sm">(인)</span>
+          </div>
+          <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
+             <span class="text-xs mb-8 text-gray-500">재정위원장</span>
+             <span class="text-sm">(인)</span>
+          </div>
+          <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
+             <span class="text-xs mb-8 text-gray-500">담임목사</span>
+             <span class="text-sm">(인)</span>
+          </div>
+        </div>
       </div>
-      
-      <!-- 인쇄용 날인 공간 (하단 고정) -->
-      <div class="hidden print:grid grid-cols-3 gap-4 mt-12 text-center">
-        <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
-          <span class="text-xs mb-8 text-gray-500">담당자</span>
-          <span class="text-sm">(인)</span>
+      <template #fallback>
+        <div class="h-96 flex items-center justify-center">
+          <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
         </div>
-        <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
-           <span class="text-xs mb-8 text-gray-500">재정위원장</span>
-           <span class="text-sm">(인)</span>
-        </div>
-        <div class="border border-gray-300 h-24 flex flex-col items-center justify-center">
-           <span class="text-xs mb-8 text-gray-500">담임목사</span>
-           <span class="text-sm">(인)</span>
-        </div>
-      </div>
-    </div>
+      </template>
+    </ClientOnly>
   </div>
 </template>
 
@@ -226,7 +250,9 @@ const setPreset = (type: 'today' | 'thisWeek' | 'thisMonth' | 'thisYear') => {
     start = now
   } else if (type === 'thisWeek') {
     const day = now.getDay()
-    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day)
+    // 월요일 시작 기준 보정 (일요일=0이면 -6일)
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+    start = new Date(now.setDate(diff))
   } else if (type === 'thisMonth') {
     start = new Date(now.getFullYear(), now.getMonth(), 1)
   } else if (type === 'thisYear') {
@@ -235,21 +261,28 @@ const setPreset = (type: 'today' | 'thisWeek' | 'thisMonth' | 'thisYear') => {
   
   if (start) {
     startDate.value = start.toISOString().split('T')[0]
-    endDate.value = end.toISOString().split('T')[0]
+    endDate.value = new Date().toISOString().split('T')[0] // 종료일은 항상 오늘까지로 설정
     fetchData()
   }
 }
 
 // 헬퍼 함수
 const getRowClass = (item: any) => {
-  if (item.level === 0) return 'bg-gray-100/50 dark:bg-gray-800/50'
-  if (item.level === 1) return 'bg-gray-50/30 dark:bg-gray-900/30'
-  return ''
+  if (item.level === 0) return 'bg-gray-100/50 dark:bg-gray-800/50 font-black text-gray-900 dark:text-white'
+  if (item.level === 1) return 'bg-gray-50/30 dark:bg-gray-900/30 font-bold'
+  return 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors'
 }
 
 const calculatePercent = (actual: number, budget: number) => {
-  if (!budget || budget === 0) return '-'
+  if (!budget || budget === 0) return '0.0'
   return ((actual / budget) * 100).toFixed(1)
+}
+
+const getPercentColor = (percent: string) => {
+  const p = parseFloat(percent)
+  if (p >= 100) return 'text-green-600 dark:text-green-400'
+  if (p > 0) return 'text-blue-500'
+  return 'text-gray-400'
 }
 
 // 인쇄 및 엑셀
@@ -264,7 +297,7 @@ const downloadExcel = () => {
     ['재정 보고서'],
     [`기간: ${startDate.value} ~ ${endDate.value}`],
     [],
-    ['구분', '계정코드', '계정항목', '예산액', '실적액', '달성률(%)'],
+    ['구분', '계정코드', '계정항목', '예산액', '실적액', '집행률(%)'],
     ...reportData.value.map((item: any) => [
       item.type === 'INCOME' ? '수입' : '지출',
       item.code,
@@ -274,7 +307,7 @@ const downloadExcel = () => {
       calculatePercent(item.actual_amount, item.budget_amount)
     ]),
     [],
-    ['요약'],
+    ['[ 요약 ]'],
     ['전기이월금', meta.value?.previousBalance],
     ['당기수입액', meta.value?.total_income_actual],
     ['당기지출액', meta.value?.total_expense_actual],
@@ -294,6 +327,7 @@ onMounted(() => {
 
 <style scoped>
 @media print {
+  .no-print { display: none !important; }
   #printable-report {
     padding: 0 !important;
     margin: 0 !important;

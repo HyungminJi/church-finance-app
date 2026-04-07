@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const targetYear = parseInt(query.year as string) || new Date().getFullYear()
   const donorId = query.donorId as string
@@ -19,8 +20,10 @@ export default defineEventHandler(async (event) => {
       .leftJoin('receipts as r', (join) => join
         .onRef('m.id', '=', 'r.member_id')
         .on('r.target_year', '=', targetYear)
+        .on('r.church_id', '=', session.user.church_id)
       )
       .where('d.donor_type', '=', 'MEMBER')
+      .where('d.church_id', '=', session.user.church_id)
 
     // 검색 필터 적용
     if (donorId) {
@@ -39,6 +42,7 @@ export default defineEventHandler(async (event) => {
             't.donor_id',
             sql<number>`SUM(t.amount)::BIGINT`.as('annual_total')
           ])
+          .where('t.church_id', '=', session.user.church_id)
           .where('a.type', '=', 'INCOME')
           .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', targetYear)
           .groupBy('t.donor_id')

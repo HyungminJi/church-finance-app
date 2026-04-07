@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   
   const startDate = query.startDate as string
@@ -21,6 +22,7 @@ export default defineEventHandler(async (event) => {
     // 1. 이월 잔액(조회 시작일 이전) 계산
     let previousBalanceQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
+      .where('t.church_id', '=', session.user.church_id)
       .where('t.transaction_date', '<', startDate)
       
     if (accountCode) {
@@ -49,6 +51,7 @@ export default defineEventHandler(async (event) => {
     let txQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
       .leftJoin('donors as d', 't.donor_id', 'd.id')
+      .where('t.church_id', '=', session.user.church_id)
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
 

@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const startDate = query.startDate as string
   const endDate = query.endDate as string
@@ -15,6 +16,7 @@ export default defineEventHandler(async (event) => {
     // 1. 기본 조회 쿼리 (수입 트랜잭션 대상)
     let baseQuery = db.selectFrom('transactions as t')
       .innerJoin('accounts as a', 't.account_code', 'a.code')
+      .where('t.church_id', '=', session.user.church_id)
       .where('a.type', '=', 'INCOME')
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
@@ -39,7 +41,7 @@ export default defineEventHandler(async (event) => {
       // 구역별 집계 (성도의 구역 정보 + 구역 명의의 직접 헌금 통합)
       // 1) 성도가 속한 구역 기준 합산 + 2) 구역 자체가 donor인 경우 합산
       const results = await db.selectFrom('cell_groups as cg')
-        .leftJoin('donors as d', 'cg.donor_id', 'd.id')
+        .innerJoin('donors as d_cg', 'cg.donor_id', 'd_cg.id')
         .leftJoin(
           // 서브쿼리: 구역 소속 성도들의 헌금 + 구역 직접 헌금
           db.selectFrom('transactions as t')
@@ -51,6 +53,7 @@ export default defineEventHandler(async (event) => {
               sql<number>`t.amount`.as('amount'),
               't.id as tx_id'
             ])
+            .where('t.church_id', '=', session.user.church_id)
             .where('a.type', '=', 'INCOME')
             .where('t.transaction_date', '>=', startDate)
             .where('t.transaction_date', '<=', endDate)
@@ -63,6 +66,7 @@ export default defineEventHandler(async (event) => {
           sql<number>`COUNT(tx_data.tx_id)`.as('count'),
           sql<number>`COALESCE(SUM(tx_data.amount), 0)::BIGINT`.as('amount')
         ])
+        .where('d_cg.church_id', '=', session.user.church_id)
         .groupBy(['cg.id', 'cg.name'])
         .orderBy('amount', 'desc')
         .execute()

@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const { fiscal_year } = getQuery(event)
 
@@ -18,8 +19,10 @@ export default defineEventHandler(async (event) => {
         join
           .onRef('budgets.account_code', '=', 'transactions.account_code')
           .on(sql`EXTRACT(YEAR FROM transactions.transaction_date) = ${fiscal_year}`)
+          .on('transactions.church_id', '=', session.user.church_id)
       )
       .where('budgets.fiscal_year', '=', Number(fiscal_year))
+      .where('budgets.church_id', '=', session.user.church_id)
       .select([
         'budgets.account_code',
         'budgets.amount as budget_amount',

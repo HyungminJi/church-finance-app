@@ -167,7 +167,7 @@ const limit = ref(50)
 const limitOptions = [10, 30, 50, 100]
 const selectedAccountCodes = ref([])
 
-// 2. 기초 데이터 로드 (계정과목)
+// 2. 기초 데이터 로드 (계정과목) - 테넌트 격리는 API 내부에서 수행됨
 const { data: accountsRes } = await useFetch('/api/accounts')
 const incomeAccounts = computed(() => {
   return ((accountsRes.value as any)?.data || []).filter((a: any) => a.type === 'INCOME' && a.level === 2)
@@ -212,7 +212,7 @@ const getRankStyle = (idx: number) => {
   if (idx === 0) return 'bg-yellow-400 text-white ring-4 ring-yellow-100 dark:ring-yellow-900/30'
   if (idx === 1) return 'bg-slate-300 text-white ring-4 ring-slate-100 dark:ring-slate-800/30'
   if (idx === 2) return 'bg-amber-600 text-white ring-4 ring-amber-100 dark:ring-amber-900/30'
-  return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+  return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 font-mono'
 }
 
 const getDonorIcon = (type: string) => {

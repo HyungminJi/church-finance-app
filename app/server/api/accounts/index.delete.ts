@@ -2,6 +2,7 @@ import { sql } from 'kysely'
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
     const codes = body.codes || (body.code ? [body.code] : [])
@@ -17,14 +18,16 @@ export default defineEventHandler(async (event) => {
     const result = await sql`
       WITH RECURSIVE descendants AS (
         -- 초기 선택: 삭제 요청된 코드들
-        SELECT code FROM accounts WHERE code IN (${sql.join(codes)})
+        SELECT code FROM accounts WHERE code IN (${sql.join(codes)}) AND church_id = ${session.user.church_id}
         UNION ALL
         -- 재귀 선택: descendants에 포함된 코드를 parent_code로 가지는 항목들
         SELECT a.code FROM accounts a
         JOIN descendants d ON a.parent_code = d.code
+        WHERE a.church_id = ${session.user.church_id}
       )
       DELETE FROM accounts 
       WHERE code IN (SELECT code FROM descendants)
+      AND church_id = ${session.user.church_id}
     `.execute(db)
 
     // 삭제된 총 로우 수 계산

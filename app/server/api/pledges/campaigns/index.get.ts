@@ -2,6 +2,7 @@ import { db } from '../../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     // 캠페인 정보와 연결된 수입 계정의 실제 모금액(Transactions)을 합산하여 조회
     const campaigns = await db.selectFrom('pledge_campaigns as pc')
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
           eb('pc.end_date', 'is', null),
           eb('t.transaction_date', '<=', eb.ref('pc.end_date'))
         ]))
+        .on('t.church_id', '=', session.user.church_id)
       )
       .select([
         'pc.id',
@@ -28,6 +30,7 @@ export default defineEventHandler(async (event) => {
         // 해당 캠페인 기간 내에 계정으로 들어온 트랜잭션 합계
         sql<number>`COALESCE(SUM(t.amount), 0)`.as('total_collected')
       ])
+      .where('pc.church_id', '=', session.user.church_id)
       .groupBy(['pc.id', 'pc.name', 'pc.description', 'pc.start_date', 'pc.end_date', 'pc.target_amount', 'pc.account_code', 'a.name', 'pc.is_active'])
       .orderBy('pc.created_at', 'desc')
       .execute()

@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
   try {
     const deletedTransaction = await db.deleteFrom('transactions')
       .where('id', '=', id)
+      .where('church_id', '=', session.user.church_id)
       .returningAll()
       .executeTakeFirstOrThrow()
 

@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
   
   if (!id) {
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
         updated_at: new Date()
       })
       .where('id', '=', id)
+      .where('church_id', '=', session.user.church_id)
       .returningAll()
       .executeTakeFirst()
 

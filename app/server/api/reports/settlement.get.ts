@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const startDate = query.startDate as string
   const endDate = query.endDate as string
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
     // 1. 기초 이월 잔액 (조회 시작일 이전 전체 수입 - 전체 지출)
     const prevResult = await db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
+      .where('t.church_id', '=', session.user.church_id)
       .where('t.transaction_date', '<', startDate)
       .select([
         sql<number>`COALESCE(SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END), 0)`.as('prev_income'),
@@ -33,6 +35,7 @@ export default defineEventHandler(async (event) => {
       .leftJoin('budgets as b', (join) => join
         .onRef('a.code', '=', 'b.account_code')
         .on('b.fiscal_year', '=', fiscalYear)
+        .on('b.church_id', '=', session.user.church_id)
       )
       .leftJoin(
         db.selectFrom('transactions as t')
@@ -40,6 +43,7 @@ export default defineEventHandler(async (event) => {
             't.account_code',
             sql<number>`SUM(t.amount)`.as('period_amount')
           ])
+          .where('t.church_id', '=', session.user.church_id)
           .where('t.transaction_date', '>=', startDate)
           .where('t.transaction_date', '<=', endDate)
           .groupBy('t.account_code')
@@ -56,6 +60,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`COALESCE(b.amount, 0)`.as('budget_amount'),
         sql<number>`COALESCE(t_period.period_amount, 0)`.as('actual_amount')
       ])
+      .where('a.church_id', '=', session.user.church_id)
       .where('a.is_active', '=', true)
       .orderBy(sql`LPAD(SPLIT_PART(a.code, '-', 1), 10, '0')`, 'asc')
       .orderBy('a.level', 'asc')

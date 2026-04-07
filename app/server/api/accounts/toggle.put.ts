@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const body = await readBody(event)
   const { code, codes, is_active } = body
   
@@ -16,6 +17,7 @@ export default defineEventHandler(async (event) => {
       .updateTable('accounts')
       .set({ is_active })
       .where('code', 'in', targetCodes)
+      .where('church_id', '=', session.user.church_id)
       .execute()
 
     // 2. 하위 코드들도 함께 업데이트 (parent_code가 대상 코드들 중 하나인 경우)
@@ -23,6 +25,7 @@ export default defineEventHandler(async (event) => {
       .updateTable('accounts')
       .set({ is_active })
       .where('parent_code', 'in', targetCodes)
+      .where('church_id', '=', session.user.church_id)
       .execute()
 
     return { success: true }

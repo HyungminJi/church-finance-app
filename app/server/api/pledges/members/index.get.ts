@@ -2,6 +2,7 @@ import { db } from '../../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   const campaignId = query.campaignId as string
 
@@ -17,6 +18,7 @@ export default defineEventHandler(async (event) => {
     const campaign = await db.selectFrom('pledge_campaigns')
       .select(['account_code', 'start_date', 'end_date'])
       .where('id', '=', campaignId)
+      .where('church_id', '=', session.user.church_id)
       .executeTakeFirstOrThrow()
 
     // 2. 성도별 납부액을 캠페인 기간 내에서만 합산 (Subquery)
@@ -26,6 +28,7 @@ export default defineEventHandler(async (event) => {
         'donor_id',
         sql<number>`SUM(amount)`.as('total_paid')
       ])
+      .where('church_id', '=', session.user.church_id)
       .where('account_code', '=', campaign.account_code)
       .where('donor_id', 'is not', null)
       .where('transaction_date', '>=', campaign.start_date)
@@ -50,6 +53,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`COALESCE(paid_stats.total_paid, 0)`.as('total_paid')
       ])
       .where('mp.campaign_id', '=', campaignId)
+      .where('mp.church_id', '=', session.user.church_id)
       .orderBy('m.name', 'asc')
       .execute()
 

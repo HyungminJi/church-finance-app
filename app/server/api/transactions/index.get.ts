@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   
   const page = parseInt(query.page as string) || 1
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
     let baseQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
       .leftJoin('donors as d', 't.donor_id', 'd.id')
+      .where('t.church_id', '=', session.user.church_id)
 
     // 1. 유형 필터 (수입/지출)
     if (type && type !== 'ALL') {

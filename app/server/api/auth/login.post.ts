@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   try {
     // 1. 유저 기본 정보 및 비밀번호 해시 조회
     const userBase = await db.selectFrom('users')
-      .select(['id', 'password_hash', 'is_active', 'role'])
+      .select(['id', 'password_hash', 'is_active', 'role', 'church_id'])
       .where('login_id', '=', login_id)
       .executeTakeFirst()
 
@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
         'users.id',
         'users.login_id',
         'users.role',
+        'users.church_id',
         'members.name as member_name',
         'cc1.name as church_role_name',
         'cc2.name as sys_role_name'
@@ -60,6 +61,7 @@ export default defineEventHandler(async (event) => {
     await setUserSession(event, {
       user: {
         id: userDetail?.id || userBase.id,
+        church_id: userDetail?.church_id || userBase.church_id,
         login_id: userDetail?.login_id || login_id,
         name: userDetail?.member_name || '관리자',
         role: userBase.role,

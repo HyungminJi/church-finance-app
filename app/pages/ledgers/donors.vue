@@ -115,7 +115,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
                 <div class="flex items-center gap-2">
                   <UIcon v-if="t.donor_name" :name="t.donor_type === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="w-3 h-3 text-gray-400" />
-                  {{ t.donor_name || '(무명)' }}
+                  {{ t.donor_name || '무명' }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

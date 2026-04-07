@@ -1,12 +1,14 @@
 import { db } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, statusMessage: 'ID가 필요합니다.' })
 
   try {
     const deleted = await db.deleteFrom('pledge_campaigns')
       .where('id', '=', id)
+      .where('church_id', '=', session.user.church_id)
       .returningAll()
       .executeTakeFirstOrThrow()
 

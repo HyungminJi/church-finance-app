@@ -203,7 +203,12 @@ const { data: reportRes, pending, refresh } = await useFetch('/api/reports/funds
 })
 
 const reportItems = computed(() => (reportRes.value as any)?.data || [])
-const fundsList = computed(() => reportItems.value) // 이체 시 선택할 통장 목록
+
+// 이체 모달용 통장 목록 (ID와 이름을 정확히 매핑)
+const fundsList = computed(() => reportItems.value.map((f: any) => ({
+  id: f.id,
+  name: f.name
+})))
 
 // --- 자금 이체 로직 ---
 const isTransferModalOpen = ref(false)
@@ -212,8 +217,8 @@ const transferAmountStr = ref('')
 
 const transferForm = ref({
   transaction_date: new Date().toISOString().split('T')[0],
-  from_fund_id: null,
-  to_fund_id: null,
+  from_fund_id: null as string | null,
+  to_fund_id: null as string | null,
   amount: 0,
   description: ''
 })

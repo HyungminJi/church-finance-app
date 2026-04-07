@@ -3,13 +3,7 @@ import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   // 1. 세션 확인
-  const session = await getUserSession(event)
-  if (!session?.user?.id) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '로그인이 필요합니다.'
-    })
-  }
+  const session = await requireUserSession(event)
 
   const body = await readBody(event)
   const { currentPassword, newPassword } = body
@@ -25,6 +19,7 @@ export default defineEventHandler(async (event) => {
   const user = await db.selectFrom('users')
     .select(['id', 'password_hash'])
     .where('id', '=', session.user.id)
+    .where('church_id', '=', session.user.church_id)
     .executeTakeFirst()
 
   if (!user) {
@@ -50,6 +45,7 @@ export default defineEventHandler(async (event) => {
     await db.updateTable('users')
       .set({ password_hash: newPasswordHash })
       .where('id', '=', user.id)
+      .where('church_id', '=', session.user.church_id)
       .execute()
 
     return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' }

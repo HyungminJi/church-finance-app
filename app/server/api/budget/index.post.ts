@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const body = await readBody(event)
   const { budgets, fiscal_year } = body
 
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
         
         await trx.insertInto('budgets')
           .values({
+            church_id: session.user.church_id,
             account_code: item.code,
             fiscal_year: parseInt(fiscal_year),
             amount: amount

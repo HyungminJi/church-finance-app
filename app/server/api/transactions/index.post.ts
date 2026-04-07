@@ -1,6 +1,7 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
     
@@ -16,6 +17,7 @@ export default defineEventHandler(async (event) => {
     // 2. Insert Transaction
     const newTransaction = await db.insertInto('transactions')
       .values({
+        church_id: session.user.church_id,
         transaction_date: body.transaction_date,
         account_code: body.account_code,
         fund_id: body.fund_id,

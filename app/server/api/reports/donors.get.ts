@@ -2,6 +2,7 @@ import { db } from '../../utils/db'
 import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const query = getQuery(event)
   
   const page = parseInt(query.page as string) || 1
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
         .onRef('m.church_role', '=', 'cc.code')
         .on('cc.group_code', '=', 'CHURCH_ROLE')
       )
+      .where('t.church_id', '=', session.user.church_id)
       .where('a.type', '=', 'INCOME') // 헌금자리스트는 수입만 표시
 
     // 1. 날짜 필터

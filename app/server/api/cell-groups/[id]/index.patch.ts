@@ -1,6 +1,7 @@
 import { db } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
 
@@ -20,6 +21,13 @@ export default defineEventHandler(async (event) => {
         is_active: body.is_active !== undefined ? body.is_active : true
       })
       .where('id', '=', id)
+      .where(({ exists, selectFrom }) => 
+        exists(
+          selectFrom('donors as d')
+            .whereRef('d.id', '=', 'cell_groups.donor_id')
+            .where('d.church_id', '=', session.user.church_id)
+        )
+      )
       .execute()
 
     return { success: true }

@@ -1,9 +1,9 @@
 import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
-  // 관리자 권한 확인 (role: 1 또는 2 - 상황에 따라 조정 가능하나 여기서는 role이 낮을수록 고권한으로 가정)
-  const session = await getUserSession(event)
-  if (!session?.user || session.user.role > 2) {
+  // 관리자 권한 확인 (role: 1 또는 2)
+  const session = await requireUserSession(event)
+  if (session.user.role > 2) {
     throw createError({
       statusCode: 403,
       statusMessage: '사용자 삭제 권한이 없습니다. (관리자 전용)'
@@ -27,10 +27,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 1. 사용자 정보(member_id, role) 조회
+    // 1. 사용자 정보(member_id, role) 조회 (현재 교회의 유저인지 확인)
     const userToDelete = await db.selectFrom('users')
       .select(['member_id', 'role'])
       .where('id', '=', id)
+      .where('church_id', '=', session.user.church_id)
       .executeTakeFirst()
 
     if (!userToDelete) {
@@ -52,12 +53,20 @@ export default defineEventHandler(async (event) => {
     await db.transaction().execute(async (trx) => {
       await trx.deleteFrom('users')
         .where('id', '=', id)
+        .where('church_id', '=', session.user.church_id)
         .execute()
 
       if (userToDelete.member_id) {
         await trx.updateTable('members')
           .set({ is_user: false })
           .where('id', '=', userToDelete.member_id)
+          .where(({ exists, selectFrom }) => 
+            exists(
+              selectFrom('donors as d')
+                .whereRef('d.id', '=', 'members.donor_id')
+                .where('d.church_id', '=', session.user.church_id)
+            )
+          )
           .execute()
       }
     })
