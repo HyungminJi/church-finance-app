@@ -151,8 +151,115 @@ const fetchData = () => {
 }
 
 const printReport = () => {
-  window.print()
+  const reportElement = document.getElementById('printable-trial-balance')
+  if (!reportElement) return
+
+  const iframe = document.createElement('iframe')
+  iframe.style.cssText = 'position:fixed;width:210mm;height:297mm;left:-10000px;top:0;background:white;'
+  document.body.appendChild(iframe)
+
+  const doc = iframe.contentWindow?.document
+  if (!doc) return
+
+  const css = `
+    @page { size: A4 portrait; margin: 0 !important; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 8.5pt; line-height: 1.2; }
+    #printable-trial-balance { 
+      width: 210mm; 
+      height: 285mm; 
+      padding: 15mm 20mm; 
+      background: white; 
+      margin: 0 auto; 
+      position: relative;
+      overflow: hidden;
+    }
+    h1 { text-align: center; font-size: 26pt; font-weight: normal; margin-bottom: 5px; letter-spacing: 15px; padding-left: 15px; }
+    p { text-align: center; font-size: 10pt; font-weight: bold; color: #4b5563; margin-bottom: 25px; }
+    
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; border-top: 2px solid black; border-bottom: 2px solid black; }
+    th, td { border: 1px solid black; padding: 4px 6px; line-height: 1.2; word-break: break-all; }
+    th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
+    
+    /* Tailwind Class Shims */
+    .text-\\[8pt\\] { font-size: 8pt !important; }
+    .text-\\[10pt\\] { font-size: 10pt !important; }
+    .text-3xl { font-size: 26pt !important; }
+    .text-sm { font-size: 9pt !important; }
+    
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; font-size: 8pt; }
+    .font-bold { font-weight: bold !important; }
+    .font-black { font-weight: 900 !important; }
+    .text-blue-600 { color: #2563eb !important; }
+    .text-red-600 { color: #dc2626 !important; }
+    .text-blue-800 { color: #1e40af !important; }
+    .text-red-800 { color: #991b1b !important; }
+    .text-gray-400 { color: #9ca3af !important; }
+    .text-gray-500 { color: #6b7280 !important; }
+    .text-gray-600 { color: #4b5563 !important; }
+    .bg-gray-50 { background-color: #f9fafb !important; }
+    .bg-gray-100 { background-color: #f3f4f6 !important; }
+    .border-t-2 { border-top: 2px solid black !important; }
+    .border-b-2 { border-bottom: 2px solid black !important; }
+    .border-r { border-right: 1px solid black !important; }
+    .border-black { border-color: black !important; }
+    
+    .mt-8 { margin-top: 2rem !important; }
+    .mt-20 { margin-top: 5rem !important; }
+    .mb-8 { margin-bottom: 2rem !important; }
+    .mb-2 { margin-bottom: 0.5rem !important; }
+    .flex { display: flex !important; }
+    .flex-col { flex-direction: column !important; }
+    .tracking-\\[15px\\] { letter-spacing: 15px !important; }
+    .tracking-\\[10px\\] { letter-spacing: 10px !important; }
+    .pl-\\[10px\\] { padding-left: 10px !important; }
+  `
+
+  doc.write(`
+    <html>
+      <head><style>${css}</style></head>
+      <body>
+        <div id="printable-trial-balance">
+          ${reportElement.innerHTML}
+        </div>
+      </body>
+    </html>
+  `)
+  doc.close()
+
+  iframe.contentWindow?.focus()
+  setTimeout(() => {
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  }, 500)
 }
+
+
+  doc.write(`
+    <html>
+      <head><style>${css}</style></head>
+      <body>
+        <div id="printable-trial-balance">
+          ${reportElement.innerHTML}
+        </div>
+      </body>
+    </html>
+  `)
+  doc.close()
+
+  iframe.contentWindow?.focus()
+  setTimeout(() => {
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  }, 500)
+}
+
 
 const downloadExcel = () => {
   if (trialItems.value.length === 0) return

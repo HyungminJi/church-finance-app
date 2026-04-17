@@ -305,7 +305,135 @@ const calculateRate = (annual: number, budget: number) => {
   return rounded > 999 ? '>999%' : `${rounded}%`
 }
 
-const printReport = () => window.print()
+const printReport = () => {
+  const reportElement = document.getElementById('printable-report')
+  if (!reportElement) return
+
+  const iframe = document.createElement('iframe')
+  iframe.style.cssText = 'position:fixed;width:210mm;height:297mm;left:-10000px;top:0;background:white;'
+  document.body.appendChild(iframe)
+
+  const doc = iframe.contentWindow?.document
+  if (!doc) return
+
+  const css = `
+    @page { size: A4 portrait; margin: 0 !important; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 7.5pt; line-height: 1.1; }
+    #printable-report { 
+      width: 210mm; 
+      height: 285mm; 
+      padding: 10mm 12mm; 
+      background: white; 
+      margin: 0 auto; 
+      position: relative;
+      overflow: hidden;
+    }
+    h1 { text-align: center; font-size: 22pt; font-weight: normal; margin-bottom: 15px; letter-spacing: 15px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid black; padding: 1px 3px; line-height: 1.1; word-break: break-all; height: 18px; }
+    th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
+    
+    /* Tailwind Class Shims */
+    .text-\\[7\\.5pt\\] { font-size: 7.5pt !important; }
+    .text-\\[8pt\\] { font-size: 8pt !important; }
+    .text-\\[9pt\\] { font-size: 9pt !important; }
+    .text-\\[10pt\\] { font-size: 10pt !important; }
+    .text-3xl { font-size: 22pt !important; }
+    .text-2xl { font-size: 18pt !important; }
+    .text-\\[11pt\\] { font-size: 11pt !important; }
+    
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; font-size: 7pt; }
+    .font-bold { font-weight: bold !important; }
+    .font-black { font-weight: 900 !important; }
+    .bg-gray-50 { background-color: #f9fafb !important; }
+    .bg-gray-50\\/50 { background-color: rgba(249, 250, 251, 0.5) !important; }
+    
+    .grid { display: grid !important; }
+    .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
+    .grid-cols-\\[25\\%_22\\%_22\\%_22\\%_9\\%\\] { grid-template-columns: 25% 22% 22% 22% 9% !important; }
+    
+    .border-t-2 { border-top: 2px solid black !important; }
+    .border-b-2 { border-bottom: 2px solid black !important; }
+    .border-b { border-bottom: 1px solid black !important; }
+    .border-l { border-left: 1px solid black !important; }
+    .border-r { border-right: 1px solid black !important; }
+    .border-black { border-color: black !important; }
+    
+    .mt-4 { margin-top: 1rem !important; }
+    .mt-6 { margin-top: 1.5rem !important; }
+    .mt-12 { margin-top: 3rem !important; }
+    .mb-4 { margin-bottom: 1rem !important; }
+    .mb-2 { margin-bottom: 0.5rem !important; }
+    .mb-1 { margin-bottom: 0.25rem !important; }
+    
+    .flex { display: flex !important; }
+    .justify-between { justify-content: space-between !important; }
+    .items-start { align-items: flex-start !important; }
+    .items-end { align-items: flex-end !important; }
+    .w-\\[65\\%\\] { width: 65% !important; }
+    .w-\\[30\\%\\] { width: 30% !important; }
+    .w-1\\/3 { width: 33.333333% !important; }
+    
+    .relative { position: relative !important; }
+    .absolute { position: absolute !important; }
+    .left-1\\/2 { left: 50% !important; }
+    .-translate-x-1\\/2 { transform: translateX(-50%) !important; }
+    .bottom-0 { bottom: 0 !important; }
+    .tracking-\\[15px\\] { letter-spacing: 15px !important; }
+    .tracking-\\[12px\\] { letter-spacing: 12px !important; }
+    .tracking-\\[5px\\] { letter-spacing: 5px !important; }
+    
+    .text-gray-400 { color: #9ca3af !important; }
+    .text-gray-500 { color: #6b7280 !important; }
+    .italic { font-style: italic !important; }
+  `
+
+  doc.write(`
+    <html>
+      <head><style>${css}</style></head>
+      <body>
+        <div id="printable-report">
+          ${reportElement.innerHTML}
+        </div>
+      </body>
+    </html>
+  `)
+  doc.close()
+
+  iframe.contentWindow?.focus()
+  setTimeout(() => {
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  }, 500)
+}
+
+
+  doc.write(`
+    <html>
+      <head><style>${css}</style></head>
+      <body>
+        <div id="printable-report">
+          ${reportElement.innerHTML}
+        </div>
+      </body>
+    </html>
+  `)
+  doc.close()
+
+  iframe.contentWindow?.focus()
+  setTimeout(() => {
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  }, 500)
+}
+
 
 const downloadExcel = () => {
   if (!reportData.value.length) return
