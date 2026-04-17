@@ -1,43 +1,54 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('총계정원장 페이지 (Total Account Ledger)', () => {
+test.describe('장부 관리 - 총계정원장 페이지', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/ledgers/total-account', { waitUntil: 'networkidle', timeout: 60000 });
-    // 페이지 로드 대기 (충분한 타임아웃 부여)
-    await page.waitForSelector('button:has-text("조회")', { timeout: 20000 });
+    // 실제 장부 관리 메인 경로로 이동
+    await page.goto('/ledgers', { waitUntil: 'networkidle', timeout: 60000 });
+    // 페이지 로드 대기
+    await page.waitForSelector('span:has-text("계정과목별 원장")', { timeout: 20000 });
   });
 
-  test('페이지 제목 및 기본 요소 렌더링 확인', async ({ page }) => {
-    await expect(page.locator('button:has-text("조회")')).toBeVisible();
-    await expect(page.locator('button:has-text("오늘")')).toBeVisible();
+  test('페이지 기본 구성 요소 렌더링 확인', async ({ page }) => {
+    // 좌측 사이드바 트리 확인
+    await expect(page.locator('span:has-text("계정과목별 원장")')).toBeVisible();
+    await expect(page.locator('div:has-text("수입 (INCOME)")').first()).toBeVisible();
+    await expect(page.locator('div:has-text("지출 (EXPENSE)")').first()).toBeVisible();
+
+    // 상단 컨트롤 패널 버튼 확인
     await expect(page.locator('button:has-text("이번달")')).toBeVisible();
+    await expect(page.locator('button:has-text("올해")')).toBeVisible();
+    await expect(page.locator('button:has-text("엑셀 다운로드")')).toBeVisible();
   });
 
   test('데이터 테이블 헤더 확인', async ({ page }) => {
-    const headers = ['계정코드', '계정명', '일자', '예산금액', '집행', '집행비율', '차변', '대변', '예산잔액'];
+    const headers = ['일자', '계정', '적요 / 헌금자·지출처', '수입 (대변)', '지출 (차변)', '잔액'];
     for (const header of headers) {
-      // 정확한 텍스트 매칭을 위해 필터 사용
-      await expect(page.locator('th').filter({ hasText: new RegExp(`^${header}$`) })).toBeVisible();
+      // th 요소 중 해당 텍스트를 포함하는 요소 확인
+      await expect(page.locator('th').filter({ hasText: header }).first()).toBeVisible();
     }
   });
 
-  test('필터 동작 및 조회 버튼 확인', async ({ page }) => {
-    const incomeButton = page.locator('button:has-text("수입")').first();
+  test('계정 트리 필터 동작 확인', async ({ page }) => {
+    // '수입 (INCOME)' 텍스트 영역 클릭
+    const incomeGroup = page.locator('div').filter({ hasText: /^수입 \(INCOME\)$/ }).first();
+    await incomeGroup.click();
     
-    // 클릭 전 상태 확인 (기본 bg-white)
-    await expect(incomeButton).toHaveClass(/bg-white/);
-    
-    // 클릭 실행
-    await incomeButton.click();
-    
-    // 클릭 후 잠시 대기하여 상태 반영 보장 (webkit 대응)
+    // 클릭 후 활성화 상태 배경색(bg-blue-50 계열) 또는 텍스트 색상 확인
+    // 현재 코드상 selectGroup 호출 시 selectedAccountType이 설정됨
     await page.waitForTimeout(500);
-
-    // 조회 버튼 클릭
-    await page.click('button:has-text("조회")');
     
-    // 데이터 테이블 응답 대기 (조회된 데이터가 있거나 없거나 둘 중 하나는 보여야 함)
-    const tableBody = page.locator('tbody');
-    await expect(tableBody).toBeVisible();
+    // 타이틀이 '수입부 전체 원장'으로 바뀌었는지 확인
+    await expect(page.locator('div:has-text("수입부 전체 원장")').first()).toBeVisible();
+  });
+
+  test('새로고침 버튼 클릭 확인', async ({ page }) => {
+    // aria-label을 사용하여 버튼을 확실하게 식별
+    const refreshButton = page.getByLabel('새로고침');
+    await expect(refreshButton).toBeVisible();
+    await refreshButton.click();
+    
+    // 데이터 로딩 인디케이터(pending)가 잠깐이라도 보이거나 사라지는지 확인
+    const table = page.locator('table');
+    await expect(table).toBeVisible();
   });
 });

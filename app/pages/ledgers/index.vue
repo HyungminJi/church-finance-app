@@ -129,6 +129,7 @@
                 color="neutral" 
                 variant="ghost" 
                 class="cursor-pointer" 
+                aria-label="새로고침"
                 :loading="pending"
                 @click="fetchData" 
               />
