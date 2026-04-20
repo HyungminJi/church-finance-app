@@ -47,9 +47,9 @@
 
     <!-- 보고서 본문 -->
     <ClientOnly>
-      <div id="printable-report" class="bg-white text-black p-[8mm] min-h-[285mm] shadow-lg mx-auto print:shadow-none print:p-0 print:m-0" style="width: 210mm; font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;">
+      <div id="printable-report" class="bg-white text-black p-[6mm_12mm] min-h-[282mm] shadow-lg mx-auto print:shadow-none print:p-0 print:m-0" style="width: 210mm; font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;">
         <!-- 문서 헤더 -->
-        <div class="text-center mb-4 relative">
+        <div class="text-center mb-2 relative">
           <h1 class="text-3xl font-normal tracking-[15px] mb-2">회 계 보 고 서 (상세)</h1>
           <div class="flex justify-between items-end text-[9pt] font-bold px-1">
             <!-- 기간은 해당 년의 전체로 고정 표시 -->
@@ -64,28 +64,35 @@
         <div class="grid grid-cols-2 border-t-2 border-black border-b border-l border-r">
           <!-- 수입부 (좌측) -->
           <div class="border-r border-black flex flex-col">
-            <table class="w-full border-collapse text-[7.5pt]">
+            <table class="w-full border-collapse text-[8pt]">
               <thead>
-                <tr class="border-b border-black bg-gray-50">
-                  <th class="border-r border-black py-1 font-bold w-[25%]">항 목</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">예 산</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">분기누계</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">수입누계</th>
-                  <th class="py-1 font-bold w-[9%]">율</th>
+                <tr class="border-b border-black bg-gray-50 h-[19px]">
+                  <th class="border-r border-black font-bold w-[25%]">항 목</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">예 산</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">분기누계</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">수입누계</th>
+                  <th class="font-bold w-[9%]">율</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in incomeItemsWithGroup" :key="item.code" class="border-b border-gray-300">
-                  <td class="border-r border-black px-1 py-0.5 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
+                <tr v-for="item in incomeItemsWithGroup" :key="item.code" class="border-b border-gray-300 h-[19px]">
+                  <td class="border-r border-black px-1 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
                     {{ formatItemName(item) }}
                   </td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.period_amount) }}</td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.annual_amount) }}</td>
-                  <td class="px-1 py-0.5 text-right font-mono">{{ calculateRate(item.annual_amount, item.budget_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.period_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.annual_amount) }}</td>
+                  <td class="px-1 text-right font-mono">{{ calculateRate(item.annual_amount, item.budget_amount) }}</td>
                 </tr>
-                <tr v-for="n in Math.max(0, expenseItemsWithGroup.length - incomeItemsWithGroup.length)" :key="'empty-inc-'+n" class="border-b border-gray-200 h-[22px]">
+                <tr v-for="n in Math.max(0, expenseItemsWithGroup.length - incomeItemsWithGroup.length)" :key="'empty-inc-'+n" class="border-b border-gray-200 h-[19px]">
                   <td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td></td>
+                </tr>
+                <tr class="font-bold bg-gray-50 border-t-2 border-black h-[19px]">
+                  <td class="border-r border-black px-1 text-center">[ 합 계 ]</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_income_budget) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_income_period) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_income_annual) }}</td>
+                  <td class="px-1 text-right font-mono">{{ calculateRate(meta?.total_income_annual, meta?.total_income_budget) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -93,81 +100,70 @@
 
           <!-- 지출부 (우측) -->
           <div class="flex flex-col">
-            <table class="w-full border-collapse text-[7.5pt]">
+            <table class="w-full border-collapse text-[8pt]">
               <thead>
-                <tr class="border-b border-black bg-gray-50">
-                  <th class="border-r border-black py-1 font-bold w-[25%]">항 목</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">예 산</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">분기누계</th>
-                  <th class="border-r border-black py-1 font-bold w-[22%] text-right pr-1">지출누계</th>
-                  <th class="py-1 font-bold w-[9%]">율</th>
+                <tr class="border-b border-black bg-gray-50 h-[19px]">
+                  <th class="border-r border-black font-bold w-[25%]">항 목</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">예 산</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">분기누계</th>
+                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">지출누계</th>
+                  <th class="font-bold w-[9%]">율</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in expenseItemsWithGroup" :key="item.code" class="border-b border-gray-300">
-                  <td class="border-r border-black px-1 py-0.5 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
+                <tr v-for="item in expenseItemsWithGroup" :key="item.code" class="border-b border-gray-300 h-[19px]">
+                  <td class="border-r border-black px-1 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
                     {{ formatItemName(item) }}
                   </td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.period_amount) }}</td>
-                  <td class="border-r border-black px-1 py-0.5 text-right font-mono">{{ formatNumber(item.annual_amount) }}</td>
-                  <td class="px-1 py-0.5 text-right font-mono">{{ calculateRate(item.annual_amount, item.budget_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.period_amount) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.annual_amount) }}</td>
+                  <td class="px-1 text-right font-mono">{{ calculateRate(item.annual_amount, item.budget_amount) }}</td>
                 </tr>
-                <tr v-for="n in Math.max(0, incomeItemsWithGroup.length - expenseItemsWithGroup.length)" :key="'empty-exp-'+n" class="border-b border-gray-200 h-[22px]">
+                <tr v-for="n in Math.max(0, incomeItemsWithGroup.length - expenseItemsWithGroup.length)" :key="'empty-exp-'+n" class="border-b border-gray-200 h-[19px]">
                   <td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td></td>
+                </tr>
+                <tr class="font-bold bg-gray-50 border-t-2 border-black h-[19px]">
+                  <td class="border-r border-black px-1 text-center">[ 합 계 ]</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_expense_budget) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_expense_period) }}</td>
+                  <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(meta?.total_expense_annual) }}</td>
+                  <td class="px-1 text-right font-mono">{{ calculateRate(meta?.total_expense_annual, meta?.total_expense_budget) }}</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-
-        <!-- 수지 합계 라인 -->
-        <div class="grid grid-cols-2 border-l border-r border-b border-black font-bold text-[7.5pt] bg-gray-50">
-          <div class="grid grid-cols-[25%_22%_22%_22%_9%] border-r border-black">
-            <div class="border-r border-black px-1 py-1 text-center">[ 합 계 ]</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_income_budget) }}</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_income_period) }}</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_income_annual) }}</div>
-            <div class="px-1 py-1 text-right font-mono">{{ calculateRate(meta?.total_income_annual, meta?.total_income_budget) }}</div>
-          </div>
-          <div class="grid grid-cols-[25%_22%_22%_22%_9%]">
-            <div class="border-r border-black px-1 py-1 text-center">[ 합 계 ]</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_expense_budget) }}</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_expense_period) }}</div>
-            <div class="border-r border-black px-1 py-1 text-right font-mono">{{ formatNumber(meta?.total_expense_annual) }}</div>
-            <div class="px-1 py-1 text-right font-mono">{{ calculateRate(meta?.total_expense_annual, meta?.total_expense_budget) }}</div>
           </div>
         </div>
 
         <!-- 하단 결산 요약 -->
-        <div class="mt-6 flex justify-between items-start">
+        <div class="mt-4 flex justify-between items-start">
           <div class="w-[65%]">
             <div class="text-center font-bold mb-1 text-[10pt] tracking-[5px]">&lt;&lt; 결 산 총 액 &gt;&gt;</div>
             <table class="w-full border-collapse border border-black text-center text-[9pt]">
               <thead>
-                <tr class="border-b border-black bg-gray-50">
-                  <th class="border-r border-black py-1 font-bold w-1/3">총 수 입 (A+B)</th>
-                  <th class="border-r border-black py-1 font-bold w-1/3">총 지 출 (C)</th>
+                <tr class="border-b border-black bg-gray-50 h-[19px]">
+                  <th class="border-r border-black font-bold w-1/3">총 수 입 (A+B)</th>
+                  <th class="border-r border-black font-bold w-1/3">총 지 출 (C)</th>
                   <th class="py-1 font-bold w-1/3">현 잔 액 (A+B-C)</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="border-r border-black py-2 font-mono font-bold text-[11pt]">{{ formatNumber(Number(meta?.previousBalance || 0) + Number(meta?.total_income_annual || 0)) }}</td>
-                  <td class="border-r border-black py-2 font-mono font-bold text-[11pt]">{{ formatNumber(meta?.total_expense_annual) }}</td>
-                  <td class="py-2 font-mono font-bold text-[11pt]">{{ formatNumber(meta?.endingBalance) }}</td>
+                <tr class="h-[25px]">
+                  <td class="border-r border-black font-mono font-bold text-[11pt]">{{ formatNumber(Number(meta?.previousBalance || 0) + Number(meta?.total_income_annual || 0)) }}</td>
+                  <td class="border-r border-black font-mono font-bold text-[11pt]">{{ formatNumber(meta?.total_expense_annual) }}</td>
+                  <td class="font-mono font-bold text-[11pt]">{{ formatNumber(meta?.endingBalance) }}</td>
                 </tr>
               </tbody>
             </table>
-            <div class="text-[8pt] text-gray-500 mt-1 italic text-right">* 총수입은 [전기이월금(A) + 당기수입누계(B)] 합계입니다.</div>
+            <div class="text-[7pt] text-gray-500 mt-1 italic text-right">* 총수입은 [전기이월금(A) + 당기수입누계(B)] 합계입니다.</div>
           </div>
 
-          <div class="w-[30%] text-right pt-8">
-            <div class="text-[9pt] font-bold">Page : 1 / 1</div>
+          <div class="w-[30%] text-right pt-4">
+            <div class="text-[8pt] font-bold">Page : 1 / 1</div>
           </div>
         </div>
 
-        <div class="mt-12 text-center">
+        <div class="mt-6 text-center">
           <h2 class="text-2xl font-black tracking-[12px]">{{ churchName }}</h2>
         </div>
       </div>
@@ -319,37 +315,37 @@ const printReport = () => {
   const css = `
     @page { size: A4 portrait; margin: 0 !important; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 8.2pt; line-height: 1.2; letter-spacing: -0.05em; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 8pt; line-height: 1.1; letter-spacing: -0.08em; }
     #printable-report { 
       width: 210mm; 
-      height: 285mm; 
-      padding: 10mm 12mm; 
+      height: 282mm; 
+      padding: 6mm 12mm; 
       background: white; 
       margin: 0 auto; 
       position: relative;
       overflow: hidden;
     }
-    h1 { text-align: center; font-size: 24pt; font-weight: normal; margin-bottom: 15px; letter-spacing: 15px; }
+    h1 { text-align: center; font-size: 22pt; font-weight: normal; margin-bottom: 8px; letter-spacing: 15px; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    tr { height: 19px !important; }
     th, td { 
       border: 1px solid black; 
-      padding: 2px 4px; 
-      line-height: 1.2; 
+      padding: 0 2px; 
+      line-height: 19px; 
       white-space: nowrap; 
       overflow: hidden; 
-      text-overflow: ellipsis;
-      height: 20px; 
+      text-overflow: clip;
     }
     th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
     
     /* Tailwind Class Shims */
-    .text-\\[7\\.5pt\\] { font-size: 7.5pt !important; }
+    .text-\\[7\\.5pt\\] { font-size: 8pt !important; letter-spacing: -0.08em !important; }
     .text-\\[8pt\\] { font-size: 8pt !important; }
     .text-\\[9pt\\] { font-size: 9pt !important; }
-    .text-\\[10pt\\] { font-size: 10pt !important; }
+    .text-\\[10pt\\] { font-size: 10pt !important; font-weight: 900 !important; }
     .text-3xl { font-size: 22pt !important; }
-    .text-2xl { font-size: 18pt !important; }
-    .text-\\[11pt\\] { font-size: 11pt !important; }
+    .text-2xl { font-size: 18pt !important; font-weight: 900 !important; }
+    .text-\\[11pt\\] { font-size: 11pt !important; font-weight: 900 !important; }
     
     .text-right { text-align: right !important; }
     .text-center { text-align: center !important; }
@@ -370,12 +366,12 @@ const printReport = () => {
     .border-r { border-right: 1px solid black !important; }
     .border-black { border-color: black !important; }
     
-    .mt-4 { margin-top: 1rem !important; }
-    .mt-6 { margin-top: 1.5rem !important; }
-    .mt-12 { margin-top: 3rem !important; }
-    .mb-4 { margin-bottom: 1rem !important; }
-    .mb-2 { margin-bottom: 0.5rem !important; }
-    .mb-1 { margin-bottom: 0.25rem !important; }
+    .mt-4 { margin-top: 0.5rem !important; }
+    .mt-6 { margin-top: 0.75rem !important; }
+    .mt-12 { margin-top: 1rem !important; }
+    .mb-4 { margin-bottom: 0.4rem !important; }
+    .mb-2 { margin-bottom: 0.2rem !important; }
+    .mb-1 { margin-bottom: 0.1rem !important; }
     
     .flex { display: flex !important; }
     .justify-between { justify-content: space-between !important; }

@@ -164,35 +164,36 @@ const printReport = () => {
   const css = `
     @page { size: A4 portrait; margin: 0 !important; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 9pt; line-height: 1.4; letter-spacing: -0.03em; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 9.5pt; line-height: 1.4; letter-spacing: -0.06em; }
     #printable-trial-balance { 
       width: 210mm; 
       height: 285mm; 
-      padding: 15mm 20mm; 
+      padding: 15mm 15mm; 
       background: white; 
       margin: 0 auto; 
       position: relative;
       overflow: hidden;
     }
     h1 { text-align: center; font-size: 28pt; font-weight: normal; margin-bottom: 5px; letter-spacing: 15px; padding-left: 15px; }
-    p { text-align: center; font-size: 11pt; font-weight: bold; color: #4b5563; margin-bottom: 25px; }
+    p { text-align: center; font-size: 11pt; font-weight: bold; color: #4b5563; margin-bottom: 20px; }
     
     table { width: 100%; border-collapse: collapse; table-layout: fixed; border-top: 2px solid black; border-bottom: 2px solid black; }
+    tr { height: 24px !important; }
     th, td { 
       border: 1px solid black; 
-      padding: 6px 8px; 
-      line-height: 1.2; 
+      padding: 0 4px; 
+      line-height: 24px; 
       white-space: nowrap; 
       overflow: hidden; 
-      text-overflow: ellipsis; 
+      text-overflow: clip; 
     }
     th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
     
     /* Tailwind Class Shims */
-    .text-\\[8pt\\] { font-size: 8pt !important; }
+    .text-\\[8pt\\] { font-size: 8.5pt !important; }
     .text-\\[10pt\\] { font-size: 10pt !important; }
     .text-3xl { font-size: 26pt !important; }
-    .text-sm { font-size: 9pt !important; }
+    .text-sm { font-size: 10pt !important; }
     
     .text-right { text-align: right !important; }
     .text-center { text-align: center !important; }
