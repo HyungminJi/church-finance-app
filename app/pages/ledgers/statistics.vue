@@ -181,6 +181,7 @@ const firstDayOfYear = new Date(today.getFullYear(), 0, 1)
 const startDate = ref(firstDayOfYear.toISOString().split('T')[0])
 const endDate = ref(today.toISOString().split('T')[0])
 const mode = ref<'ACCOUNT' | 'CELL_GROUP' | 'ORGANIZATION'>('ACCOUNT')
+const currentPage = ref(1)
 
 const statModes = [
   { id: 'ACCOUNT', label: '항목별 비중', icon: 'i-heroicons-tag', color: 'blue' },

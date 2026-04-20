@@ -164,7 +164,7 @@ const printReport = () => {
   const css = `
     @page { size: A4 portrait; margin: 0 !important; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 8.5pt; line-height: 1.2; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 9pt; line-height: 1.4; letter-spacing: -0.03em; }
     #printable-trial-balance { 
       width: 210mm; 
       height: 285mm; 
@@ -174,11 +174,18 @@ const printReport = () => {
       position: relative;
       overflow: hidden;
     }
-    h1 { text-align: center; font-size: 26pt; font-weight: normal; margin-bottom: 5px; letter-spacing: 15px; padding-left: 15px; }
-    p { text-align: center; font-size: 10pt; font-weight: bold; color: #4b5563; margin-bottom: 25px; }
+    h1 { text-align: center; font-size: 28pt; font-weight: normal; margin-bottom: 5px; letter-spacing: 15px; padding-left: 15px; }
+    p { text-align: center; font-size: 11pt; font-weight: bold; color: #4b5563; margin-bottom: 25px; }
     
     table { width: 100%; border-collapse: collapse; table-layout: fixed; border-top: 2px solid black; border-bottom: 2px solid black; }
-    th, td { border: 1px solid black; padding: 4px 6px; line-height: 1.2; word-break: break-all; }
+    th, td { 
+      border: 1px solid black; 
+      padding: 6px 8px; 
+      line-height: 1.2; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
     th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
     
     /* Tailwind Class Shims */
@@ -237,29 +244,6 @@ const printReport = () => {
     }, 1000)
   }, 500)
 }
-
-
-  doc.write(`
-    <html>
-      <head><style>${css}</style></head>
-      <body>
-        <div id="printable-trial-balance">
-          ${reportElement.innerHTML}
-        </div>
-      </body>
-    </html>
-  `)
-  doc.close()
-
-  iframe.contentWindow?.focus()
-  setTimeout(() => {
-    iframe.contentWindow?.print()
-    setTimeout(() => {
-      document.body.removeChild(iframe)
-    }, 1000)
-  }, 500)
-}
-
 
 const downloadExcel = () => {
   if (trialItems.value.length === 0) return

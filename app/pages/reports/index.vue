@@ -319,7 +319,7 @@ const printReport = () => {
   const css = `
     @page { size: A4 portrait; margin: 0 !important; }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 7.5pt; line-height: 1.1; }
+    body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; background: white; color: black; font-size: 8.2pt; line-height: 1.2; letter-spacing: -0.05em; }
     #printable-report { 
       width: 210mm; 
       height: 285mm; 
@@ -329,9 +329,17 @@ const printReport = () => {
       position: relative;
       overflow: hidden;
     }
-    h1 { text-align: center; font-size: 22pt; font-weight: normal; margin-bottom: 15px; letter-spacing: 15px; }
+    h1 { text-align: center; font-size: 24pt; font-weight: normal; margin-bottom: 15px; letter-spacing: 15px; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    th, td { border: 1px solid black; padding: 1px 3px; line-height: 1.1; word-break: break-all; height: 18px; }
+    th, td { 
+      border: 1px solid black; 
+      padding: 2px 4px; 
+      line-height: 1.2; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis;
+      height: 20px; 
+    }
     th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
     
     /* Tailwind Class Shims */
@@ -411,29 +419,6 @@ const printReport = () => {
     }, 1000)
   }, 500)
 }
-
-
-  doc.write(`
-    <html>
-      <head><style>${css}</style></head>
-      <body>
-        <div id="printable-report">
-          ${reportElement.innerHTML}
-        </div>
-      </body>
-    </html>
-  `)
-  doc.close()
-
-  iframe.contentWindow?.focus()
-  setTimeout(() => {
-    iframe.contentWindow?.print()
-    setTimeout(() => {
-      document.body.removeChild(iframe)
-    }, 1000)
-  }, 500)
-}
-
 
 const downloadExcel = () => {
   if (!reportData.value.length) return
