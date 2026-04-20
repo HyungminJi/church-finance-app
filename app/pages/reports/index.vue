@@ -52,10 +52,8 @@
         <div class="text-center mb-2 relative">
           <h1 class="text-3xl font-normal tracking-[15px] mb-2">회 계 보 고 서 (상세)</h1>
           <div class="flex justify-between items-end text-[9pt] font-bold px-1">
-            <!-- 기간은 해당 년의 전체로 고정 표시 -->
             <div>기 간 : {{ selectedYear }}/01/01 - {{ selectedYear }}/12/31</div>
             <div class="absolute left-1/2 -translate-x-1/2 bottom-0 text-gray-400">******************************</div>
-            <!-- 분기 부분에 실제 선택된 날짜 범위 표시 -->
             <div>분 기 : {{ startDate.replace(/-/g, '/') }} - {{ endDate.replace(/-/g, '/') }}</div>
           </div>
         </div>
@@ -67,16 +65,16 @@
             <table class="w-full border-collapse text-[8pt]">
               <thead>
                 <tr class="border-b border-black bg-gray-50 h-[19px]">
-                  <th class="border-r border-black font-bold w-[25%]">항 목</th>
-                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">예 산</th>
-                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">분기누계</th>
+                  <th class="border-r border-black font-bold w-[29%]">항 목</th>
+                  <th class="border-r border-black font-bold w-[20%] text-right pr-1">예 산</th>
+                  <th class="border-r border-black font-bold w-[20%] text-right pr-1">분기누계</th>
                   <th class="border-r border-black font-bold w-[22%] text-right pr-1">수입누계</th>
                   <th class="font-bold w-[9%]">율</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in incomeItemsWithGroup" :key="item.code" class="border-b border-gray-300 h-[19px]">
-                  <td class="border-r border-black px-1 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
+                  <td class="border-r border-black px-1 leading-tight item-name-cell" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
                     {{ formatItemName(item) }}
                   </td>
                   <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
@@ -103,16 +101,16 @@
             <table class="w-full border-collapse text-[8pt]">
               <thead>
                 <tr class="border-b border-black bg-gray-50 h-[19px]">
-                  <th class="border-r border-black font-bold w-[25%]">항 목</th>
-                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">예 산</th>
-                  <th class="border-r border-black font-bold w-[22%] text-right pr-1">분기누계</th>
+                  <th class="border-r border-black font-bold w-[29%]">항 목</th>
+                  <th class="border-r border-black font-bold w-[20%] text-right pr-1">예 산</th>
+                  <th class="border-r border-black font-bold w-[20%] text-right pr-1">분기누계</th>
                   <th class="border-r border-black font-bold w-[22%] text-right pr-1">지출누계</th>
                   <th class="font-bold w-[9%]">율</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in expenseItemsWithGroup" :key="item.code" class="border-b border-gray-300 h-[19px]">
-                  <td class="border-r border-black px-1 leading-tight" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
+                  <td class="border-r border-black px-1 leading-tight item-name-cell" :class="{'font-bold text-center bg-gray-50/50': item.isGroup}">
                     {{ formatItemName(item) }}
                   </td>
                   <td class="border-r border-black px-1 text-right font-mono">{{ formatNumber(item.budget_amount) }}</td>
@@ -142,20 +140,19 @@
             <table class="w-full border-collapse border border-black text-center text-[9pt]">
               <thead>
                 <tr class="border-b border-black bg-gray-50 h-[19px]">
-                  <th class="border-r border-black font-bold w-1/3">총 수 입 (A+B)</th>
-                  <th class="border-r border-black font-bold w-1/3">총 지 출 (C)</th>
-                  <th class="py-1 font-bold w-1/3">현 잔 액 (A+B-C)</th>
+                  <th class="border-r border-black font-bold w-1/3">총 수 입 (A)</th>
+                  <th class="border-r border-black font-bold w-1/3">총 지 출 (B)</th>
+                  <th class="py-1 font-bold w-1/3">현 잔 액 (A-B)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="h-[25px]">
-                  <td class="border-r border-black font-mono font-bold text-[11pt]">{{ formatNumber(Number(meta?.previousBalance || 0) + Number(meta?.total_income_annual || 0)) }}</td>
+                  <td class="border-r border-black font-mono font-bold text-[11pt]">{{ formatNumber(meta?.total_income_annual) }}</td>
                   <td class="border-r border-black font-mono font-bold text-[11pt]">{{ formatNumber(meta?.total_expense_annual) }}</td>
                   <td class="font-mono font-bold text-[11pt]">{{ formatNumber(meta?.endingBalance) }}</td>
                 </tr>
               </tbody>
             </table>
-            <div class="text-[7pt] text-gray-500 mt-1 italic text-right">* 총수입은 [전기이월금(A) + 당기수입누계(B)] 합계입니다.</div>
           </div>
 
           <div class="w-[30%] text-right pt-4">
@@ -338,7 +335,21 @@ const printReport = () => {
     }
     th { background-color: #f9fafb !important; font-weight: bold; text-align: center; }
     
-    /* Tailwind Class Shims */
+    .item-name-cell {
+      letter-spacing: -0.1em !important;
+      padding-right: 0 !important;
+    }
+    
+    /* Tailwind Class Shims - Widths (Updated: 29% / 20% / 20% / 22% / 9%) */
+    .w-\\[29\\%\\] { width: 29% !important; }
+    .w-\\[20\\%\\] { width: 20% !important; }
+    .w-\\[22\\%\\] { width: 22% !important; }
+    .w-\\[9\\%\\] { width: 9% !important; }
+    .w-1\\/3 { width: 33.333333% !important; }
+    .w-\\[65\\%\\] { width: 65% !important; }
+    .w-\\[30\\%\\] { width: 30% !important; }
+    
+    /* Tailwind Class Shims - Fonts */
     .text-\\[7\\.5pt\\] { font-size: 8pt !important; letter-spacing: -0.08em !important; }
     .text-\\[8pt\\] { font-size: 8pt !important; }
     .text-\\[9pt\\] { font-size: 9pt !important; }
@@ -349,7 +360,7 @@ const printReport = () => {
     
     .text-right { text-align: right !important; }
     .text-center { text-align: center !important; }
-    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; font-size: 7pt; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; font-size: 7.5pt; }
     .font-bold { font-weight: bold !important; }
     .font-black { font-weight: 900 !important; }
     .bg-gray-50 { background-color: #f9fafb !important; }
@@ -357,7 +368,6 @@ const printReport = () => {
     
     .grid { display: grid !important; }
     .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
-    .grid-cols-\\[25\\%_22\\%_22\\%_22\\%_9\\%\\] { grid-template-columns: 25% 22% 22% 22% 9% !important; }
     
     .border-t-2 { border-top: 2px solid black !important; }
     .border-b-2 { border-bottom: 2px solid black !important; }
@@ -377,9 +387,6 @@ const printReport = () => {
     .justify-between { justify-content: space-between !important; }
     .items-start { align-items: flex-start !important; }
     .items-end { align-items: flex-end !important; }
-    .w-\\[65\\%\\] { width: 65% !important; }
-    .w-\\[30\\%\\] { width: 30% !important; }
-    .w-1\\/3 { width: 33.333333% !important; }
     
     .relative { position: relative !important; }
     .absolute { position: absolute !important; }
@@ -456,7 +463,7 @@ onMounted(() => {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm !important;
+    margin: 0 !important;
   }
   body * { visibility: hidden !important; }
   #printable-report, #printable-report * { visibility: visible !important; }
