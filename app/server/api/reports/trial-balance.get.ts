@@ -16,7 +16,49 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // 1. 모든 활성 계정과목 조회
+    // 1. 자산(FUNDS) 데이터 조회 및 집계
+    const funds = await db.selectFrom('funds')
+      .select(['id', 'name', 'bank_name', 'initial_balance'])
+      .where('church_id', '=', session.user.church_id)
+      .execute()
+
+    const fundStats = await db.selectFrom('transactions')
+      .select([
+        'fund_id',
+        sql<number>`SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END)`.as('in_total'),
+        sql<number>`SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END)`.as('out_total')
+      ])
+      .where('church_id', '=', session.user.church_id)
+      .where('transaction_date', '<=', endDate)
+      .groupBy('fund_id')
+      .execute()
+
+    const assetResults = funds.map(f => {
+      const stat = fundStats.find(s => s.fund_id === f.id)
+      const inTotal = Number(stat?.in_total || 0)
+      const outTotal = Number(stat?.out_total || 0)
+      const initial = Number(f.initial_balance || 0)
+      
+      // 자산 차변 합계 = 기초잔액 + 입금액
+      const debitTotal = initial + inTotal
+      // 자산 대변 합계 = 출금액
+      const creditTotal = outTotal
+      // 자산 잔액 = 차변 - 대변 (무조건 차변에 남음)
+      const debitBalance = debitTotal - creditTotal
+
+      return {
+        code: `ASSET-${f.id.substring(0, 4)}`,
+        name: f.bank_name ? `${f.bank_name} (${f.name})` : f.name,
+        type: 'ASSET',
+        level: 2,
+        debitTotal,
+        creditTotal,
+        debitBalance,
+        creditBalance: 0
+      }
+    })
+
+    // 2. 수입/지출(ACCOUNTS) 데이터 조회 및 집계
     const accounts = await db.selectFrom('accounts')
       .select(['code', 'name', 'type', 'level'])
       .where('church_id', '=', session.user.church_id)
@@ -26,53 +68,60 @@ export default defineEventHandler(async (event) => {
       .orderBy(sql`LPAD(code, 20, '0')`, 'asc')
       .execute()
 
-    // 2. 계정별 총 차변/대변 합계 (전체 기간 합산)
-    // 시산표는 "합계"와 "잔액"을 보여주므로 전체 거래를 집계함
-    const stats = await db.selectFrom('transactions as t')
-      .innerJoin('accounts as a', 't.account_code', 'a.code')
+    const accountStats = await db.selectFrom('transactions')
       .select([
-        't.account_code',
-        sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END)`.as('credit_total'),
-        sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('debit_total')
+        'account_code',
+        sql<number>`SUM(ABS(amount))`.as('total_amount')
       ])
-      .where('t.church_id', '=', session.user.church_id)
-      .where('t.transaction_date', '<=', endDate) // 지정일까지의 총계
-      .groupBy('t.account_code')
+      .where('church_id', '=', session.user.church_id)
+      .where('transaction_date', '<=', endDate)
+      .groupBy('account_code')
       .execute()
 
-    // 3. 데이터 구성
-    const results = accounts.map(acc => {
-      const stat = stats.find(s => s.account_code === acc.code)
-      const creditTotal = Number(stat?.credit_total || 0)
-      const debitTotal = Number(stat?.debit_total || 0)
+    const incomeExpenseResults = accounts.map(acc => {
+      const stat = accountStats.find(s => s.account_code === acc.code)
+      const totalAmount = Number(stat?.total_amount || 0)
       
-      let debitBalance = 0
-      let creditBalance = 0
-
-      // 잔액 계산 (수입 - 지출)
-      const balance = creditTotal - debitTotal
-
-      if (balance > 0) {
-        creditBalance = balance
+      if (acc.type === 'INCOME') {
+        // 수입은 대변 발생액이 곧 대변 잔액
+        return {
+          code: acc.code,
+          name: acc.name,
+          type: acc.type,
+          level: acc.level,
+          debitTotal: 0,
+          creditTotal: totalAmount,
+          debitBalance: 0,
+          creditBalance: totalAmount
+        }
       } else {
-        debitBalance = Math.abs(balance)
-      }
-
-      return {
-        code: acc.code,
-        name: acc.name,
-        type: acc.type,
-        level: acc.level,
-        debitTotal,
-        creditTotal,
-        debitBalance,
-        creditBalance
+        // 지출은 차변 발생액이 곧 차변 잔액
+        return {
+          code: acc.code,
+          name: acc.name,
+          type: acc.type,
+          level: acc.level,
+          debitTotal: totalAmount,
+          creditTotal: 0,
+          debitBalance: totalAmount,
+          creditBalance: 0
+        }
       }
     })
 
+    // 3. 최종 데이터 통합 (자산 소계 추가 가능)
+    const finalData = [...assetResults, ...incomeExpenseResults]
+
+    // 4. 교회 정보 조회 (인쇄용)
+    const church = await db.selectFrom('churches')
+      .selectAll()
+      .where('id', '=', session.user.church_id)
+      .executeTakeFirst()
+
     return {
       success: true,
-      data: results
+      data: finalData,
+      church
     }
 
   } catch (error: any) {
