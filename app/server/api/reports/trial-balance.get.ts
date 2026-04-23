@@ -17,20 +17,24 @@ export default defineEventHandler(async (event) => {
 
   try {
     // 1. 자산(FUNDS) 데이터 조회 및 집계
+    // 가이드에 따라 accounts 테이블과 조인하여 INCOME은 더하고 EXPENSE는 빼도록 수정
     const funds = await db.selectFrom('funds')
       .select(['id', 'name', 'bank_name', 'initial_balance'])
       .where('church_id', '=', session.user.church_id)
       .execute()
 
-    const fundStats = await db.selectFrom('transactions')
+    const fundStats = await db.selectFrom('transactions as t')
+      .innerJoin('accounts as a', 't.account_code', 'a.code')
       .select([
-        'fund_id',
-        sql<number>`SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END)`.as('in_total'),
-        sql<number>`SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END)`.as('out_total')
+        't.fund_id',
+        // 수입 합계 (차변 입금)
+        sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END)`.as('in_total'),
+        // 지출 합계 (대변 출금)
+        sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('out_total')
       ])
-      .where('church_id', '=', session.user.church_id)
-      .where('transaction_date', '<=', endDate)
-      .groupBy('fund_id')
+      .where('t.church_id', '=', session.user.church_id)
+      .where('t.transaction_date', '<=', endDate)
+      .groupBy('t.fund_id')
       .execute()
 
     const assetResults = funds.map(f => {
@@ -39,11 +43,11 @@ export default defineEventHandler(async (event) => {
       const outTotal = Number(stat?.out_total || 0)
       const initial = Number(f.initial_balance || 0)
       
-      // 자산 차변 합계 = 기초잔액 + 입금액
+      // 자산 차변 합계 = 기초잔액 + 총입금액
       const debitTotal = initial + inTotal
-      // 자산 대변 합계 = 출금액
+      // 자산 대변 합계 = 총출금액
       const creditTotal = outTotal
-      // 자산 잔액 = 차변 - 대변 (무조건 차변에 남음)
+      // 자산 잔액 = 차변 - 대변
       const debitBalance = debitTotal - creditTotal
 
       return {
@@ -71,7 +75,7 @@ export default defineEventHandler(async (event) => {
     const accountStats = await db.selectFrom('transactions')
       .select([
         'account_code',
-        sql<number>`SUM(ABS(amount))`.as('total_amount')
+        sql<number>`SUM(amount)`.as('total_amount') // transactions.amount는 항상 양수이므로 ABS 불필요
       ])
       .where('church_id', '=', session.user.church_id)
       .where('transaction_date', '<=', endDate)
@@ -83,7 +87,6 @@ export default defineEventHandler(async (event) => {
       const totalAmount = Number(stat?.total_amount || 0)
       
       if (acc.type === 'INCOME') {
-        // 수입은 대변 발생액이 곧 대변 잔액
         return {
           code: acc.code,
           name: acc.name,
@@ -95,7 +98,6 @@ export default defineEventHandler(async (event) => {
           creditBalance: totalAmount
         }
       } else {
-        // 지출은 차변 발생액이 곧 차변 잔액
         return {
           code: acc.code,
           name: acc.name,
@@ -109,10 +111,10 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    // 3. 최종 데이터 통합 (자산 소계 추가 가능)
+    // 3. 최종 데이터 통합 (자산 -> 수입 -> 지출 순)
     const finalData = [...assetResults, ...incomeExpenseResults]
 
-    // 4. 교회 정보 조회 (인쇄용)
+    // 4. 교회 정보 조회
     const church = await db.selectFrom('churches')
       .selectAll()
       .where('id', '=', session.user.church_id)
