@@ -266,24 +266,31 @@
         </div>
 
         <!-- 데이터 강제 보정 툴 -->
-        <div class="bg-red-50 dark:bg-red-900/10 p-6 rounded-xl border border-red-100 dark:border-red-900/30 opacity-70 hover:opacity-100 transition-opacity">
+        <div class="bg-red-50 dark:bg-red-900/10 p-6 rounded-xl border border-red-100 dark:border-red-900/30 opacity-70 hover:opacity-100 transition-opacity mt-8">
           <h3 class="font-bold text-lg mb-2 text-red-800 dark:text-red-300 flex items-center">
             <UIcon name="i-heroicons-wrench-screwdriver" class="w-5 h-5 mr-2" />
             데이터 무결성 강제 보정 툴
           </h3>
-          <p class="text-sm text-red-600/80 dark:text-red-400 mb-4">
+          <p class="text-sm text-red-600/80 dark:text-red-400 mb-2">
             통장 기초 잔액 0원화 및 전기이월금 전표 강제 생성 등, 대차가 맞지 않는 교회의 데이터를 강제로 치료하는 일괄 스크립트를 GUI로 실행합니다.
           </p>
+          <div class="bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg mb-4 text-xs font-bold text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800/30">
+            ⚠️ 대상: 현재 [<span class="underline underline-offset-2">{{ allChurches.find(c => c.id === selectedTenantId)?.name || '본사/시스템' }}</span>] 데이터에 대해 보정 스크립트를 실행합니다. (중복 방지 및 마감 예외 적용됨)
+          </div>
           <UButton 
             color="error" 
             variant="soft" 
             icon="i-heroicons-exclamation-triangle" 
             class="font-bold cursor-pointer"
             :loading="isCorrecting"
+            :disabled="selectedTenantId === SYSTEM_CHURCH_ID"
             @click="executeCorrectionScript"
           >
             치료 스크립트 실행
           </UButton>
+          <p v-if="selectedTenantId === SYSTEM_CHURCH_ID" class="text-xs text-red-500 mt-2 font-bold">
+            * 플랫폼 본사 환경에서는 실행할 수 없습니다. 특정 교회를 먼저 선택해 주세요.
+          </p>
         </div>
       </div>
 
@@ -689,6 +696,11 @@ const fetchAllChurches = async () => {
 const isCorrecting = ref(false)
 
 const executeCorrectionScript = async () => {
+  if (selectedTenantId.value === SYSTEM_CHURCH_ID) {
+    ui.showAlert('실행 불가', '플랫폼 본사 환경에서는 이 툴을 실행할 수 없습니다. 보정할 특정 교회를 선택한 후 실행해 주세요.', 'warning')
+    return
+  }
+
   const confirmed = await ui.showConfirm(
     '데이터 강제 보정', 
     '현재 열람 중인 교회의 기초 잔액을 0으로 초기화하고 전년이월금 전표로 변환하며, 누락된 통장 정보를 강제 연결합니다. 정말 실행하시겠습니까?', 

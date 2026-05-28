@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
 
       // 2. 통장 기초 잔액을 전년이월금(90-04) 전표로 전환
       const fundsWithBalance = await trx.selectFrom('funds')
-        .select(['id', 'initial_balance'])
+        .select(['id', 'initial_balance', 'name'])
         .where('church_id', '=', churchId)
         .where('initial_balance', '>', 0)
         .execute()
@@ -56,19 +56,31 @@ export default defineEventHandler(async (event) => {
         const currentYear = new Date().getFullYear()
         const carryoverDate = `${currentYear}-01-01`
 
-        await trx.insertInto('transactions')
-          .values(fundsWithBalance.map(fund => ({
-            id: sql`gen_random_uuid()`,
-            church_id: churchId,
-            transaction_date: carryoverDate,
-            account_code: '90-04',
-            amount: fund.initial_balance,
-            fund_id: fund.id,
-            description: '기초 자산 이월 (시스템 자동보정)'
-          })))
-          .execute()
-          
-        stats.insertedCarryovers = fundsWithBalance.length
+        // 중복 방지: 해당 통장에 대해 90-04 계정으로 이미 입력된 전표가 있는지 확인
+        for (const fund of fundsWithBalance) {
+          const existingCarryover = await trx.selectFrom('transactions')
+            .select('id')
+            .where('church_id', '=', churchId)
+            .where('fund_id', '=', fund.id)
+            .where('account_code', '=', '90-04')
+            .executeTakeFirst()
+
+          // 아직 전표가 생성되지 않은 통장에 대해서만 생성 (마감 검사 예외 적용됨)
+          if (!existingCarryover) {
+            await trx.insertInto('transactions')
+              .values({
+                id: sql`gen_random_uuid()`,
+                church_id: churchId,
+                transaction_date: carryoverDate,
+                account_code: '90-04',
+                amount: fund.initial_balance,
+                fund_id: fund.id,
+                description: '기초 자산 이월 (시스템 자동보정)'
+              })
+              .execute()
+            stats.insertedCarryovers++
+          }
+        }
 
         // 3. 모든 통장의 기초 잔액을 0으로 초기화
         const updateFundsResult = await trx.updateTable('funds')
