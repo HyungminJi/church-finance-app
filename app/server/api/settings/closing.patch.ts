@@ -16,15 +16,23 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { closing_date } = body
+  const { closing_date, current_fiscal_year } = body
 
   try {
+    const updateData: any = {
+      updated_at: new Date()
+    }
+    
+    if (closing_date !== undefined) {
+      updateData.closing_date = closing_date || null
+      updateData.closed_by = closing_date ? session.user.id : null
+    }
+    if (current_fiscal_year !== undefined) {
+      updateData.current_fiscal_year = current_fiscal_year || null
+    }
+
     const result = await db.updateTable('churches')
-      .set({
-        closing_date: closing_date || null,
-        closed_by: closing_date ? session.user.id : null, // 마감 시 사용자 ID 기록, 해제 시 null
-        updated_at: new Date()
-      })
+      .set(updateData)
       .where('id', '=', churchId)
       .executeTakeFirst()
 

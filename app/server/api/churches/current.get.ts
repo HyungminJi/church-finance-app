@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       .select([
         'c.id', 'c.name', 'c.representative_name', 'c.registration_number', 
         'c.address', 'c.phone_number', 'c.seal_image_path', 'c.logo_image_path', 
-        'c.closing_date', 'c.closed_by', 'c.is_active', 'c.created_at', 'c.updated_at'
+        'c.current_fiscal_year', 'c.closing_date', 'c.closed_by', 'c.is_active', 'c.created_at', 'c.updated_at',
       ])
       .where('c.id', '=', churchId)
       .executeTakeFirst()

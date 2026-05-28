@@ -130,14 +130,45 @@
         </div>
       </div>
 
-      <!-- 3. 마감 관리 (Admin 이상) -->
+      <!-- 3. 마감 관리 (Manager 이상) -->
       <div v-else-if="activeTab === 'closing'" class="space-y-8 animate-in fade-in slide-in-from-bottom-2">
         <div class="flex items-center justify-between border-b pb-4 dark:border-gray-700">
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">회계 기수 및 마감 관리</h2>
-            <p class="text-sm text-gray-500 mt-1">마감된 기간 이전의 전표는 수정하거나 삭제할 수 없습니다.</p>
+            <p class="text-sm text-gray-500 mt-1">현재 회계 기수(연도)를 지정하거나 장부 마감일을 설정합니다.</p>
           </div>
         </div>
+        
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+          <div class="flex items-start gap-4">
+            <UIcon name="i-heroicons-calendar-days" class="w-8 h-8 text-blue-500 shrink-0 mt-1" />
+            <div class="space-y-4 w-full">
+              <div>
+                <h3 class="font-bold text-blue-900 dark:text-blue-100 text-lg">현재 회계 기수(연도) 설정</h3>
+                <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  모든 화면 상단에 표시되는 회계 연도를 지정합니다. 
+                  <span class="font-bold">(현재: {{ churchForm.current_fiscal_year || new Date().getFullYear() }}년도)</span>
+                </p>
+              </div>
+              <div class="flex items-end gap-4 max-w-md">
+                <UFormField label="회계 연도" class="flex-1">
+                  <UInput type="number" v-model="fiscalYearInput" size="lg" class="w-full font-mono" />
+                </UFormField>
+                <UButton 
+                  color="primary" 
+                  icon="i-heroicons-check" 
+                  class="font-bold cursor-pointer px-6" 
+                  size="lg"
+                  :loading="isSavingFiscalYear"
+                  @click="handleSaveFiscalYear"
+                >
+                  기수 저장
+                </UButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-xl border border-amber-200 dark:border-amber-800">
           <div class="flex items-start gap-4">
             <UIcon name="i-heroicons-lock-closed" class="w-8 h-8 text-amber-500 shrink-0 mt-1" />
@@ -390,13 +421,16 @@ const churchForm = reactive({
   logo_image_path: null as string | null,
   seal_image_path: null as string | null,
   closing_date: null as string | Date | null,
-  closedByName: ''
+  closedByName: '',
+  current_fiscal_year: null as number | null
 })
 
 const loadingChurch = ref(false)
 const isSavingChurch = ref(false)
 const isSavingClosing = ref(false)
+const isSavingFiscalYear = ref(false)
 const closingDateInput = ref('')
+const fiscalYearInput = ref<number>(new Date().getFullYear())
 
 const fetchChurchInfo = async () => {
   loadingChurch.value = true
@@ -408,6 +442,11 @@ const fetchChurchInfo = async () => {
         closingDateInput.value = formatDate(res.data.closing_date)
       } else {
         closingDateInput.value = ''
+      }
+      if (res.data.current_fiscal_year) {
+        fiscalYearInput.value = res.data.current_fiscal_year
+      } else {
+        fiscalYearInput.value = new Date().getFullYear()
       }
     }
   } catch (e) {
@@ -433,6 +472,30 @@ const handleSaveChurchInfo = async () => {
     ui.showAlert('저장 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
   } finally {
     isSavingChurch.value = false
+  }
+}
+
+const handleSaveFiscalYear = async () => {
+  if (!fiscalYearInput.value) return
+
+  isSavingFiscalYear.value = true
+  try {
+    const res: any = await $fetch('/api/settings/closing', {
+      method: 'PATCH',
+      body: { current_fiscal_year: fiscalYearInput.value }
+    })
+    if (res.success) {
+      ui.showAlert('설정 완료', '회계 기수가 성공적으로 설정되었습니다.', 'success')
+      churchForm.current_fiscal_year = fiscalYearInput.value
+      // 글로벌 레이아웃 헤더에 즉각 반영하기 위해 새로고침
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+    }
+  } catch (e: any) {
+    ui.showAlert('설정 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
+  } finally {
+    isSavingFiscalYear.value = false
   }
 }
 
