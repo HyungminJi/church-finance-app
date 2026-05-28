@@ -16,5 +16,29 @@ export default defineEventHandler(async (event) => {
     } else {
       event.context.userRole = Number(user.role) as UserRole
     }
+
+    // 전역 API 접근 제어 (Global RBAC Guard)
+    const path = event.path
+    
+    // 실무(Manager) 이상만 접근 가능한 핵심 API 경로 목록
+    const protectedRoutes = [
+      '/api/donors',
+      '/api/transactions',
+      '/api/budget',
+      '/api/reports',
+      '/api/ledgers'
+    ]
+
+    // 현재 요청된 경로가 보호된 경로 중 하나로 시작하는지 확인
+    const isProtected = protectedRoutes.some(route => path.startsWith(route))
+
+    // User(3) 권한인 경우 접근 차단 (차후 본인 헌금 내역 조회를 위한 예외 경로는 허용 필요)
+    if (isProtected && event.context.userRole > UserRole.MANAGER) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: '이 기능에 접근할 수 있는 권한이 없습니다. (실무자 이상)'
+      })
+    }
   }
 })
+

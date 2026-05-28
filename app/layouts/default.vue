@@ -94,15 +94,20 @@ const authStore = useAuthStore()
 const route = useRoute()
 const ui = useUIStore()
 
-const menuItems = [
-  { path: '/', label: '대시보드', icon: 'i-heroicons-squares-2x2' },
-  { path: '/basic-codes', label: '기초코드', icon: 'i-heroicons-command-line' },
-  { path: '/budget', label: '예산관리', icon: 'i-heroicons-chart-bar' },
-  { path: '/entries', label: '전표입력', icon: 'i-heroicons-pencil-square' },
-  { path: '/ledgers', label: '장부관리', icon: 'i-heroicons-book-open' },
-  { path: '/reports', label: '재무보고서', icon: 'i-heroicons-document-chart-bar' },
-  { path: '/settings', label: '환경설정', icon: 'i-heroicons-cog-8-tooth' },
-]
+const menuItems = computed(() => {
+  const allMenus = [
+    { path: '/', label: '대시보드', icon: 'i-heroicons-squares-2x2', requiresAuth: false },
+    { path: '/basic-codes', label: '기초코드', icon: 'i-heroicons-command-line', requiresAuth: true },
+    { path: '/budget', label: '예산관리', icon: 'i-heroicons-chart-bar', requiresAuth: true },
+    { path: '/entries', label: '전표입력', icon: 'i-heroicons-pencil-square', requiresAuth: true },
+    { path: '/ledgers', label: '장부관리', icon: 'i-heroicons-book-open', requiresAuth: true },
+    { path: '/reports', label: '재무보고서', icon: 'i-heroicons-document-chart-bar', requiresAuth: true },
+    { path: '/settings', label: '환경설정', icon: 'i-heroicons-cog-8-tooth', requiresAuth: false },
+  ]
+
+  // authStore.canEdit (Manager 이상) 권한이 없으면 requiresAuth가 true인 메뉴 숨김
+  return allMenus.filter(menu => !menu.requiresAuth || authStore.canEdit)
+})
 
 const isPathActive = (path: string) => {
   const currentPath = route.path
@@ -111,7 +116,7 @@ const isPathActive = (path: string) => {
 }
 
 const currentPathLabel = computed(() => {
-  const item = menuItems.find(i => isPathActive(i.path))
+  const item = menuItems.value.find(i => isPathActive(i.path))
   return item ? item.label : '홈'
 })
 const roleInfo = computed(() => {
