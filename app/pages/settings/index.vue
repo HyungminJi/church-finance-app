@@ -557,8 +557,7 @@ const handleBackupTransactions = async () => {
   try {
     const res: any = await $fetch('/api/settings/backup/transactions')
     if (res.success && res.data.length > 0) {
-      const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
-      const isMasterAll = isMasterAccount && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      const isMasterAll = authStore.isMaster && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
       
       const wsData = [
         ['전체 전표 내역 백업'],
@@ -593,8 +592,7 @@ const handleBackupDonors = async () => {
   try {
     const res: any = await $fetch('/api/settings/backup/donors')
     if (res.success && res.data.length > 0) {
-      const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
-      const isMasterAll = isMasterAccount && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      const isMasterAll = authStore.isMaster && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
       
       const wsData = [
         ['전체 성도 및 헌금자 백업'],
@@ -647,9 +645,7 @@ const selectedTenantId = ref<string | undefined>(undefined)
 const isSwitching = ref(false)
 
 const fetchAllChurches = async () => {
-  // 스토어 대신 세션 데이터를 직접 참조 (새로고침 대응)
-  const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
-  if (!isMasterAccount) return
+  if (!authStore.isMaster) return
 
   loadingChurches.value = true
   try {
@@ -723,8 +719,7 @@ const switchTenant = async () => {
 }
 
 onMounted(() => {
-  const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
-  if (isMasterAccount) {
+  if (authStore.isMaster) {
     fetchAllChurches()
   }
 })
