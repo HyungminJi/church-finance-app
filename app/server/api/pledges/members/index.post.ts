@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const result = await db.insertInto('member_pledges')
       .values({
-        church_id: session.user.church_id,
+        church_id: event.context.churchId || session.user.church_id,
         campaign_id: body.campaign_id,
         member_id: body.member_id,
         pledge_amount: Number(body.pledge_amount),

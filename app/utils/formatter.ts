@@ -1,3 +1,5 @@
+import { UserRole, ROLE_META } from '../types/auth'
+
 export const formatPhoneNumber = (val: string | null | undefined) => {
   if (!val) return '-'
   const num = val.replace(/[^0-9]/g, '')
@@ -57,11 +59,7 @@ export const formatNumber = (val: number | string | null | undefined) => {
   return new Intl.NumberFormat().format(num)
 }
 
-export const getRoleInfo = (role: number | null) => {
-  switch (role) {
-    case 1: return { label: '최고관리자', color: 'blue' }
-    case 2: return { label: '관리자', color: 'green' }
-    case 3: return { label: '재정담당', color: 'yellow' }
-    default: return { label: '사용자', color: 'gray' }
-  }
+export const getRoleInfo = (role: number | null | undefined) => {
+  const r = role as UserRole
+  return ROLE_META[r] || ROLE_META[UserRole.USER]
 }

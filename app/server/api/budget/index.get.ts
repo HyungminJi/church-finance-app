@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       ])
       .where('a.type', '=', type as any)
       .where('a.is_active', '=', true)
-      .where('a.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('a.church_id', '=', event.context.churchId || session.user.church_id))
       /* 
         자연스러운 계층형 숫자 정렬 로직:
         1. 코드의 첫 번째 숫자 뭉치(하이픈 전까지)를 10자리 0으로 채워 정렬 (60 -> 0000000060, 100 -> 0000000100)

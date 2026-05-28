@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const txCount = await db.selectFrom('transactions')
       .select(db.fn.count('id').as('count'))
       .where('donor_id', '=', id)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .executeTakeFirstOrThrow()
 
     if (Number(txCount.count) > 0) {
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       // donors 테이블 삭제 (CASCADE 설정에 의해 하위 테이블 자동 삭제됨)
       await trx.deleteFrom('donors')
         .where('id', '=', id)
-        .where('church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
         .execute()
     })
 

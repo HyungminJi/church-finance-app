@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // 1. 모든 활성 계정과목 조회
     let accountsQuery = db.selectFrom('accounts')
       .select(['code', 'name', 'type', 'level', 'parent_code'])
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .where('is_active', '=', true)
 
     if (typeFilter && typeFilter !== 'ALL') {
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END)`.as('income_sum'),
         sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('expense_sum')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '<', startDate)
       .groupBy('t.account_code')
       .execute()
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END)`.as('income_sum'),
         sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('expense_sum')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
       .groupBy('t.account_code')
@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
     // 4. 예산 데이터 (해당 회계연도)
     const budgets = await db.selectFrom('budgets')
       .select(['account_code', 'amount'])
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .where('fiscal_year', '=', fiscalYear)
       .execute()
 

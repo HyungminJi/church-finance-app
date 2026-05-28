@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
         'cell_groups.created_at',
         'leader.name as leader_name'
       ])
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
 
     if (searchName) {
       baseQuery = baseQuery.where('cell_groups.name', 'ilike', `%${searchName}%`)
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
       ])
       .distinct()
       .where('cell_groups.parent_group', 'is not', null)
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
       .orderBy('sort_val', 'asc')
       .orderBy('cell_groups.parent_group', 'asc')
       .execute()

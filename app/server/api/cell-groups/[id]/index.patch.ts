@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         exists(
           selectFrom('donors as d')
             .whereRef('d.id', '=', 'cell_groups.donor_id')
-            .where('d.church_id', '=', session.user.church_id)
+            .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
         )
       )
       .execute()

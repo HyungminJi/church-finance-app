@@ -1,100 +1,99 @@
-import bcrypt from 'bcryptjs'
 import { db } from '../../utils/db'
+import { sql } from 'kysely'
+import bcrypt from 'bcryptjs'
+import { UserRole } from '../../../types/auth'
 
 export default defineEventHandler(async (event) => {
-  // 관리자 권한 확인 (role: 1 또는 2)
   const session = await requireUserSession(event)
-  if (session.user.role > 2) {
+  const body = await readBody(event)
+  
+  // 미들웨어에서 주입된 컨텍스트
+  const churchId = event.context.churchId
+  const userRole = event.context.userRole as UserRole
+
+  // 권한 확인 (UserRole.ADMIN 이상의 권한만 사용자 관리 가능)
+  if (userRole > UserRole.ADMIN) {
     throw createError({
       statusCode: 403,
       statusMessage: '사용자 등록 권한이 없습니다. (관리자 전용)'
     })
   }
 
-  const body = await readBody(event)
   const { member_id, login_id, password, role } = body
 
-  if (!member_id || !login_id || !password || !role) {
+  if (!member_id || !login_id || !password || role === undefined) {
     throw createError({
       statusCode: 400,
-      statusMessage: '필수 입력 항목이 누락되었습니다.'
+      statusMessage: '필수 정보가 누락되었습니다.'
     })
   }
 
-  // 관리자(2)는 최고관리자(1) 권한을 부여할 수 없음
-  if (session.user.role === 2 && Number(role) === 1) {
+  // Admin(1)은 Master(0) 권한을 부여할 수 없음
+  if (userRole === UserRole.ADMIN && Number(role) === UserRole.MASTER) {
     throw createError({
       statusCode: 403,
-      statusMessage: '관리자는 최고관리자 권한을 부여할 수 없습니다.'
+      statusMessage: '관리자는 본사 최고관리자 권한을 부여할 수 없습니다.'
     })
   }
-
-  // 중복 아이디 확인
-  const existingUser = await db.selectFrom('users')
-    .select('id')
-    .where('login_id', '=', login_id)
-    .executeTakeFirst()
-
-  if (existingUser) {
-    throw createError({
-      statusCode: 409,
-      statusMessage: '이미 사용 중인 아이디입니다.'
-    })
-  }
-
-  // 성도 정보 조회 (현재 교회의 성도인지 확인)
-  const member = await db.selectFrom('members')
-    .innerJoin('donors as d', 'members.donor_id', 'd.id')
-    .selectAll('members')
-    .where('members.id', '=', member_id)
-    .where('d.church_id', '=', session.user.church_id)
-    .executeTakeFirst()
-
-  if (!member) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: '해당 성도 정보를 찾을 수 없습니다.'
-    })
-  }
-
-  // 비밀번호 해싱
-  const password_hash = await bcrypt.hash(password, 10)
 
   try {
-    const result = await db.transaction().execute(async (trx) => {
-      const newUser = await trx.insertInto('users')
+    // 트랜잭션 처리: user 생성 + member 업데이트
+    await db.transaction().execute(async (trx) => {
+      // 1. users 테이블에 등록
+      const hashedPassword = await bcrypt.hash(password, 10)
+      await trx.insertInto('users')
         .values({
-          church_id: session.user.church_id,
+          id: sql`gen_random_uuid()`,
+          church_id: churchId,
+          member_id,
           login_id,
-          password_hash,
+          password_hash: hashedPassword,
           role: Number(role),
-          member_id: member.id,
           is_active: true
         })
-        .returning(['id', 'login_id'])
-        .executeTakeFirst()
-
-      // 성도 정보에 사용자 여부 업데이트
-      await trx.updateTable('members')
-        .set({ is_user: true })
-        .where('id', '=', member.id)
         .execute()
 
-      return newUser
+      // 2. members 테이블의 is_user 플래그 업데이트
+      let updateQuery = trx.updateTable('members')
+        .set({ is_user: true })
+        .where('id', '=', member_id)
+        
+      // Master가 아니면 본인 교회 성도만 업데이트 가능하도록 격리
+      if (userRole !== UserRole.MASTER) {
+        updateQuery = updateQuery.where(({ exists, selectFrom }) => 
+          exists(
+            selectFrom('donors as d')
+              .whereRef('d.id', '=', 'members.donor_id')
+              .where('d.church_id', '=', churchId)
+          )
+        )
+      }
+      
+      const updateResult = await updateQuery.executeTakeFirst()
+      
+      // 만약 업데이트된 행이 없다면 권한이 없거나 존재하지 않는 성도임
+      if (Number(updateResult.numUpdatedRows) === 0 && userRole !== UserRole.MASTER) {
+         throw new Error('권한이 없거나 유효하지 않은 성도입니다.')
+      }
     })
 
     return {
       success: true,
-      user: {
-        ...result,
-        name: member.name // 응답에는 성도 이름을 포함시켜서 프론트에 전달
-      }
+      message: '사용자 권한이 성공적으로 부여되었습니다.'
     }
+
   } catch (error: any) {
-    console.error('User registration error:', error)
+    console.error('Create user error:', error)
+    // UNIQUE 제약조건 위반 (중복 아이디)
+    if (error.code === '23505') {
+      throw createError({
+        statusCode: 409,
+        statusMessage: '이미 사용 중인 아이디입니다.'
+      })
+    }
     throw createError({
-      statusCode: 500,
-      statusMessage: '사용자 등록 중 오류가 발생했습니다.'
+      statusCode: error.statusCode || 500,
+      statusMessage: error.statusMessage || error.message || '사용자 등록 중 오류가 발생했습니다.'
     })
   }
 })

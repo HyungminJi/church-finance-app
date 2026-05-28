@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
         .on('r.church_id', '=', session.user.church_id)
       )
       .where('d.donor_type', '=', 'MEMBER')
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
 
     // 검색 필터 적용
     if (donorId) {
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
             't.donor_id',
             sql<number>`SUM(t.amount)::BIGINT`.as('annual_total')
           ])
-          .where('t.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
           .where('a.type', '=', 'INCOME')
           .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', targetYear)
           .groupBy('t.donor_id')

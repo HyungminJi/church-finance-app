@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       .updateTable('accounts')
       .set({ is_active })
       .where('code', 'in', targetCodes)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .execute()
 
     // 2. 하위 코드들도 함께 업데이트 (parent_code가 대상 코드들 중 하나인 경우)
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
       .updateTable('accounts')
       .set({ is_active })
       .where('parent_code', 'in', targetCodes)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .execute()
 
     return { success: true }

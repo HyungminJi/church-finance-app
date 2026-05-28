@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
             // SUM 결과를 명시적으로 BIGINT로 캐스팅하여 숫자 타입 보장
             sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE -t.amount END)::BIGINT`.as('tx_balance')
           ])
-          .where('t.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
           .groupBy('t.fund_id')
           .as('t_sum'),
         'f.id',
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`(COALESCE(f.initial_balance, 0) + COALESCE(t_sum.tx_balance, 0))::BIGINT`.as('current_balance'),
         'f.created_at'
       ])
-      .where('f.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('f.church_id', '=', event.context.churchId || session.user.church_id))
       .orderBy(sql`CASE WHEN f.name ~ '^[0-9]' THEN 0 ELSE 1 END`, 'asc') // 자연어 정렬 적용
       .orderBy(sql`CAST(NULLIF(regexp_replace(f.name, '[^0-9]', '', 'g'), '') AS INTEGER) ASC NULLS LAST`)
       .orderBy('f.name', 'asc')

@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
           .on('transactions.church_id', '=', session.user.church_id)
       )
       .where('budgets.fiscal_year', '=', Number(fiscal_year))
-      .where('budgets.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('budgets.church_id', '=', event.context.churchId || session.user.church_id))
       .select([
         'budgets.account_code',
         'budgets.amount as budget_amount',

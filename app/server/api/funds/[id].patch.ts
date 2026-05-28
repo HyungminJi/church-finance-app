@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         updated_at: new Date()
       })
       .where('id', '=', id)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .returningAll()
       .executeTakeFirst()
 

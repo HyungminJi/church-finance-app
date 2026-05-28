@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     let baseQuery = db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
       .leftJoin('donors as d', 't.donor_id', 'd.id')
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
 
     // 1. 유형 필터 (수입/지출)
     if (type && type !== 'ALL') {

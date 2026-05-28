@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     const accounts = await db.selectFrom('accounts')
       .selectAll()
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .orderBy(sql`CAST(NULLIF(regexp_replace(code, '[^0-9]', '', 'g'), '') AS INTEGER) ASC NULLS LAST`)
       .execute()
     return {

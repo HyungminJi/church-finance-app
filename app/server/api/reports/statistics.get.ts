@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     // 1. 기본 조회 쿼리 (수입 트랜잭션 대상)
     let baseQuery = db.selectFrom('transactions as t')
       .innerJoin('accounts as a', 't.account_code', 'a.code')
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('a.type', '=', 'INCOME')
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
               sql<number>`t.amount`.as('amount'),
               't.id as tx_id'
             ])
-            .where('t.church_id', '=', session.user.church_id)
+            .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
             .where('a.type', '=', 'INCOME')
             .where('t.transaction_date', '>=', startDate)
             .where('t.transaction_date', '<=', endDate)
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
           sql<number>`COUNT(tx_data.tx_id)`.as('count'),
           sql<number>`COALESCE(SUM(tx_data.amount), 0)::BIGINT`.as('amount')
         ])
-        .where('d_cg.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d_cg.church_id', '=', event.context.churchId || session.user.church_id))
         .groupBy(['cg.id', 'cg.name'])
         .orderBy('amount', 'desc')
         .execute()

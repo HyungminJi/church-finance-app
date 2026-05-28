@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         .onRef('members.church_role', '=', 'common_codes.code')
         .on('common_codes.group_code', '=', 'CHURCH_ROLE')
       )
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
     
     // 탭 필터링
     if (tab === 'CURRENT') {
@@ -92,18 +92,18 @@ export default defineEventHandler(async (event) => {
     // 통계 조회
     const statsResult = await db.selectFrom('members')
       .innerJoin('donors as d', 'members.donor_id', 'd.id')
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
       .select((eb) => [
         eb.selectFrom('members as m2')
           .innerJoin('donors as d2', 'm2.donor_id', 'd2.id')
           .where('m2.removed_date', 'is', null)
-          .where('d2.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('d2.church_id', '=', event.context.churchId || session.user.church_id))
           .select((eb) => eb.fn.countAll().as('count'))
           .as('currentCount'),
         eb.selectFrom('members as m3')
           .innerJoin('donors as d3', 'm3.donor_id', 'd3.id')
           .where('m3.removed_date', 'is not', null)
-          .where('d3.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('d3.church_id', '=', event.context.churchId || session.user.church_id))
           .select((eb) => eb.fn.countAll().as('count'))
           .as('removedCount')
       ])

@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
           // 1. donor 생성
           const donor = await trx.insertInto('donors')
             .values({
-              church_id: session.user.church_id,
+              church_id: event.context.churchId || session.user.church_id,
               donor_type: 'MEMBER',
               name: item['성함'] || item['이름']
             })

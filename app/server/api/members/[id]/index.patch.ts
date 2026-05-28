@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
           exists(
             selectFrom('donors as d')
               .whereRef('d.id', '=', 'members.donor_id')
-              .where('d.church_id', '=', session.user.church_id)
+              .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
           )
         )
         .execute()
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         const hashedPassword = await bcrypt.hash(body.new_password || '1234', 10)
         await trx.insertInto('users')
           .values({
-            church_id: session.user.church_id,
+            church_id: event.context.churchId || session.user.church_id,
             login_id: body.login_id,
             password_hash: hashedPassword,
             role: parseInt(body.user_role) || 4,
@@ -54,14 +54,14 @@ export default defineEventHandler(async (event) => {
       else if (body.auth_action === 'REVOKE') {
         await trx.deleteFrom('users')
           .where('member_id', '=', id)
-          .where('church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
           .execute()
       } 
       else if (body.auth_action === 'UPDATE' && body.user_role !== undefined) {
         await trx.updateTable('users')
           .set({ role: parseInt(body.user_role) })
           .where('member_id', '=', id)
-          .where('church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
           .execute()
       }
     })

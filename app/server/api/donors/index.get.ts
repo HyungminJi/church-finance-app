@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         .leftJoin('cell_groups as cg', 'm.cell_group_id', 'cg.id')
         .leftJoin('users as u', 'm.id', 'u.member_id')
         .where('d.donor_type', '=', 'MEMBER')
-        .where('d.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
 
       // 필터 적용
       if (keyword) {
@@ -100,7 +100,7 @@ export default defineEventHandler(async (event) => {
           sql<number>`COUNT(CASE WHEN members.removed_date IS NULL THEN 1 END)`.as('current'),
           sql<number>`COUNT(CASE WHEN members.removed_date IS NOT NULL THEN 1 END)`.as('removed')
         ])
-        .where('d.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
         .executeTakeFirstOrThrow()
 
       return {
@@ -127,7 +127,7 @@ export default defineEventHandler(async (event) => {
         .leftJoin('members as m', 'cg.leader_id', 'm.id')
         .leftJoin('donors as ld', 'm.donor_id', 'ld.id')
         .where('d.donor_type', '=', 'CELL_GROUP')
-        .where('d.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
 
       if (keyword) {
         baseQuery = baseQuery.where('d.name', 'ilike', `%${keyword}%`)
@@ -178,7 +178,7 @@ export default defineEventHandler(async (event) => {
         .distinct()
         .where('cell_groups.parent_group', 'is not', null)
         .where('cell_groups.parent_group', '!=', '')
-        .where('d.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
         .execute()
       const parentGroups = parentGroupsRes.map(r => r.parent_group)
 
@@ -195,7 +195,7 @@ export default defineEventHandler(async (event) => {
       let baseQuery = db.selectFrom('donors as d')
         .innerJoin('organizations as o', 'd.id', 'o.donor_id')
         .where('d.donor_type', '=', 'ORGANIZATION')
-        .where('d.church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
 
       if (keyword) {
         baseQuery = baseQuery.where('d.name', 'ilike', `%${keyword}%`)
@@ -241,7 +241,7 @@ export default defineEventHandler(async (event) => {
     // 기본값 (ALL 등): 슈퍼타입만 조회
     const results = await db.selectFrom('donors')
       .selectAll()
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .orderBy('name', 'asc')
       .execute()
     return { success: true, data: results }

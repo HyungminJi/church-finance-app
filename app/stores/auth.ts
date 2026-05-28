@@ -1,9 +1,14 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { UserRole } from '../types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = ref(false)
   const user = ref<any>(null)
   const token = ref<string | null>(null)
+
+  const isMaster = computed(() => user.value?.role === UserRole.MASTER)
+  const isAdmin = computed(() => user.value?.role <= UserRole.ADMIN) // MASTER도 ADMIN 권한 가짐
+  const canEdit = computed(() => user.value?.role <= UserRole.MANAGER)
 
   function login(u: any, t: string) {
     isLoggedIn.value = true
@@ -21,6 +26,9 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     user,
     token,
+    isMaster,
+    isAdmin,
+    canEdit,
     login,
     logout
   }

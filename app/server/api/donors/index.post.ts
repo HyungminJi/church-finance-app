@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       // 1. 최상위 donors 테이블 생성
       const donor = await trx.insertInto('donors')
         .values({
-          church_id: session.user.church_id,
+          church_id: event.context.churchId || session.user.church_id,
           donor_type,
           name
         })

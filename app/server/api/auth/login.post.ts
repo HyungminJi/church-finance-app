@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { db } from '../../utils/db'
+import { UserRole, ROLE_META, SYSTEM_CHURCH_ID } from '../../../types/auth'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -8,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!login_id || !password) {
     throw createError({
       statusCode: 400,
-      message: '아이디와 비밀번호를 모두 입력해 주세요.'
+      statusMessage: '아이디와 비밀번호를 모두 입력해 주세요.'
     })
   }
 
@@ -20,17 +21,19 @@ export default defineEventHandler(async (event) => {
       .executeTakeFirst()
 
     if (!userBase || !userBase.is_active) {
+      console.log('Login failed: user not found or inactive', { login_id })
       throw createError({
         statusCode: 401,
-        message: '아이디 또는 비밀번호가 일치하지 않습니다.'
+        statusMessage: '아이디 또는 비밀번호가 일치하지 않습니다.'
       })
     }
 
     const isMatch = await bcrypt.compare(password, userBase.password_hash)
     if (!isMatch) {
+      console.log('Login failed: password mismatch', { login_id })
       throw createError({
         statusCode: 401,
-        message: '아이디 또는 비밀번호가 일치하지 않습니다.'
+        statusMessage: '아이디 또는 비밀번호가 일치하지 않습니다.'
       })
     }
 
@@ -41,21 +44,25 @@ export default defineEventHandler(async (event) => {
         .onRef('members.church_role', '=', 'cc1.code')
         .on('cc1.group_code', '=', 'CHURCH_ROLE')
       )
-      .leftJoin('common_codes as cc2', (join) => join
-        .onRef('users.role', '=', 'cc2.code')
-        .on('cc2.group_code', '=', 'SYS_ROLE')
-      )
       .select([
         'users.id',
         'users.login_id',
         'users.role',
         'users.church_id',
         'members.name as member_name',
-        'cc1.name as church_role_name',
-        'cc2.name as sys_role_name'
+        'cc1.name as church_role_name'
       ])
       .where('users.id', '=', userBase.id)
       .executeTakeFirst()
+
+    let roleNumber = Number(userBase.role) as UserRole
+    
+    // 기존 DB 데이터 하위 호환성 보장: 본사 소속은 무조건 MASTER로 취급
+    if (userBase.church_id === SYSTEM_CHURCH_ID) {
+      roleNumber = UserRole.MASTER
+    }
+
+    const fallbackRoleName = ROLE_META[roleNumber]?.label || ROLE_META[UserRole.USER].label
 
     // 세션 설정 (nuxt-auth-utils)
     await setUserSession(event, {
@@ -64,9 +71,9 @@ export default defineEventHandler(async (event) => {
         church_id: userDetail?.church_id || userBase.church_id,
         login_id: userDetail?.login_id || login_id,
         name: userDetail?.member_name || '관리자',
-        role: userBase.role,
+        role: roleNumber,
         church_role_name: userDetail?.church_role_name || null,
-        sys_role_name: userDetail?.sys_role_name || (userBase.role === 1 ? '최고관리자' : '사용자')
+        sys_role_name: fallbackRoleName
       },
       loggedInAt: new Date()
     })

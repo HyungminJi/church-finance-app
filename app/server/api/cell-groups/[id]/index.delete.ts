@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const group = await db.selectFrom('cell_groups as cg')
       .innerJoin('donors as d', 'cg.donor_id', 'd.id')
       .where('cg.id', '=', id)
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
       .select('cg.is_active')
       .executeTakeFirst()
     
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     const memberCount = await db.selectFrom('members')
       .innerJoin('donors as d', 'members.donor_id', 'd.id')
       .where('members.cell_group_id', '=', id)
-      .where('d.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
       .select(({ fn }) => fn.countAll().as('total'))
       .executeTakeFirst()
     
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
         exists(
           selectFrom('donors as d')
             .whereRef('d.id', '=', 'cell_groups.donor_id')
-            .where('d.church_id', '=', session.user.church_id)
+            .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
         )
       )
       .execute()

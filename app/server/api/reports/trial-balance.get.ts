@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     // 가이드에 따라 accounts 테이블과 조인하여 INCOME은 더하고 EXPENSE는 빼도록 수정
     const funds = await db.selectFrom('funds')
       .select(['id', 'name', 'bank_name', 'initial_balance'])
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .execute()
 
     const fundStats = await db.selectFrom('transactions as t')
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
         // 지출 합계 (대변 출금)
         sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('out_total')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '<=', endDate)
       .groupBy('t.fund_id')
       .execute()
@@ -65,8 +65,9 @@ export default defineEventHandler(async (event) => {
     // 2. 수입/지출(ACCOUNTS) 데이터 조회 및 집계
     const accounts = await db.selectFrom('accounts')
       .select(['code', 'name', 'type', 'level'])
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .where('is_active', '=', true)
+      .groupBy(['code', 'name', 'type', 'level'])
       .orderBy(sql`LPAD(SPLIT_PART(code, '-', 1), 10, '0')`, 'asc')
       .orderBy('level', 'asc')
       .orderBy(sql`LPAD(code, 20, '0')`, 'asc')
@@ -75,9 +76,9 @@ export default defineEventHandler(async (event) => {
     const accountStats = await db.selectFrom('transactions')
       .select([
         'account_code',
-        sql<number>`SUM(amount)`.as('total_amount') // transactions.amount는 항상 양수이므로 ABS 불필요
+        sql<number>`SUM(amount)`.as('total_amount') // transactions.amount는 항상 양수
       ])
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .where('transaction_date', '<=', endDate)
       .groupBy('account_code')
       .execute()
@@ -115,10 +116,15 @@ export default defineEventHandler(async (event) => {
     const finalData = [...assetResults, ...incomeExpenseResults]
 
     // 4. 교회 정보 조회
-    const church = await db.selectFrom('churches')
-      .selectAll()
-      .where('id', '=', session.user.church_id)
-      .executeTakeFirst()
+    let church = null
+    if (event.context.userRole === 0) {
+      church = { name: '플랫폼 본사 (전체 통합)' }
+    } else {
+      church = await db.selectFrom('churches')
+        .selectAll()
+        .where('id', '=', event.context.churchId || session.user.church_id)
+        .executeTakeFirst()
+    }
 
     return {
       success: true,

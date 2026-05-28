@@ -1,9 +1,11 @@
 import { db } from '../../utils/db'
+import { checkClosingDate } from '../../utils/closing'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   try {
     const body = await readBody(event)
+    const churchId = event.context.churchId || session.user.church_id
     
     // 1. Validation
     if (!body.transaction_date || !body.account_code || !body.fund_id || body.amount === undefined) {
@@ -14,10 +16,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, statusMessage: '금액은 0보다 커야 합니다.' })
     }
 
+    // 마감일 확인
+    await checkClosingDate(churchId, body.transaction_date)
+
     // 2. Insert Transaction
     const newTransaction = await db.insertInto('transactions')
       .values({
-        church_id: session.user.church_id,
+        church_id: churchId,
         transaction_date: body.transaction_date,
         account_code: body.account_code,
         fund_id: body.fund_id,

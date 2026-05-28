@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const campaign = await db.selectFrom('pledge_campaigns')
       .select(['account_code', 'target_amount', 'start_date', 'end_date'])
       .where('id', '=', campaignId)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .executeTakeFirstOrThrow()
 
     // 2. 월별 실제 모금액 집계 쿼리 (캠페인 기간 필터링 추가)
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         sql<string>`TO_CHAR(t.transaction_date, 'MM')`.as('month'),
         sql<number>`SUM(t.amount)`.as('amount')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.account_code', '=', campaign.account_code)
       .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', year)
       .where('t.transaction_date', '>=', campaign.start_date)

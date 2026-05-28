@@ -59,6 +59,12 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <!-- Master Impersonation Warning Banner -->
+      <div v-if="(user?.role === 0 || Number(user?.role) === 0) && user?.impersonating_church_name" class="bg-amber-500 text-white px-4 py-2 text-sm font-bold text-center flex items-center justify-center gap-2 z-50">
+        <UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 animate-pulse" />
+        <span>⚠️ 현재 [{{ user.impersonating_church_name }}]의 데이터를 기술 지원 모드로 열람/수정 중입니다. 조작에 각별히 주의해 주십시오.</span>
+      </div>
+
       <!-- 상단바 (제목만 표시) -->
       <header class="h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center px-8 shrink-0 relative z-10">
         <div class="flex items-center gap-3">
@@ -81,7 +87,10 @@ import { computed } from 'vue'
 import { getRoleInfo } from '~/utils/formatter'
 import { useUIStore } from '~/stores/ui'
 
+import { useAuthStore } from '~/stores/auth'
+
 const { user, clear: clearSession } = useUserSession()
+const authStore = useAuthStore()
 const route = useRoute()
 const ui = useUIStore()
 
@@ -105,14 +114,15 @@ const currentPathLabel = computed(() => {
   const item = menuItems.find(i => isPathActive(i.path))
   return item ? item.label : '홈'
 })
-
 const roleInfo = computed(() => {
   const info = getRoleInfo(user.value?.role ?? null)
-  let colorClass = 'bg-slate-400'
-  if (info.color === 'blue') colorClass = 'bg-brand-blue'
-  else if (info.color === 'green') colorClass = 'bg-brand-green'
-  else if (info.color === 'yellow') colorClass = 'bg-yellow-400'
-  
+  let colorClass = 'bg-gray-100 dark:bg-gray-800'
+
+  // ROLE_META에서 반환된 color (primary, success, warning, neutral) 매핑
+  if (info.color === 'primary') colorClass = 'bg-brand-blue'
+  else if (info.color === 'success') colorClass = 'bg-brand-green'
+  else if (info.color === 'warning') colorClass = 'bg-yellow-400'
+
   return { ...info, colorClass }
 })
 

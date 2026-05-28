@@ -17,14 +17,14 @@ export default defineEventHandler(async (event) => {
       const user = await trx.selectFrom('users')
         .select('id')
         .where('login_id', '=', session.user.login_id)
-        .where('church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
         .executeTakeFirstOrThrow()
 
       // 2. 해당 연도의 마지막 일련번호 확인 및 다음 번호 생성
       const lastReceipt = await trx.selectFrom('receipts')
         .select('receipt_number')
         .where('target_year', '=', target_year)
-        .where('church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
         .orderBy('receipt_number', 'desc')
         .executeTakeFirst()
 
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
       // 3. 영수증 레코드 생성
       const newReceipt = await trx.insertInto('receipts')
         .values({
-          church_id: session.user.church_id,
+          church_id: event.context.churchId || session.user.church_id,
           receipt_number: receiptNumber,
           member_id: member_id,
           target_year: parseInt(target_year),
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
             exists(
               selectFrom('donors as d')
                 .whereRef('d.id', '=', 'members.donor_id')
-                .where('d.church_id', '=', session.user.church_id)
+                .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
             )
           )
           .execute()

@@ -9,6 +9,7 @@ export interface ChurchesTable {
   phone_number: string | null
   seal_image_path: string | null
   logo_image_path: string | null
+  closing_date: string | Date | null
   is_active: boolean | null
   created_at: Generated<Date>
   updated_at: Generated<Date>

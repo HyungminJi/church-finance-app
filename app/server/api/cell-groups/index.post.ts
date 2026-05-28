@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       // 1. 도너 수퍼타입 레코드 생성
       const donor = await trx.insertInto('donors')
         .values({
-          church_id: session.user.church_id,
+          church_id: event.context.churchId || session.user.church_id,
           donor_type: 'CELL_GROUP',
           name: body.name
         })

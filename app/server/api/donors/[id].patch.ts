@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
           // donor_type은 변경하지 않는 것이 원칙이나 필요시 수정 가능하도록 구성
         })
         .where('id', '=', id)
-        .where('church_id', '=', session.user.church_id)
+        .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
         .execute()
 
       // 2. 타입에 따라 하위 테이블 상세 정보 업데이트
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
             exists(
               selectFrom('donors as d')
                 .whereRef('d.id', '=', 'members.donor_id')
-                .where('d.church_id', '=', session.user.church_id)
+                .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
             )
           )
           .execute()
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
             exists(
               selectFrom('donors as d')
                 .whereRef('d.id', '=', 'cell_groups.donor_id')
-                .where('d.church_id', '=', session.user.church_id)
+                .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
             )
           )
           .execute()
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
             exists(
               selectFrom('donors as d')
                 .whereRef('d.id', '=', 'organizations.donor_id')
-                .where('d.church_id', '=', session.user.church_id)
+                .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
             )
           )
           .execute()

@@ -319,6 +319,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { formatPhoneNumber, getRoleInfo, formatDate, displayValue } from '~/utils/formatter'
 import { fetchAndDownloadExcel } from '~/utils/excel'
 import { useUIStore } from '~/stores/ui'
+import { UserRole, ROLE_META } from '~/types/auth'
 import * as XLSX from 'xlsx'
 
 const ui = useUIStore()
@@ -433,7 +434,7 @@ const form = reactive({
   // 로그인 권한 관련
   user_id: null,
   login_id: '',
-  user_role: null as number | null,
+  user_role: undefined as UserRole | undefined,
   new_password: ''
 })
 
@@ -451,7 +452,7 @@ const openModal = (donor?: any) => {
       hasAuth.value = !!donor.user_id
       form.user_id = donor.user_id
       form.login_id = donor.login_id || ''
-      form.user_role = donor.user_role || 4
+      form.user_role = donor.user_role ?? UserRole.USER
       if (form.details.birth_date) {
         form.details.birth_date = new Date(form.details.birth_date).toISOString().split('T')[0]
       }
@@ -462,7 +463,7 @@ const openModal = (donor?: any) => {
     form.details = activeDonorTab.value === 'ORGANIZATION' ? { is_active: true } : {}
     form.user_id = null
     form.login_id = ''
-    form.user_role = 4
+    form.user_role = UserRole.USER
     hasAuth.value = false
   }
   isModalOpen.value = true
@@ -562,21 +563,33 @@ const resetFilters = () => {
   refresh()
 }
 
-const getRoleBadgeColor = (role: any) => {
-  const r = parseInt(role); if (r === 1) return 'primary'; if (r === 2) return 'success'; if (r === 3) return 'warning'; return 'neutral'
+const getRoleBadgeColor = (role: any): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
+  const r = Number(role) as UserRole
+  return ROLE_META[r]?.color as any || 'neutral'
 }
 
 const dynamicSysRoles = computed(() => {
-  const currentVal = form.user_role ? parseInt(form.user_role as any) : null
-  let filtered = sysRoles.value.filter((r: any) => r.code >= currentUserRole.value)
-  if (currentVal !== null && !filtered.some((r: any) => r.code === currentVal)) {
-    const originalRole = sysRoles.value.find((r: any) => r.code === currentVal)
+  const allRoles = [
+    { code: UserRole.MASTER, label: ROLE_META[UserRole.MASTER].label },
+    { code: UserRole.ADMIN, label: ROLE_META[UserRole.ADMIN].label },
+    { code: UserRole.MANAGER, label: ROLE_META[UserRole.MANAGER].label },
+    { code: UserRole.USER, label: ROLE_META[UserRole.USER].label }
+  ]
+  const currentVal = form.user_role ? Number(form.user_role) as UserRole : null
+  
+  let filtered = allRoles.filter(r => r.code >= currentUserRole.value)
+  
+  if (currentVal !== null && !filtered.some(r => r.code === currentVal)) {
+    const originalRole = allRoles.find(r => r.code === currentVal)
     if (originalRole) filtered = [originalRole, ...filtered]
   }
   return filtered
 })
 
-const isRoleLocked = computed(() => form.user_role ? parseInt(form.user_role as any) < currentUserRole.value : false)
+const isRoleLocked = computed(() => {
+  if (currentUserRole.value === UserRole.MASTER) return false
+  return form.user_role ? (Number(form.user_role) as UserRole) < currentUserRole.value : false
+})
 
 // 엑셀 템플릿 및 대량등록 (복원)
 const downloadTemplate = () => {

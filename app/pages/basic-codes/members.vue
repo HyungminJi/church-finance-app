@@ -225,6 +225,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { formatPhoneNumber, getRoleInfo, formatDate, displayValue } from '~/utils/formatter'
 import { fetchAndDownloadExcel } from '~/utils/excel'
 import { useUIStore } from '~/stores/ui'
+import { UserRole, ROLE_META } from '~/types/auth'
 import * as XLSX from 'xlsx'
 
 const tabs = [
@@ -242,7 +243,7 @@ const ui = useUIStore()
 const { user: currentUser } = useUserSession()
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const currentUserRole = computed(() => currentUser.value?.role || 4)
+const currentUserRole = computed(() => Number(currentUser.value?.role) as UserRole)
 
 watch([activeTab, filters, pageSize], () => {
   currentPage.value = 1
@@ -262,31 +263,35 @@ const { data: response, refresh, pending } = await useFetch('/api/members', {
 })
 
 const { data: rolesRes } = await useFetch('/api/common-codes', { query: { group: 'CHURCH_ROLE' } })
-const { data: sysRolesRes } = await useFetch('/api/common-codes', { query: { group: 'SYS_ROLE' } })
 const { data: groupsRes } = await useFetch('/api/cell-groups')
 
 const roles = computed(() => ((rolesRes.value as any)?.data || []).map((r: any) => ({ ...r, label: r.name })))
-const sysRoles = computed(() => ((sysRolesRes.value as any)?.data || []).map((r: any) => ({ ...r, label: r.name, code: parseInt(r.code) })))
 const cellGroups = computed(() => ((groupsRes.value as any)?.data || []).map((g: any) => ({ ...g, label: g.name })))
 const members = computed(() => (response.value as any)?.data || [])
 const stats = computed(() => (response.value as any)?.stats || { current: 0, removed: 0 })
 const paginationInfo = computed(() => (response.value as any)?.pagination || { totalPages: 0, totalCount: 0, limit: 10 })
 
 const getRoleBadgeColor = (role: any): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
-  const r = parseInt(role)
-  switch (r) {
-    case 1: return 'primary'
-    case 2: return 'success'
-    case 3: return 'warning'
-    default: return 'neutral'
-  }
+  const r = Number(role) as UserRole
+  return ROLE_META[r]?.color as any || 'neutral'
 }
 
+// 동적 권한 옵션 생성 (자신의 권한보다 높거나 같은 권한만 부여 가능)
 const dynamicSysRoles = computed(() => {
-  const currentVal = form.user_role ? parseInt(form.user_role as any) : null
-  let filtered = sysRoles.value.filter((r: any) => r.code >= currentUserRole.value)
-  if (currentVal !== null && !filtered.some((r: any) => r.code === currentVal)) {
-    const originalRole = sysRoles.value.find((r: any) => r.code === currentVal)
+  const allRoles = [
+    { code: UserRole.MASTER, label: ROLE_META[UserRole.MASTER].label },
+    { code: UserRole.ADMIN, label: ROLE_META[UserRole.ADMIN].label },
+    { code: UserRole.MANAGER, label: ROLE_META[UserRole.MANAGER].label },
+    { code: UserRole.USER, label: ROLE_META[UserRole.USER].label }
+  ]
+  const currentVal = form.user_role ? Number(form.user_role) as UserRole : null
+  
+  // 현재 접속자의 권한 레벨보다 높거나 같은(값은 크거나 같은) 권한만 필터링
+  let filtered = allRoles.filter(r => r.code >= currentUserRole.value)
+  
+  // 수정 중인 대상이 이미 본인보다 높은 권한을 가지고 있다면, 해당 권한 옵션도 추가 (표시 목적)
+  if (currentVal !== null && !filtered.some(r => r.code === currentVal)) {
+    const originalRole = allRoles.find(r => r.code === currentVal)
     if (originalRole) {
       filtered = [originalRole, ...filtered]
     }
@@ -296,7 +301,10 @@ const dynamicSysRoles = computed(() => {
 
 const isRoleLocked = computed(() => {
   if (!form.user_role) return false
-  return parseInt(form.user_role as any) < currentUserRole.value
+  const currentVal = Number(form.user_role) as UserRole
+  // 마스터(0)는 제외하고, 본인보다 상위 권한은 수정 불가
+  if (currentUserRole.value === UserRole.MASTER) return false
+  return currentVal < currentUserRole.value
 })
 
 const columns = computed(() => {
@@ -328,7 +336,7 @@ const hasAuth = ref(false)
 const form = reactive({ 
   id: null, name: '', phone_number: '', email: '', spouse_name: '',
   church_role: null, cell_group_id: null, birth_date: null,
-  user_id: null, login_id: '', user_role: null as number | null, new_password: ''
+  user_id: null, login_id: '', user_role: UserRole.USER as UserRole | undefined, new_password: ''
 })
 
 const openModal = (member?: any) => {

@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     const result = await sql`
       WITH RECURSIVE descendants AS (
         -- 초기 선택: 삭제 요청된 코드들
-        SELECT code FROM accounts WHERE code IN (${sql.join(codes)}) AND church_id = ${session.user.church_id}
+        SELECT code FROM accounts WHERE code IN (${sql.join(codes)}) AND (church_id = ${event.context.churchId || session.user.church_id} OR ${event.context.userRole} = 0)
         UNION ALL
         -- 재귀 선택: descendants에 포함된 코드를 parent_code로 가지는 항목들
         SELECT a.code FROM accounts a
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       )
       DELETE FROM accounts 
       WHERE code IN (SELECT code FROM descendants)
-      AND church_id = ${session.user.church_id}
+      AND (church_id = ${event.context.churchId || session.user.church_id} OR ${event.context.userRole} = 0)
     `.execute(db)
 
     // 삭제된 총 로우 수 계산

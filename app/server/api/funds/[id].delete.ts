@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const txCount = await db.selectFrom('transactions')
       .select(db.fn.count('id').as('count'))
       .where('fund_id', '=', id)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .executeTakeFirstOrThrow()
 
     if (Number(txCount.count) > 0) {
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     // 2. 삭제 수행
     const result = await db.deleteFrom('funds')
       .where('id', '=', id)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .executeTakeFirst()
 
     return {

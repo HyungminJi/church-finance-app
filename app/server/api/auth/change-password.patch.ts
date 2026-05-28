@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const user = await db.selectFrom('users')
     .select(['id', 'password_hash'])
     .where('id', '=', session.user.id)
-    .where('church_id', '=', session.user.church_id)
+    .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
     .executeTakeFirst()
 
   if (!user) {
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     await db.updateTable('users')
       .set({ password_hash: newPasswordHash })
       .where('id', '=', user.id)
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .execute()
 
     return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' }

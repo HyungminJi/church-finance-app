@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         .onRef('m.church_role', '=', 'cc.code')
         .on('cc.group_code', '=', 'CHURCH_ROLE')
       )
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('a.type', '=', 'INCOME') // 헌금자리스트는 수입만 표시
 
     // 1. 날짜 필터

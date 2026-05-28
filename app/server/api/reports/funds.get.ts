@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     // 1. 모든 활성 자금(Fund) 목록 조회
     const funds = await db.selectFrom('funds')
       .selectAll()
-      .where('church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('church_id', '=', event.context.churchId || session.user.church_id))
       .where('is_active', '=', true)
       .execute()
 
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         't.fund_id',
         sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE -t.amount END)`.as('prev_balance')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '<', startDate)
       .where('t.fund_id', 'is not', null)
       .groupBy('t.fund_id')
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END)`.as('income'),
         sql<number>`SUM(CASE WHEN a.type = 'EXPENSE' THEN t.amount ELSE 0 END)`.as('expense')
       ])
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '>=', startDate)
       .where('t.transaction_date', '<=', endDate)
       .where('t.fund_id', 'is not', null)

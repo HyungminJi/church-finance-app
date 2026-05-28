@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const newAccount = await db.insertInto('accounts')
       .values({
-        church_id: session.user.church_id,
+        church_id: event.context.churchId || session.user.church_id,
         code: body.code,
         name: body.name,
         type: body.type,

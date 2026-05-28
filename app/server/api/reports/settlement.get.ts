@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // 1. 기초 이월 잔액 (조회 시작일 이전 전체 수입 - 전체 지출)
     const prevResult = await db.selectFrom('transactions as t')
       .leftJoin('accounts as a', 't.account_code', 'a.code')
-      .where('t.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.transaction_date', '<', startDate)
       .select([
         sql<number>`COALESCE(SUM(CASE WHEN a.type = 'INCOME' THEN t.amount ELSE 0 END), 0)`.as('prev_income'),
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
             't.account_code',
             sql<number>`SUM(t.amount)`.as('period_amount')
           ])
-          .where('t.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
           .where('t.transaction_date', '>=', startDate)
           .where('t.transaction_date', '<=', endDate)
           .groupBy('t.account_code')
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
             't.account_code',
             sql<number>`SUM(t.amount)`.as('annual_amount')
           ])
-          .where('t.church_id', '=', session.user.church_id)
+          .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
           .where('t.transaction_date', '>=', yearStart)
           .where('t.transaction_date', '<=', endDate)
           .groupBy('t.account_code')
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
         sql<number>`COALESCE(t_period.period_amount, 0)`.as('period_amount'),
         sql<number>`COALESCE(t_annual.annual_amount, 0)`.as('annual_amount')
       ])
-      .where('a.church_id', '=', session.user.church_id)
+      .$if(event.context.userRole !== 0, (qb) => qb.where('a.church_id', '=', event.context.churchId || session.user.church_id))
       .where('a.is_active', '=', true)
       .orderBy(sql`LPAD(SPLIT_PART(a.code, '-', 1), 10, '0')`, 'asc')
       .orderBy('a.level', 'asc')

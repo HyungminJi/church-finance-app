@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
         
         await trx.insertInto('budgets')
           .values({
-            church_id: session.user.church_id,
+            church_id: event.context.churchId || session.user.church_id,
             account_code: item.code,
             fiscal_year: parseInt(fiscal_year),
             amount: amount
