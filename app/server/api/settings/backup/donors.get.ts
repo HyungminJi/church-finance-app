@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
   const churchId = event.context.churchId || session.user.church_id
   const userRole = event.context.userRole
 
-  // Admin(1) 이상의 권한만 데이터 백업 가능
-  if (userRole > UserRole.ADMIN) {
+  // Manager(2) 이상의 권한만 데이터 백업 가능
+  if (userRole > UserRole.MANAGER) {
     throw createError({
       statusCode: 403,
       statusMessage: '데이터 백업 권한이 없습니다.'

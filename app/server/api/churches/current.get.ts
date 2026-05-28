@@ -1,4 +1,5 @@
 import { db } from '../../utils/db'
+import { sql } from 'kysely'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
@@ -7,9 +8,13 @@ export default defineEventHandler(async (event) => {
   const churchId = event.context.churchId || session.user.church_id
 
   try {
-    const church = await db.selectFrom('churches')
-      .selectAll()
-      .where('id', '=', churchId)
+    const church = await db.selectFrom('churches as c')
+      .select([
+        'c.id', 'c.name', 'c.representative_name', 'c.registration_number', 
+        'c.address', 'c.phone_number', 'c.seal_image_path', 'c.logo_image_path', 
+        'c.closing_date', 'c.closed_by', 'c.is_active', 'c.created_at', 'c.updated_at'
+      ])
+      .where('c.id', '=', churchId)
       .executeTakeFirst()
 
     if (!church) {
@@ -19,9 +24,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    let closedByName = '관리자'
+    if (church.closed_by) {
+      const user = await db.selectFrom('users as u')
+        .leftJoin('members as m', 'u.member_id', 'm.id')
+        .select(['u.login_id', 'm.name as member_name'])
+        .where('u.id', '=', church.closed_by as any) // UUID
+        .executeTakeFirst()
+        
+      if (user) {
+        closedByName = user.member_name || user.login_id
+      }
+    }
+
     return {
       success: true,
-      data: church
+      data: {
+        ...church,
+        closedByName
+      }
     }
   } catch (error: any) {
     console.error('Fetch current church error:', error)

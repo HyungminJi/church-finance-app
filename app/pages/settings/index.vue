@@ -145,7 +145,7 @@
               <div>
                 <h3 class="font-bold text-amber-900 dark:text-amber-100 text-lg">현재 장부 마감일</h3>
                 <p v-if="churchForm.closing_date" class="text-sm text-amber-700 dark:text-amber-300 font-bold mt-1">
-                  {{ formatDate(churchForm.closing_date) }} 기준으로 마감되었습니다.
+                  현재 [ <span class="text-amber-900 dark:text-amber-50">{{ churchForm.closedByName || '관리자' }}</span> ] 담당자에 의해 {{ formatDate(churchForm.closing_date) }} 기준으로 마감되었습니다.
                 </p>
                 <p v-else class="text-sm text-amber-700 dark:text-amber-300 mt-1">현재 마감일이 설정되지 않았습니다. 모든 데이터 수정이 가능합니다.</p>
               </div>
@@ -382,7 +382,8 @@ const churchForm = reactive({
   phone_number: '',
   logo_image_path: null as string | null,
   seal_image_path: null as string | null,
-  closing_date: null as string | Date | null
+  closing_date: null as string | Date | null,
+  closedByName: ''
 })
 
 const loadingChurch = ref(false)
@@ -448,6 +449,12 @@ const handleSaveClosingDate = async () => {
     if (res.success) {
       ui.showAlert('설정 완료', res.message, 'success')
       churchForm.closing_date = closingDateInput.value || null
+      // 마감을 설정한 경우 현재 세션의 사용자 이름으로 즉시 업데이트
+      if (closingDateInput.value) {
+        churchForm.closedByName = user.value?.name || user.value?.login_id || '관리자'
+      } else {
+        churchForm.closedByName = ''
+      }
     }
   } catch (e: any) {
     ui.showAlert('설정 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
@@ -483,13 +490,24 @@ const allTabs = [
 ]
 
 const visibleTabs = computed(() => {
-  const tabs = [...allTabs]
-  // 스토어 대신 세션의 user 객체를 직접 참조 (새로고침 대응)
-  const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
-  
-  if (!isMasterAccount) {
-    return tabs.filter(t => t.id !== 'platform')
+  let tabs = [...allTabs]
+  const currentRole = Number(user.value?.role) as UserRole
+
+  // 1. 플랫폼 관리 탭: Master(0) 권한 전용
+  if (currentRole !== UserRole.MASTER) {
+    tabs = tabs.filter(t => t.id !== 'platform')
   }
+
+  // 2. 교회 정보 탭: Admin(1) 이상의 권한 전용
+  if (currentRole > UserRole.ADMIN) {
+    tabs = tabs.filter(t => t.id !== 'church')
+  }
+
+  // 3. 장부 마감 및 데이터 백업 탭: Manager(2) 이상의 권한 전용
+  if (currentRole > UserRole.MANAGER) {
+    tabs = tabs.filter(t => t.id !== 'closing' && t.id !== 'backup')
+  }
+
   return tabs
 })
 

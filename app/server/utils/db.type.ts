@@ -10,6 +10,7 @@ export interface ChurchesTable {
   seal_image_path: string | null
   logo_image_path: string | null
   closing_date: string | Date | null
+  closed_by: string | null
   is_active: boolean | null
   created_at: Generated<Date>
   updated_at: Generated<Date>

@@ -8,8 +8,8 @@ export default defineEventHandler(async (event) => {
   const churchId = event.context.churchId || session.user.church_id
   const userRole = event.context.userRole
 
-  // Admin(1) 또는 Master(0) 권한만 장부 마감 가능
-  if (userRole > UserRole.ADMIN) {
+  // Manager(2) 이상의 권한만 장부 마감 가능
+  if (userRole > UserRole.MANAGER) {
     throw createError({
       statusCode: 403,
       statusMessage: '장부 마감 권한이 없습니다.'
@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
     const result = await db.updateTable('churches')
       .set({
         closing_date: closing_date || null,
+        closed_by: closing_date ? session.user.id : null, // 마감 시 사용자 ID 기록, 해제 시 null
         updated_at: new Date()
       })
       .where('id', '=', churchId)
@@ -38,7 +39,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: closing_date ? '장부가 성공적으로 마감되었습니다.' : '마감이 해제되었습니다.',
       data: {
-        closing_date
+        closing_date,
+        closed_by: closing_date ? session.user.id : null
       }
     }
   } catch (error: any) {
