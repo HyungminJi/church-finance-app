@@ -1,5 +1,5 @@
 import { db } from '../../utils/db'
-import { UserRole } from '../../../types/auth'
+import { UserRole, SYSTEM_CHURCH_ID } from '../../../types/auth'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
@@ -19,7 +19,28 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // 대상 교회가 실제로 존재하는지 확인
+    let targetChurchName = null
+
+    // 대상이 본사(시스템 초기 상태)로 돌아가는 경우
+    if (targetChurchId === SYSTEM_CHURCH_ID) {
+      // 본사의 경우 별도의 교회 테이블을 조회할 필요 없이 복귀 처리
+      await setUserSession(event, {
+        ...session,
+        user: {
+          ...session.user,
+          church_id: targetChurchId,
+          impersonating_church_name: '' // 경고 배너 숨김 처리를 위해 확실하게 빈 문자열 할당
+        }
+      })
+      
+      return { 
+        success: true, 
+        message: '플랫폼 본사 환경으로 복귀했습니다.',
+        churchId: targetChurchId 
+      }
+    }
+
+    // 일반 테넌트 교회로 스위칭하는 경우
     const targetChurch = await db.selectFrom('churches')
       .select(['id', 'name'])
       .where('id', '=', targetChurchId)
@@ -29,20 +50,21 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, statusMessage: '대상을 찾을 수 없습니다.' })
     }
 
-    // 세션 덮어쓰기 (기존 세션 정보는 유지하되 church_id와 church_name만 변경)
-    // 원래의 로그인 ID와 Master Role은 그대로 유지됨
+    targetChurchName = targetChurch.name
+
+    // 세션 덮어쓰기 (기존 세션 정보는 유지하되 church_id와 impersonating_church_name 변경)
     await setUserSession(event, {
       ...session,
       user: {
         ...session.user,
         church_id: targetChurch.id,
-        impersonating_church_name: targetChurch.name // 경고 배너 표시용 플래그
+        impersonating_church_name: targetChurchName // 경고 배너 표시용 플래그 설정
       }
     })
 
     return { 
       success: true, 
-      message: `[${targetChurch.name}] 환경으로 전환되었습니다.`,
+      message: `[${targetChurchName}] 환경으로 전환되었습니다.`,
       churchId: targetChurch.id 
     }
 

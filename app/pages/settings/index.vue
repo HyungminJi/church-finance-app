@@ -184,7 +184,17 @@
               <h3 class="font-bold text-lg">전체 전표 내역 백업</h3>
               <p class="text-sm text-gray-500 mt-1">시스템 시작일부터 현재까지의 모든 수입/지출 전표를 추출합니다.</p>
             </div>
-            <UButton color="neutral" variant="outline" icon="i-heroicons-arrow-down-tray" class="cursor-pointer font-bold justify-center" block>엑셀 다운로드</UButton>
+            <UButton 
+              color="neutral" 
+              variant="outline" 
+              icon="i-heroicons-arrow-down-tray" 
+              class="cursor-pointer font-bold justify-center" 
+              block
+              :loading="isBackingUpTransactions"
+              @click="handleBackupTransactions"
+            >
+              엑셀 다운로드
+            </UButton>
           </div>
           <div class="p-6 border rounded-xl dark:border-gray-700 flex flex-col justify-between h-48 hover:border-brand-blue transition-colors">
             <div>
@@ -192,7 +202,17 @@
               <h3 class="font-bold text-lg">전체 성도/헌금자 백업</h3>
               <p class="text-sm text-gray-500 mt-1">등록된 모든 헌금자(성도, 구역, 단체) 정보를 추출합니다.</p>
             </div>
-            <UButton color="neutral" variant="outline" icon="i-heroicons-arrow-down-tray" class="cursor-pointer font-bold justify-center" block>엑셀 다운로드</UButton>
+            <UButton 
+              color="neutral" 
+              variant="outline" 
+              icon="i-heroicons-arrow-down-tray" 
+              class="cursor-pointer font-bold justify-center" 
+              block
+              :loading="isBackingUpDonors"
+              @click="handleBackupDonors"
+            >
+              엑셀 다운로드
+            </UButton>
           </div>
         </div>
       </div>
@@ -249,12 +269,19 @@
         <div class="bg-red-50 dark:bg-red-900/10 p-6 rounded-xl border border-red-100 dark:border-red-900/30 opacity-70 hover:opacity-100 transition-opacity">
           <h3 class="font-bold text-lg mb-2 text-red-800 dark:text-red-300 flex items-center">
             <UIcon name="i-heroicons-wrench-screwdriver" class="w-5 h-5 mr-2" />
-            데이터 무결성 강제 보정 툴 (준비 중)
+            데이터 무결성 강제 보정 툴
           </h3>
           <p class="text-sm text-red-600/80 dark:text-red-400 mb-4">
             통장 기초 잔액 0원화 및 전기이월금 전표 강제 생성 등, 대차가 맞지 않는 교회의 데이터를 강제로 치료하는 일괄 스크립트를 GUI로 실행합니다.
           </p>
-          <UButton color="error" variant="soft" icon="i-heroicons-exclamation-triangle" class="font-bold cursor-not-allowed">
+          <UButton 
+            color="error" 
+            variant="soft" 
+            icon="i-heroicons-exclamation-triangle" 
+            class="font-bold cursor-pointer"
+            :loading="isCorrecting"
+            @click="executeCorrectionScript"
+          >
             치료 스크립트 실행
           </UButton>
         </div>
@@ -328,6 +355,7 @@ import { getRoleInfo, formatDate } from '~/utils/formatter'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole, ROLE_META, SYSTEM_CHURCH_ID } from '~/types/auth'
 import { useUIStore } from '~/stores/ui'
+import * as XLSX from 'xlsx'
 
 const { user, fetch: fetchSession } = useUserSession()
 const authStore = useAuthStore()
@@ -520,6 +548,94 @@ const handlePasswordChange = async () => {
   }
 }
 
+// 데이터 백업 로직
+const isBackingUpTransactions = ref(false)
+const isBackingUpDonors = ref(false)
+
+const handleBackupTransactions = async () => {
+  isBackingUpTransactions.value = true
+  try {
+    const res: any = await $fetch('/api/settings/backup/transactions')
+    if (res.success && res.data.length > 0) {
+      const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
+      const isMasterAll = isMasterAccount && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      
+      const wsData = [
+        ['전체 전표 내역 백업'],
+        [`다운로드 일시: ${formatDate(new Date())}`],
+        [],
+        isMasterAll 
+          ? ['교회명', '일자', '계정구분', '계정과목', '통장/현금', '헌금자/대상', '금액', '적요', '입력일시']
+          : ['일자', '계정구분', '계정과목', '통장/현금', '헌금자/대상', '금액', '적요', '입력일시'],
+        ...res.data.map((t: any) => isMasterAll 
+          ? [t.church_name || '본사/시스템', t.date, t.account_type === 'INCOME' ? '수입' : '지출', t.account_name, t.fund_name, t.donor_name || '-', t.amount, t.description || '-', t.created_at]
+          : [t.date, t.account_type === 'INCOME' ? '수입' : '지출', t.account_name, t.fund_name, t.donor_name || '-', t.amount, t.description || '-', t.created_at]
+        )
+      ]
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.aoa_to_sheet(wsData)
+      XLSX.utils.book_append_sheet(wb, ws, '전표내역')
+      const fileName = isMasterAll ? '전체교회_전표내역_백업.xlsx' : `전표내역_백업_${formatDate(new Date())}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      ui.showAlert('백업 완료', '전표 데이터 추출이 완료되었습니다.', 'success')
+    } else {
+      ui.showAlert('데이터 없음', '백업할 데이터가 없습니다.', 'warning')
+    }
+  } catch (e: any) {
+    ui.showAlert('백업 실패', e.data?.statusMessage || '전표 백업 중 오류가 발생했습니다.', 'error')
+  } finally {
+    isBackingUpTransactions.value = false
+  }
+}
+
+const handleBackupDonors = async () => {
+  isBackingUpDonors.value = true
+  try {
+    const res: any = await $fetch('/api/settings/backup/donors')
+    if (res.success && res.data.length > 0) {
+      const isMasterAccount = user.value?.role === UserRole.MASTER || Number(user.value?.role) === 0
+      const isMasterAll = isMasterAccount && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      
+      const wsData = [
+        ['전체 성도 및 헌금자 백업'],
+        [`다운로드 일시: ${formatDate(new Date())}`],
+        [],
+        isMasterAll
+          ? ['교회명', '구분', '성함/명칭', '직분', '구역명', '연락처', '배우자', '생년월일', '주소', '상세주소', '시스템접속']
+          : ['구분', '성함/명칭', '직분', '구역명', '연락처', '배우자', '생년월일', '주소', '상세주소', '시스템접속'],
+        ...res.data.map((d: any) => {
+          const typeLabel = d.donor_type === 'MEMBER' ? '성도' : d.donor_type === 'CELL_GROUP' ? '구역/소모임' : '외부기관/단체'
+          const rowData = [
+            typeLabel, 
+            d.name, 
+            d.church_role_name || '-', 
+            d.cell_group_name || '-', 
+            d.phone_number || '-', 
+            d.spouse_name || '-', 
+            d.birth_date || '-', 
+            d.address || '-', 
+            d.detail_address || '-',
+            d.is_user ? 'O' : 'X'
+          ]
+          return isMasterAll ? [d.church_name || '본사/시스템', ...rowData] : rowData
+        })
+      ]
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.aoa_to_sheet(wsData)
+      XLSX.utils.book_append_sheet(wb, ws, '성도_헌금자명단')
+      const fileName = isMasterAll ? '전체교회_헌금자_백업.xlsx' : `헌금자_백업_${formatDate(new Date())}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      ui.showAlert('백업 완료', '성도 및 헌금자 데이터 추출이 완료되었습니다.', 'success')
+    } else {
+      ui.showAlert('데이터 없음', '백업할 데이터가 없습니다.', 'warning')
+    }
+  } catch (e: any) {
+    ui.showAlert('백업 실패', e.data?.statusMessage || '헌금자 백업 중 오류가 발생했습니다.', 'error')
+  } finally {
+    isBackingUpDonors.value = false
+  }
+}
+
 // Master 전용 테넌트 스위칭 로직
 interface ChurchOption {
   id: string
@@ -544,11 +660,42 @@ const fetchAllChurches = async () => {
         { id: SYSTEM_CHURCH_ID, name: '★ 플랫폼 본사 (기술지원 종료/복귀)' },
         ...res.data.filter((c: any) => c.id !== SYSTEM_CHURCH_ID)
       ] as any
+      
+      // 현재 열람 중인 교회를 기본값으로 설정
+      selectedTenantId.value = user.value?.church_id
     }
   } catch (e) {
     console.error('Failed to fetch churches', e)
   } finally {
     loadingChurches.value = false
+  }
+}
+
+// 데이터 강제 보정 툴 로직
+const isCorrecting = ref(false)
+
+const executeCorrectionScript = async () => {
+  const confirmed = await ui.showConfirm(
+    '데이터 강제 보정', 
+    '현재 열람 중인 교회의 기초 잔액을 0으로 초기화하고 전년이월금 전표로 변환하며, 누락된 통장 정보를 강제 연결합니다. 정말 실행하시겠습니까?', 
+    'warning'
+  )
+  
+  if (!confirmed) return
+
+  isCorrecting.value = true
+  try {
+    const res: any = await $fetch('/api/platform/correct-data', {
+      method: 'POST'
+    })
+    
+    if (res.success) {
+      ui.showAlert('보정 완료', res.message, 'success')
+    }
+  } catch (e: any) {
+    ui.showAlert('보정 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
+  } finally {
+    isCorrecting.value = false
   }
 }
 
