@@ -82,22 +82,50 @@
         <div v-if="loadingChurch" class="py-20 flex justify-center">
           <UIcon name="i-heroicons-arrow-path" class="w-10 h-10 animate-spin text-gray-400" />
         </div>
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <UFormField label="교회 이름" required>
-            <UInput v-model="churchForm.name" placeholder="예: 창세교회" class="w-full" size="lg" />
-          </UFormField>
-          <UFormField label="대표자(담임목사)명" required>
-            <UInput v-model="churchForm.representative_name" placeholder="대표자명 입력" class="w-full" size="lg" />
-          </UFormField>
-          <UFormField label="고유번호(사업자번호)">
-            <UInput v-model="churchForm.registration_number" placeholder="000-00-00000" class="w-full" size="lg" />
-          </UFormField>
-          <UFormField label="전화번호">
-            <UInput v-model="churchForm.phone_number" placeholder="교회 대표 연락처" class="w-full" size="lg" />
-          </UFormField>
-          <UFormField label="소재지 주소" class="md:col-span-2">
-            <UInput v-model="churchForm.address" placeholder="교회 주소 전체 입력" class="w-full" size="lg" />
-          </UFormField>
+        <div v-else class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <UFormField label="교회 이름" required>
+              <UInput v-model="churchForm.name" placeholder="예: 창세교회" class="w-full" size="lg" />
+            </UFormField>
+            <UFormField label="대표자(담임목사)명" required>
+              <UInput v-model="churchForm.representative_name" placeholder="대표자명 입력" class="w-full" size="lg" />
+            </UFormField>
+            <UFormField label="고유번호(사업자번호)">
+              <UInput v-model="churchForm.registration_number" placeholder="000-00-00000" class="w-full" size="lg" />
+            </UFormField>
+            <UFormField label="전화번호">
+              <UInput v-model="churchForm.phone_number" placeholder="교회 대표 연락처" class="w-full" size="lg" />
+            </UFormField>
+            <UFormField label="소재지 주소" class="md:col-span-2">
+              <UInput v-model="churchForm.address" placeholder="교회 주소 전체 입력" class="w-full" size="lg" />
+            </UFormField>
+          </div>
+
+          <!-- 테마 색상 설정 (항상 보이도록 보장) -->
+          <div class="border-t dark:border-gray-700 pt-8">
+            <div class="flex items-center gap-2 mb-4">
+              <UIcon name="i-heroicons-paint-brush" class="w-6 h-6 text-brand-blue" />
+              <h3 class="text-lg font-black">시스템 테마 색상 (Theme Color)</h3>
+            </div>
+            <p class="text-sm text-gray-500 mb-6 font-medium">우리 교회 시스템의 주요 버튼 및 강조 색상을 교회의 상징 색으로 변경합니다.</p>
+            <div class="flex flex-wrap gap-6 items-center">
+              <div v-for="color in ['blue', 'green', 'purple', 'rose', 'amber']" :key="color" class="flex flex-col items-center gap-2">
+                <button 
+                  type="button" 
+                  @click="churchForm.theme_color = color" 
+                  :class="[
+                    'w-12 h-12 rounded-full transition-all cursor-pointer border-4 border-white dark:border-slate-800 shadow-lg',
+                    color === 'blue' ? 'bg-blue-500' : 
+                    color === 'green' ? 'bg-emerald-500' : 
+                    color === 'purple' ? 'bg-purple-500' : 
+                    color === 'rose' ? 'bg-rose-500' : 'bg-amber-500',
+                    churchForm.theme_color === color ? 'ring-4 ring-offset-2 ring-slate-400 scale-110' : 'hover:scale-105'
+                  ]"
+                ></button>
+                <span class="text-[10px] font-bold uppercase text-slate-400">{{ color }}</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="border-t dark:border-gray-700 pt-6">
           <h3 class="text-lg font-bold mb-4">공식 이미지 관리</h3>
@@ -420,6 +448,7 @@ const churchForm = reactive({
   phone_number: '',
   logo_image_path: null as string | null,
   seal_image_path: null as string | null,
+  theme_color: 'blue' as string,
   closing_date: null as string | Date | null,
   closedByName: '',
   current_fiscal_year: null as number | null
@@ -467,6 +496,9 @@ const handleSaveChurchInfo = async () => {
       ui.showAlert('저장 완료', '교회 정보가 성공적으로 저장되었습니다.', 'success')
       if (res.data?.logo_image_path) churchForm.logo_image_path = res.data.logo_image_path
       if (res.data?.seal_image_path) churchForm.seal_image_path = res.data.seal_image_path
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     }
   } catch (e: any) {
     ui.showAlert('저장 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')

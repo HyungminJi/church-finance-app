@@ -58,7 +58,8 @@ export default defineEventHandler(async (event) => {
     address, 
     phone_number,
     logo_image_path,
-    seal_image_path
+    seal_image_path,
+    theme_color
   } = body
 
   try {
@@ -72,17 +73,21 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. DB 업데이트
+    const updateData: any = {
+      name,
+      representative_name,
+      registration_number,
+      address,
+      phone_number,
+      updated_at: new Date()
+    }
+
+    if (logo_image_path !== undefined) updateData.logo_image_path = logo_image_path
+    if (seal_image_path !== undefined) updateData.seal_image_path = seal_image_path
+    if (theme_color !== undefined) updateData.theme_color = theme_color
+
     const result = await db.updateTable('churches')
-      .set({
-        name,
-        representative_name,
-        registration_number,
-        address,
-        phone_number,
-        logo_image_path,
-        seal_image_path,
-        updated_at: new Date()
-      })
+      .set(updateData)
       .where('id', '=', churchId)
       .executeTakeFirst()
 

@@ -118,7 +118,7 @@ const iconHexColor = computed(() => {
     case 'success': return '#16A34A'
     case 'error': return '#DC2626'
     case 'warning': return '#D97706'
-    case 'prompt': return '#3CAFFF'
+    case 'prompt': return 'var(--theme-main)'
     default: return '#2563EB'
   }
 })
@@ -134,6 +134,5 @@ const confirmButtonColor = computed(() => {
 </script>
 
 <style scoped>
-.bg-brand-blue\/10 { background-color: rgba(60, 175, 255, 0.1); }
-.text-brand-blue { color: #3CAFFF; }
+/* 로컬 스타일 제거: main.css의 전역 변수 설정을 따름 */
 </style>

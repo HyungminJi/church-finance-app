@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex" :style="themeStyle">
     <!-- 사이드바 (LNB) -->
     <aside class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col shrink-0 relative z-20 shadow-sm">
       <div class="p-6 border-b border-slate-100 dark:border-slate-700/50 space-y-4">
@@ -149,6 +149,50 @@ const currentPathLabel = computed(() => {
   const item = menuItems.value.find(i => isPathActive(i.path))
   return item ? item.label : '홈'
 })
+
+const themeColor = computed(() => churchInfo.value?.theme_color || 'blue')
+
+const themeStyle = computed(() => {
+  const themes: Record<string, any> = {
+    blue: {
+      main: '#3CAFFF', rgb: '60, 175, 255',
+      '50': '#F0F9FF', '100': '#E0F2FE', '200': '#BAE6FD', '300': '#7DD3FC', '400': '#38BDF8', '600': '#0284C7', '700': '#0369A1', '800': '#075985', '900': '#0C4A6E', '950': '#082F49'
+    },
+    green: {
+      main: '#10B981', rgb: '16, 185, 129',
+      '50': '#ECFDF5', '100': '#D1FAE5', '200': '#A7F3D0', '300': '#6EE7B7', '400': '#34D399', '600': '#059669', '700': '#047857', '800': '#065F46', '900': '#064E3B', '950': '#022C22'
+    },
+    purple: {
+      main: '#A855F7', rgb: '168, 85, 247',
+      '50': '#FAF5FF', '100': '#F3E8FF', '200': '#E9D5FF', '300': '#D8B4FE', '400': '#C084FC', '600': '#9333EA', '700': '#7E22CE', '800': '#6B21A8', '900': '#581C87', '950': '#3B0764'
+    },
+    rose: {
+      main: '#F43F5E', rgb: '244, 63, 94',
+      '50': '#FFF1F2', '100': '#FFE4E6', '200': '#FECDD3', '300': '#FDA4AF', '400': '#FB7185', '600': '#E11D48', '700': '#BE123C', '800': '#9F1239', '900': '#881337', '950': '#4C0519'
+    },
+    amber: {
+      main: '#F59E0B', rgb: '245, 158, 11',
+      '50': '#FFFBEB', '100': '#FEF3C7', '200': '#FDE68A', '300': '#FCD34D', '400': '#FBBF24', '600': '#D97706', '700': '#B45309', '800': '#92400E', '900': '#78350F', '950': '#451A03'
+    },
+  }
+  
+  const s = themes[themeColor.value] || themes.blue
+  return {
+    '--theme-main': s.main,
+    '--theme-rgb': s.rgb,
+    '--theme-50': s['50'],
+    '--theme-100': s['100'],
+    '--theme-200': s['200'],
+    '--theme-300': s['300'],
+    '--theme-400': s['400'],
+    '--theme-600': s['600'],
+    '--theme-700': s['700'],
+    '--theme-800': s['800'],
+    '--theme-900': s['900'],
+    '--theme-950': s['950'],
+  }
+})
+
 const roleInfo = computed(() => {
   const info = getRoleInfo(user.value?.role ?? null)
   let colorClass = 'bg-gray-100 dark:bg-gray-800'
@@ -172,11 +216,14 @@ const handleLogout = async () => {
 </script>
 
 <style>
-.text-brand-blue { color: #3CAFFF; }
+.text-brand-blue { color: var(--theme-main); }
 .text-brand-green { color: #91D700; }
-.bg-brand-blue { background-color: #3CAFFF; }
+.bg-brand-blue { background-color: var(--theme-main); }
 .bg-brand-green { background-color: #91D700; }
-.bg-brand-blue\/10 { background-color: rgba(60, 175, 255, 0.1); }
+.bg-brand-blue\/10 { background-color: rgba(var(--theme-rgb), 0.1); }
+.bg-brand-blue\/20 { background-color: rgba(var(--theme-rgb), 0.2); }
+.border-brand-blue\/30 { border-color: rgba(var(--theme-rgb), 0.3); }
+.border-brand-blue\/20 { border-color: rgba(var(--theme-rgb), 0.2); }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;

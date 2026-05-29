@@ -7,11 +7,11 @@
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
     >
-      <!-- 좌측: 흩어진 점들 (과거/혼돈) - Brand Blue -->
-      <circle cx="15" cy="35" r="4" fill="#3CAFFF" fill-opacity="0.6" />
-      <circle cx="28" cy="25" r="3" fill="#3CAFFF" fill-opacity="0.4" />
-      <circle cx="22" cy="45" r="5" fill="#3CAFFF" fill-opacity="0.8" />
-      <circle cx="35" cy="40" r="2" fill="#3CAFFF" fill-opacity="0.3" />
+      <!-- 좌측: 흩어진 점들 (과거/혼돈) - Brand Blue (테마 적용) -->
+      <circle cx="15" cy="35" r="4" fill="var(--theme-main, #3CAFFF)" fill-opacity="0.6" />
+      <circle cx="28" cy="25" r="3" fill="var(--theme-main, #3CAFFF)" fill-opacity="0.4" />
+      <circle cx="22" cy="45" r="5" fill="var(--theme-main, #3CAFFF)" fill-opacity="0.8" />
+      <circle cx="35" cy="40" r="2" fill="var(--theme-main, #3CAFFF)" fill-opacity="0.3" />
       
       <!-- 중앙: 깨끗한 여백 (변화/연결) - 투명 공간 유지 -->
       
@@ -40,6 +40,6 @@ defineProps<{
 </script>
 
 <style scoped>
-.text-brand-blue { color: #3CAFFF; }
+/* 로컬 스타일 제거: main.css의 전역 변수 설정을 따름 */
 .text-brand-green { color: #91D700; }
 </style>

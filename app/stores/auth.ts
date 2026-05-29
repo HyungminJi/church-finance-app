@@ -6,9 +6,9 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<any>(null)
   const token = ref<string | null>(null)
 
-  const isMaster = computed(() => user.value?.role === UserRole.MASTER)
-  const isAdmin = computed(() => user.value?.role <= UserRole.ADMIN) // MASTER도 ADMIN 권한 가짐
-  const canEdit = computed(() => user.value?.role <= UserRole.MANAGER)
+  const isMaster = computed(() => Number(user.value?.role) === UserRole.MASTER)
+  const isAdmin = computed(() => Number(user.value?.role) <= UserRole.ADMIN) // MASTER도 ADMIN 권한 가짐
+  const canEdit = computed(() => Number(user.value?.role) <= UserRole.MANAGER)
 
   function login(u: any, t: string) {
     isLoggedIn.value = true
