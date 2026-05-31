@@ -42,7 +42,7 @@
           <div v-if="meta" class="flex gap-6 items-center animate-in fade-in slide-in-from-right-2">
             <div class="text-right">
               <span class="text-[10px] font-bold text-gray-400 block uppercase">연간 누적 모금액</span>
-              <span class="text-xl font-black text-brand-blue font-mono">{{ formatNumber(meta.total_collected) }}원</span>
+              <span class="text-xl font-black text-primary-500 font-mono">{{ formatNumber(meta.total_collected) }}원</span>
             </div>
             <div class="text-right border-l dark:border-gray-700 pl-6">
               <span class="text-[10px] font-bold text-gray-400 block uppercase">목표 달성률(실제납부 기준)</span>
@@ -59,7 +59,7 @@
             <UIcon name="i-heroicons-chart-bar" />
             Monthly Actual Collection Trend ({{ selectedYear }})
           </h3>
-          <span class="text-[10px] font-black bg-brand-blue/10 text-brand-blue px-2 py-1 rounded">실제 헌금 전표 기준 집계</span>
+          <span class="text-[10px] font-black bg-primary-500/10 text-primary-500 px-2 py-1 rounded">실제 헌금 전표 기준 집계</span>
         </div>
         
         <div class="h-64 flex items-end justify-between gap-2 px-4 border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -68,12 +68,12 @@
               {{ formatNumber(s.amount) }}원
             </div>
             <div 
-              class="w-full max-w-[40px] bg-brand-blue/20 group-hover:bg-brand-blue rounded-t-sm transition-all duration-700 ease-out relative"
+              class="w-full max-w-[40px] bg-primary-500/20 group-hover:bg-primary-500 rounded-t-sm transition-all duration-700 ease-out relative"
               :style="{ height: getBarHeight(s.amount) + '%' }"
             >
-              <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-brand-blue shadow-[0_0_10px_#3cafff]"></div>
+              <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-primary-500 shadow-[0_0_10px_#3cafff]"></div>
             </div>
-            <span class="text-[10px] font-bold text-gray-400 mt-3 group-hover:text-brand-blue transition-colors">{{ s.month }}</span>
+            <span class="text-[10px] font-bold text-gray-400 mt-3 group-hover:text-primary-500 transition-colors">{{ s.month }}</span>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-700 dark:text-gray-300 font-mono">
                 {{ formatNumber(s.amount) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black text-brand-blue font-mono">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black text-primary-500 font-mono">
                 {{ formatNumber(s.cumulative_amount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-center">

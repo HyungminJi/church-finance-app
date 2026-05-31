@@ -60,12 +60,12 @@
             
             <!-- [수입부] -->
             <div class="flex flex-col">
-              <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-3 font-black text-center text-blue-800 dark:text-blue-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <div class="bg-primary-50 dark:bg-primary-900/30 px-4 py-3 font-black text-center text-primary-800 dark:text-primary-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <span class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-arrow-trending-up" class="text-blue-500" />
+                  <UIcon name="i-heroicons-arrow-trending-up" class="text-primary-500" />
                   수 입 부 (INCOME)
                 </span>
-                <span v-if="meta" class="text-xs font-mono bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded text-blue-700 dark:text-blue-200">
+                <span v-if="meta" class="text-xs font-mono bg-primary-100 dark:bg-primary-800 px-2 py-0.5 rounded text-primary-700 dark:text-primary-200">
                   합계: {{ formatNumber(meta.total_income_actual) }}
                 </span>
               </div>
@@ -89,7 +89,7 @@
                         <span v-if="item.level === 2" class="text-[10px] text-gray-400 font-mono ml-1">{{ item.code }}</span>
                       </td>
                       <td class="px-3 py-2 text-right text-sm font-mono text-gray-500">{{ formatNumber(item.budget_amount) }}</td>
-                      <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-brand-blue' : 'text-gray-400'">
+                      <td class="px-3 py-2 text-right text-sm font-mono font-bold" :class="item.actual_amount > 0 ? 'text-primary-500' : 'text-gray-400'">
                         {{ formatNumber(item.actual_amount) }}
                       </td>
                       <td class="px-3 py-2 text-right text-xs font-mono font-bold" :class="getPercentColor(calculatePercent(item.actual_amount, item.budget_amount))">
@@ -155,8 +155,8 @@
                 </div>
               </div>
               <div class="space-y-1">
-                <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest">당기 수입액</div>
-                <div class="text-xl font-mono font-black text-brand-blue">
+                <div class="text-[10px] font-black text-primary-500 uppercase tracking-widest">당기 수입액</div>
+                <div class="text-xl font-mono font-black text-primary-500">
                   {{ formatNumber(meta?.total_income_actual || 0) }}
                 </div>
               </div>
@@ -281,7 +281,7 @@ const calculatePercent = (actual: number, budget: number) => {
 const getPercentColor = (percent: string) => {
   const p = parseFloat(percent)
   if (p >= 100) return 'text-green-600 dark:text-green-400'
-  if (p > 0) return 'text-blue-500'
+  if (p > 0) return 'text-primary-500'
   return 'text-gray-400'
 }
 

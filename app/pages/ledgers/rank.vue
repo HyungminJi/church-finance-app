@@ -99,7 +99,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
             <tr v-for="(item, idx) in rankData" :key="item.donor_id" 
-                class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group">
+                class="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors group">
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <div class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-black text-sm shadow-sm"
                      :class="getRankStyle(idx as number)">
@@ -125,13 +125,13 @@
                 <span v-if="!item.cell_group_name && !item.church_role_name">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500 font-mono">{{ formatNumber(item.tx_count) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-brand-blue font-black">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-primary-500 font-black">
                 {{ formatNumber(item.total_amount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
                   <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden shadow-inner w-32">
-                    <div class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-1000 ease-out" 
+                    <div class="h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full transition-all duration-1000 ease-out" 
                          :style="{ width: item.rate + '%' }"></div>
                   </div>
                   <span class="text-[11px] font-black font-mono text-gray-400 w-10 text-right">{{ item.rate }}%</span>
@@ -222,7 +222,7 @@ const getDonorIcon = (type: string) => {
 }
 
 const getDonorIconBg = (type: string) => {
-  if (type === 'MEMBER') return 'bg-blue-500'
+  if (type === 'MEMBER') return 'bg-primary-500'
   if (type === 'CELL_GROUP') return 'bg-green-500'
   return 'bg-purple-500'
 }

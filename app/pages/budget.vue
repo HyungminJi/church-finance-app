@@ -24,7 +24,7 @@
           class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-colors cursor-pointer"
           :class="[
             isTabActive(tab.to)
-              ? 'border-brand-blue text-brand-blue'
+              ? 'border-primary-500 text-primary-500'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
           ]"
         >
@@ -33,7 +33,7 @@
       </nav>
     </div>
 
-    <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-sm flex items-start gap-2">
+    <div class="mb-4 p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-sm flex items-start gap-2">
       <UIcon name="i-heroicons-information-circle" class="w-5 h-5 shrink-0 mt-0.5" />
       <div>
         <p class="font-bold">예산 입력 가이드</p>

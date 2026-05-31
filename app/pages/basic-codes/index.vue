@@ -24,19 +24,19 @@
         <!-- 사용 여부 필터 -->
         <div class="flex items-center space-x-4 text-sm border-l pl-4 dark:border-gray-700">
           <label class="flex items-center space-x-2 cursor-pointer group">
-            <input type="radio" v-model="activeFilter" value="ACTIVE" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" />
-            <span class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">사용중</span>
+            <input type="radio" v-model="activeFilter" value="ACTIVE" class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer" />
+            <span class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors">사용중</span>
           </label>
           <label class="flex items-center space-x-2 cursor-pointer group">
-            <input type="radio" v-model="activeFilter" value="ALL" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" />
-            <span class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">모두 보기</span>
+            <input type="radio" v-model="activeFilter" value="ALL" class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer" />
+            <span class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors">모두 보기</span>
           </label>
         </div>
       </div>
 
       <!-- 일괄 처리 버튼 (조건부 노출) -->
-      <div v-if="selectedCodes.length >= 2" class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 animate-in fade-in slide-in-from-top-1">
-        <span class="text-sm font-bold text-blue-700 dark:text-blue-300 mr-2">{{ selectedCodes.length }}개 선택됨:</span>
+      <div v-if="selectedCodes.length >= 2" class="flex items-center space-x-2 bg-primary-50 dark:bg-primary-900/20 px-4 py-1.5 rounded-lg border border-primary-100 dark:border-primary-800 animate-in fade-in slide-in-from-top-1">
+        <span class="text-sm font-bold text-primary-700 dark:text-primary-300 mr-2">{{ selectedCodes.length }}개 선택됨:</span>
         <UButton v-if="isAllActiveSelected" size="xs" color="error" variant="subtle" label="일괄 사용안함" @click="bulkToggle(false)" class="cursor-pointer font-bold" />
         <template v-if="isAllInactiveSelected">
           <UButton size="xs" color="primary" variant="subtle" label="일괄 사용" @click="bulkToggle(true)" class="cursor-pointer font-bold" />
@@ -56,7 +56,7 @@
         <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs font-bold text-gray-500 uppercase">
           <tr>
             <th scope="col" class="px-4 py-3 w-10 text-center">
-              <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" />
+              <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" />
             </th>
             <th scope="col" class="px-6 py-3 text-left w-32">계정코드</th>
             <th scope="col" class="px-6 py-3 text-left">계정명</th>
@@ -68,8 +68,8 @@
           <tr v-for="item in filteredItems" :key="item.code" 
               class="transition-colors"
               :class="[
-                selectedCodes.includes(item.code) ? 'bg-blue-50 dark:bg-blue-900/30' : 
-                item.level === 0 ? 'bg-blue-50/40 dark:bg-blue-900/20 hover:bg-blue-50/60 dark:hover:bg-blue-900/30' : 
+                selectedCodes.includes(item.code) ? 'bg-primary-50 dark:bg-primary-900/30' : 
+                item.level === 0 ? 'bg-primary-50/40 dark:bg-primary-900/20 hover:bg-primary-50/60 dark:hover:bg-primary-900/30' : 
                 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50'
               ]">
             <td class="px-4 py-4 text-center">
@@ -77,7 +77,7 @@
                 type="checkbox" 
                 :checked="selectedCodes.includes(item.code)" 
                 @change="handleCheckboxChange(item, $event)" 
-                class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" 
+                class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" 
               />
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ item.code }}</td>

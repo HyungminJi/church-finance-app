@@ -6,7 +6,7 @@
         <button class="cursor-pointer px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors">
           추가
         </button>
-        <button class="cursor-pointer px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors">
+        <button class="cursor-pointer px-3 py-1 bg-primary-500 text-white rounded text-sm hover:bg-primary-600 transition-colors">
           저장
         </button>
       </div>

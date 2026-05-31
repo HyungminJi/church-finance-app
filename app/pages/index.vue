@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8 animate-in fade-in slide-in-from-bottom-2">
     <!-- 개인화 웰컴 배너 (초고가시성 네온 테마) -->
-    <div class="bg-brand-blue rounded-2xl p-10 text-white shadow-2xl relative overflow-hidden transition-colors duration-500 border border-white/10">
+    <div class="bg-primary-500 rounded-2xl p-10 text-white shadow-2xl relative overflow-hidden transition-colors duration-500 border border-white/10">
       <div class="absolute right-0 top-0 w-80 h-80 bg-white/20 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3"></div>
       <div class="relative z-10">
         <h2 v-if="dashboardMode === 'tenant'" class="text-3xl font-black mb-4 tracking-tight text-yellow-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
@@ -35,8 +35,8 @@
     <template v-else-if="dashboardMode === 'platform'">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-6">
-          <div class="w-16 h-16 rounded-2xl bg-brand-blue/10 flex items-center justify-center shrink-0">
-            <UIcon name="i-heroicons-building-office-2" class="w-8 h-8 text-brand-blue" />
+          <div class="w-16 h-16 rounded-2xl bg-primary-500/10 flex items-center justify-center shrink-0">
+            <UIcon name="i-heroicons-building-office-2" class="w-8 h-8 text-primary-500" />
           </div>
           <div>
             <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">등록된 총 테넌트(교회) 수</p>
@@ -57,7 +57,7 @@
       <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2">
-            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-brand-blue" />
+            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-primary-500" />
             최근 가입한 테넌트
           </h3>
         </div>
@@ -99,14 +99,14 @@
 
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
           <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-              <UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
+              <UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
             </div>
             <UBadge color="primary" variant="soft" class="font-bold">{{ summaryData?.targetMonth }}월</UBadge>
           </div>
           <div>
             <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">당월 수입 누계</p>
-            <p class="text-3xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight">{{ formatNumber(summaryData?.monthlyIncome) }}<span class="text-base font-bold text-slate-400 ml-1">원</span></p>
+            <p class="text-3xl font-black text-primary-600 dark:text-primary-400 font-mono tracking-tight">{{ formatNumber(summaryData?.monthlyIncome) }}<span class="text-base font-bold text-slate-400 ml-1">원</span></p>
           </div>
         </div>
 

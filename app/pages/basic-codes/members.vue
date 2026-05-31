@@ -19,7 +19,7 @@
             </div>
 
             <div class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border dark:border-gray-700">
-              <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-brand-blue" />
+              <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-primary-500" />
               <span>목록 개수</span>
               <USelectMenu 
                 v-model="pageSize" 
@@ -166,7 +166,7 @@
               <div v-if="isEditing" class="col-span-2 border-t dark:border-gray-800 pt-4 mt-2 space-y-4">
                 <div class="flex items-center justify-between">
                   <label class="text-sm font-bold flex items-center gap-2">
-                    <UIcon name="i-heroicons-shield-check" class="text-brand-blue" />
+                    <UIcon name="i-heroicons-shield-check" class="text-primary-500" />
                     시스템 로그인 권한
                   </label>
                   <UCheckbox 

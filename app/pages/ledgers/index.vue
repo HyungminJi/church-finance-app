@@ -6,7 +6,7 @@
         <div class="w-full md:w-64 bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700 shrink-0">
         <div class="p-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <span class="text-sm font-black text-gray-700 dark:text-gray-300 flex items-center gap-2">
-            <UIcon name="i-heroicons-tag" class="text-brand-blue" />
+            <UIcon name="i-heroicons-tag" class="text-primary-500" />
             계정과목별 원장
           </span>
           <UButton 
@@ -25,7 +25,7 @@
               <!-- 그룹(수입/지출) 헤더: 아코디언과 조회를 명확히 분리 -->
               <div 
                 class="flex items-center p-1 rounded-lg transition-all duration-200"
-                :class="selectedAccountType === group.type && !selectedAccountCode ? 'bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-100 dark:ring-blue-800' : ''"
+                :class="selectedAccountType === group.type && !selectedAccountCode ? 'bg-primary-50 dark:bg-primary-900/30 ring-1 ring-primary-100 dark:ring-primary-800' : ''"
               >
                 <!-- 1. 아코디언 토글 전용 영역 (좌측 아이콘들) -->
                 <div 
@@ -40,14 +40,14 @@
                   <UIcon 
                     :name="group.expanded ? 'i-heroicons-folder-open' : 'i-heroicons-folder'" 
                     class="w-5 h-5" 
-                    :class="group.type === 'INCOME' ? 'text-blue-500' : 'text-red-500'" 
+                    :class="group.type === 'INCOME' ? 'text-primary-500' : 'text-red-500'" 
                   />
                 </div>
 
                 <!-- 2. 통합 원장 조회 전용 영역 (중앙 텍스트) -->
                 <div 
-                  class="flex-1 py-1.5 px-2 font-black text-sm cursor-pointer hover:text-brand-blue hover:underline underline-offset-4 decoration-2 decoration-brand-blue/30 transition-all"
-                  :class="selectedAccountType === group.type && !selectedAccountCode ? 'text-brand-blue' : 'text-gray-800 dark:text-gray-200'"
+                  class="flex-1 py-1.5 px-2 font-black text-sm cursor-pointer hover:text-primary-500 hover:underline underline-offset-4 decoration-2 decoration-primary-500/30 transition-all"
+                  :class="selectedAccountType === group.type && !selectedAccountCode ? 'text-primary-500' : 'text-gray-800 dark:text-gray-200'"
                   @click="selectGroup(group)"
                   title="통합 원장 조회"
                 >
@@ -60,11 +60,11 @@
                 <li 
                   v-for="acc in group.children" 
                   :key="acc.code" 
-                  class="flex items-center p-2 hover:bg-blue-50 dark:hover:bg-gray-700/50 rounded-md cursor-pointer text-gray-600 dark:text-gray-400 transition-all" 
-                  :class="{'bg-brand-blue/10 font-bold text-brand-blue dark:text-brand-blue ring-1 ring-brand-blue/20': selectedAccountCode === acc.code}"
+                  class="flex items-center p-2 hover:bg-primary-50 dark:hover:bg-gray-700/50 rounded-md cursor-pointer text-gray-600 dark:text-gray-400 transition-all" 
+                  :class="{'bg-primary-500/10 font-bold text-primary-500 dark:text-primary-500 ring-1 ring-primary-500/20': selectedAccountCode === acc.code}"
                   @click="selectAccount(acc.code)"
                 >
-                   <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-2" :class="selectedAccountCode === acc.code ? 'text-brand-blue' : 'text-gray-300'" />
+                   <UIcon name="i-heroicons-document-text" class="w-4 h-4 mr-2" :class="selectedAccountCode === acc.code ? 'text-primary-500' : 'text-gray-300'" />
                    <span class="font-mono text-[10px] opacity-50 mr-2 shrink-0">{{ acc.code }}</span>
                    <span class="text-sm truncate">{{ acc.name }}</span>
                 </li>
@@ -98,7 +98,7 @@
                 >
                   <template #default>
                     <span v-if="selectedFund" class="flex items-center gap-2 truncate">
-                      <UIcon name="i-heroicons-banknotes" class="text-brand-blue shrink-0" />
+                      <UIcon name="i-heroicons-banknotes" class="text-primary-500 shrink-0" />
                       {{ selectedFund.name }}
                     </span>
                     <span v-else class="text-gray-400">전체 자금/통장</span>
@@ -147,17 +147,17 @@
           
           <div class="flex justify-between items-end">
             <div class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-               <UIcon name="i-heroicons-book-open" class="text-brand-blue w-6 h-6" />
+               <UIcon name="i-heroicons-book-open" class="text-primary-500 w-6 h-6" />
                {{ currentViewLabel }}
-               <span v-if="selectedFund" class="text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 px-2 py-1 rounded-md ml-2">
+               <span v-if="selectedFund" class="text-xs font-bold bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 px-2 py-1 rounded-md ml-2">
                  {{ selectedFund.name }}
                </span>
             </div>
             
             <div v-if="meta" class="flex gap-6 text-right animate-in fade-in duration-500">
               <div class="group">
-                <span class="text-[10px] font-black text-gray-400 block uppercase tracking-widest group-hover:text-blue-500 transition-colors">기간 수입</span>
-                <span class="text-base font-black text-brand-blue font-mono">{{ formatNumber(meta.period_income) }}</span>
+                <span class="text-[10px] font-black text-gray-400 block uppercase tracking-widest group-hover:text-primary-500 transition-colors">기간 수입</span>
+                <span class="text-base font-black text-primary-500 font-mono">{{ formatNumber(meta.period_income) }}</span>
               </div>
               <div class="group">
                 <span class="text-[10px] font-black text-gray-400 block uppercase tracking-widest group-hover:text-red-500 transition-colors">기간 지출</span>
@@ -189,14 +189,14 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
-              <tr v-if="meta" class="bg-blue-50/30 dark:bg-blue-900/5 font-black border-b-2 border-blue-50 dark:border-blue-900/20">
+              <tr v-if="meta" class="bg-primary-50/30 dark:bg-primary-900/5 font-black border-b-2 border-primary-50 dark:border-primary-900/20">
                 <td colspan="3" class="px-4 py-3 text-center text-[11px] text-gray-500 dark:text-gray-400 tracking-[0.5em] pl-[0.5em]">전기이월 ({{ startDate }} 이전)</td>
-                <td class="px-4 py-3 text-right text-sm text-brand-blue font-mono">{{ formatNumber(meta.previous_income) }}</td>
+                <td class="px-4 py-3 text-right text-sm text-primary-500 font-mono">{{ formatNumber(meta.previous_income) }}</td>
                 <td class="px-4 py-3 text-right text-sm text-red-500 font-mono">{{ formatNumber(meta.previous_expense) }}</td>
-                <td class="px-4 py-3 text-right text-sm text-gray-900 dark:text-white font-mono bg-blue-50/50 dark:bg-blue-900/20">{{ formatNumber(meta.previous_balance) }}</td>
+                <td class="px-4 py-3 text-right text-sm text-gray-900 dark:text-white font-mono bg-primary-50/50 dark:bg-primary-900/20">{{ formatNumber(meta.previous_balance) }}</td>
               </tr>
 
-              <tr v-for="tx in transactions" :key="tx.id" class="hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-colors border-l-4 border-transparent hover:border-brand-blue">
+              <tr v-for="tx in transactions" :key="tx.id" class="hover:bg-primary-50/20 dark:hover:bg-primary-900/10 transition-colors border-l-4 border-transparent hover:border-primary-500">
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">{{ tx.date_str }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                   <div class="flex flex-col">
@@ -213,7 +213,7 @@
                     </span>
                   </div>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-brand-blue font-mono font-black">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-primary-500 font-mono font-black">
                   {{ tx.income > 0 ? formatNumber(tx.income) : '' }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-red-500 font-mono font-black">

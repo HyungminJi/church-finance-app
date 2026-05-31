@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col justify-center bg-slate-50 dark:bg-slate-900 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
     <!-- 브랜드 배경 장식 (점과 선의 은유) -->
-    <div class="absolute -top-20 -left-20 w-80 h-80 bg-brand-blue/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-20 -left-20 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-brand-green/10 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
@@ -34,7 +34,7 @@
             <div class="flex items-center justify-between mb-1">
               <label for="password" class="block text-sm font-bold text-slate-700 dark:text-slate-300">비밀번호</label>
               <div class="text-sm">
-                <span class="text-brand-blue hover:text-blue-600 font-bold cursor-pointer transition-colors" @click="isResetModalOpen = true">
+                <span class="text-primary-500 hover:text-primary-600 font-bold cursor-pointer transition-colors" @click="isResetModalOpen = true">
                   비밀번호를 잊으셨나요?
                 </span>
               </div>
@@ -82,7 +82,7 @@
         <div class="flex flex-col bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden max-w-md w-full mx-auto border border-slate-100 dark:border-slate-800">
           <div class="px-6 py-5 border-b dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
             <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-              <UIcon name="i-heroicons-key" class="w-6 h-6 mr-2 text-brand-blue" />
+              <UIcon name="i-heroicons-key" class="w-6 h-6 mr-2 text-primary-500" />
               비밀번호 재설정
             </h3>
             <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isResetModalOpen = false" class="cursor-pointer" />
@@ -257,8 +257,8 @@ const handleResetPassword = async () => {
 </script>
 
 <style scoped>
-.text-brand-blue { color: #3CAFFF; }
+.text-primary-500 { color: #3CAFFF; }
 .text-brand-green { color: #91D700; }
-.bg-brand-blue\/10 { background-color: rgba(60, 175, 255, 0.1); }
+.bg-primary-500\/10 { background-color: rgba(60, 175, 255, 0.1); }
 .bg-brand-green\/10 { background-color: rgba(145, 215, 0, 0.1); }
 </style>

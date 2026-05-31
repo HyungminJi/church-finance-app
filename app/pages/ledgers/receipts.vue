@@ -36,7 +36,7 @@
 
       <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50 dark:bg-gray-900/50">
         <h3 class="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-document-check" class="text-brand-blue" />
+          <UIcon name="i-heroicons-document-check" class="text-primary-500" />
           {{ selectedYear }}년도 기부금 영수증 발급 대상 (총 {{ donors.length }}명)
         </h3>
         <UButton 
@@ -62,7 +62,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
-            <tr v-for="d in donors" :key="d.donor_id" class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group">
+            <tr v-for="d in donors" :key="d.donor_id" class="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors group">
               <td class="px-6 py-4 whitespace-nowrap font-black text-gray-900 dark:text-white">
                 {{ d.name }} <span class="text-[10px] text-gray-400 font-bold" v-if="d.church_role_name">({{ d.church_role_name }})</span>
               </td>
@@ -70,7 +70,7 @@
                 {{ d.birth_date ? formatDate(d.birth_date) : '-' }}
               </td>
               <td class="px-6 py-4 text-xs text-gray-500 max-w-xs truncate">{{ d.address || '-' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-right font-mono font-black text-brand-blue">
+              <td class="px-6 py-4 whitespace-nowrap text-right font-mono font-black text-primary-500">
                 {{ formatNumber(d.total_amount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -106,7 +106,7 @@
         <div class="p-6 space-y-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl overflow-y-auto max-h-[90vh] custom-scrollbar">
           <div class="flex items-center justify-between border-b dark:border-gray-800 pb-4">
             <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-heroicons-document-text" class="text-brand-blue" />
+              <UIcon name="i-heroicons-document-text" class="text-primary-500" />
               기부금 영수증 {{ selectedDonor?.receipt_id ? '정보 상세' : '신규 발행' }}
             </h3>
             <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="isModalOpen = false" class="cursor-pointer" />
@@ -116,7 +116,7 @@
             <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
               <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">성함</p><p class="text-sm font-black">{{ selectedDonor.name }}</p></div>
               <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">대상 연도</p><p class="text-sm font-black">{{ selectedYear }}년</p></div>
-              <div class="col-span-2 border-t dark:border-gray-700 pt-3 mt-1"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">총 기부금액</p><p class="text-xl font-black text-brand-blue font-mono">{{ formatNumber(selectedDonor.total_amount) }}원</p></div>
+              <div class="col-span-2 border-t dark:border-gray-700 pt-3 mt-1"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">총 기부금액</p><p class="text-xl font-black text-primary-500 font-mono">{{ formatNumber(selectedDonor.total_amount) }}원</p></div>
             </div>
 
             <div class="space-y-4 pt-2">

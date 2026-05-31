@@ -12,7 +12,7 @@
                     v-model="filters.name" 
                     type="text"
                     placeholder="구역명 검색" 
-                    class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm h-[36px]"
+                    class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm h-[36px]"
                     @keyup.enter="refresh()" 
                   />
                   <UIcon name="i-heroicons-magnifying-glass" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
@@ -21,7 +21,7 @@
             </div>
             <div class="w-[160px] flex-shrink-0">
               <UFormField label="상위 소속">
-                <select v-model="filters.parent" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
+                <select v-model="filters.parent" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
                   <option value="all">전체 소속</option>
                   <option v-for="p in parentGroups" :key="p" :value="p">{{ p }}</option>
                 </select>
@@ -29,7 +29,7 @@
             </div>
             <div class="w-[100px] flex-shrink-0">
               <UFormField label="상태">
-                <select v-model="filters.isActive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
+                <select v-model="filters.isActive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm cursor-pointer h-[36px]">
                   <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
               </UFormField>
@@ -43,7 +43,7 @@
 
         <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
           <div class="flex items-center space-x-2 text-sm text-gray-500">
-            총 <span class="font-bold text-blue-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
+            총 <span class="font-bold text-primary-600">{{ cellGroups.length }}</span>개의 구역이 있습니다.
           </div>
           <div class="flex items-center space-x-2">
             <UButton icon="i-heroicons-plus" color="primary" label="구역 추가" class="cursor-pointer font-bold" @click="openModal()" />
@@ -56,7 +56,7 @@
     <!-- 목록 테이블 (3안 적용: 헤더 고정) -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg relative border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div v-if="pending" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10 py-20">
-        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-blue-600" />
+        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary-600" />
       </div>
       
       <div class="overflow-x-auto">

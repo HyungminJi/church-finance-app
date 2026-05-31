@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-6xl mx-auto space-y-6">
     <div class="flex items-center space-x-2 mb-6">
-      <UIcon name="i-heroicons-cog-6-tooth" class="w-8 h-8 text-brand-blue" />
+      <UIcon name="i-heroicons-cog-6-tooth" class="w-8 h-8 text-primary-500" />
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">환경설정</h1>
     </div>
 
@@ -15,7 +15,7 @@
           class="whitespace-nowrap pb-4 px-1 border-b-2 font-bold text-sm cursor-pointer transition-colors"
           :class="[
             activeTab === tab.id
-              ? 'border-brand-blue text-brand-blue'
+              ? 'border-primary-500 text-primary-500'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
           ]"
         >
@@ -104,7 +104,7 @@
           <!-- 테마 색상 설정 (항상 보이도록 보장) -->
           <div class="border-t dark:border-gray-700 pt-8">
             <div class="flex items-center gap-2 mb-4">
-              <UIcon name="i-heroicons-paint-brush" class="w-6 h-6 text-brand-blue" />
+              <UIcon name="i-heroicons-paint-brush" class="w-6 h-6 text-primary-500" />
               <h3 class="text-lg font-black">시스템 테마 색상 (Theme Color)</h3>
             </div>
             <p class="text-sm text-gray-500 mb-6 font-medium">우리 교회 시스템의 주요 버튼 및 강조 색상을 교회의 상징 색으로 변경합니다.</p>
@@ -167,13 +167,13 @@
           </div>
         </div>
         
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+        <div class="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-xl border border-primary-200 dark:border-primary-800">
           <div class="flex items-start gap-4">
-            <UIcon name="i-heroicons-calendar-days" class="w-8 h-8 text-blue-500 shrink-0 mt-1" />
+            <UIcon name="i-heroicons-calendar-days" class="w-8 h-8 text-primary-500 shrink-0 mt-1" />
             <div class="space-y-4 w-full">
               <div>
-                <h3 class="font-bold text-blue-900 dark:text-blue-100 text-lg">현재 회계 기수(연도) 설정</h3>
-                <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                <h3 class="font-bold text-primary-900 dark:text-primary-100 text-lg">현재 회계 기수(연도) 설정</h3>
+                <p class="text-sm text-primary-700 dark:text-primary-300 mt-1">
                   모든 화면 상단에 표시되는 회계 연도를 지정합니다. 
                   <span class="font-bold">(현재: {{ churchForm.current_fiscal_year || new Date().getFullYear() }}년도)</span>
                 </p>
@@ -237,7 +237,7 @@
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="p-6 border rounded-xl dark:border-gray-700 flex flex-col justify-between h-48 hover:border-brand-blue transition-colors">
+          <div class="p-6 border rounded-xl dark:border-gray-700 flex flex-col justify-between h-48 hover:border-primary-500 transition-colors">
             <div>
               <UIcon name="i-heroicons-table-cells" class="w-10 h-10 text-brand-green mb-3" />
               <h3 class="font-bold text-lg">전체 전표 내역 백업</h3>
@@ -255,9 +255,9 @@
               엑셀 다운로드
             </UButton>
           </div>
-          <div class="p-6 border rounded-xl dark:border-gray-700 flex flex-col justify-between h-48 hover:border-brand-blue transition-colors">
+          <div class="p-6 border rounded-xl dark:border-gray-700 flex flex-col justify-between h-48 hover:border-primary-500 transition-colors">
             <div>
-              <UIcon name="i-heroicons-users" class="w-10 h-10 text-brand-blue mb-3" />
+              <UIcon name="i-heroicons-users" class="w-10 h-10 text-primary-500 mb-3" />
               <h3 class="font-bold text-lg">전체 성도/헌금자 백업</h3>
               <p class="text-sm text-gray-500 mt-1">등록된 모든 헌금자(성도, 구역, 단체) 정보를 추출합니다.</p>
             </div>
@@ -291,7 +291,7 @@
         <!-- 테넌트 스위처 -->
         <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
           <h3 class="font-bold text-lg mb-4 flex items-center text-slate-800 dark:text-slate-200">
-            <UIcon name="i-heroicons-arrow-path-rounded-square" class="w-5 h-5 mr-2 text-brand-blue" />
+            <UIcon name="i-heroicons-arrow-path-rounded-square" class="w-5 h-5 mr-2 text-primary-500" />
             작업 대상 테넌트(교회) 스위칭
           </h3>
           <div class="flex items-end gap-4 max-w-2xl">
@@ -361,7 +361,7 @@
         <div class="flex flex-col bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden max-w-md w-full mx-auto border border-slate-100 dark:border-slate-800">
           <div class="px-6 py-5 border-b dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
             <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-              <UIcon name="i-heroicons-lock-closed" class="w-6 h-6 mr-2 text-brand-blue" />
+              <UIcon name="i-heroicons-lock-closed" class="w-6 h-6 mr-2 text-primary-500" />
               비밀번호 변경
             </h3>
             <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="closePasswordModal" class="cursor-pointer" />

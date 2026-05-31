@@ -6,7 +6,7 @@
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div class="space-y-1">
           <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-flag" class="text-brand-blue" />
+            <UIcon name="i-heroicons-flag" class="text-primary-500" />
             작정헌금 캠페인 관리
           </h2>
           <p class="text-sm text-gray-500">건축, 선교 등 목적이 있는 작정헌금 캠페인을 생성하고 관리합니다.</p>
@@ -51,11 +51,11 @@
           <div class="pt-2 border-t dark:border-gray-700 space-y-3">
             <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-gray-400">
               <span>목표액: {{ formatNumber(c.target_amount) }}원</span>
-              <span class="text-brand-blue">{{ getPercent(c) }}%</span>
+              <span class="text-primary-500">{{ getPercent(c) }}%</span>
             </div>
             <!-- 프로그레스 바 -->
             <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-              <div class="bg-brand-blue h-full transition-all duration-1000 shadow-[0_0_8px_rgba(60,175,255,0.5)]" 
+              <div class="bg-primary-500 h-full transition-all duration-1000 shadow-[0_0_8px_rgba(60,175,255,0.5)]" 
                    :style="{ width: getPercent(c) + '%' }"></div>
             </div>
             <div class="flex justify-between items-center text-[11px] font-mono text-gray-500">
@@ -67,7 +67,7 @@
           <div class="pt-2">
             <div class="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span class="text-[10px] font-bold text-gray-400">연결된 계정</span>
-              <span class="text-xs font-bold text-blue-600 truncate">{{ c.account_name }} ({{ c.account_code }})</span>
+              <span class="text-xs font-bold text-primary-600 truncate">{{ c.account_name }} ({{ c.account_code }})</span>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-6">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-4">
               <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-heroicons-flag" class="text-brand-blue" />
+                <UIcon name="i-heroicons-flag" class="text-primary-500" />
                 {{ isEditing ? '캠페인 수정' : '새 캠페인 등록' }}
               </h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />

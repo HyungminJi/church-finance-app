@@ -29,8 +29,8 @@
       <!-- 고도화된 요약 대시보드 -->
       <div v-if="activeStatus === 'active'" class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
-          <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
-            <UIcon name="i-heroicons-banknotes" class="w-6 h-6 text-brand-blue" />
+          <div class="p-3 bg-primary-50 dark:bg-primary-900/30 rounded-xl">
+            <UIcon name="i-heroicons-banknotes" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
             <p class="text-[11px] text-gray-500 font-black uppercase tracking-widest mb-1">활성 자산 총액</p>
@@ -45,7 +45,7 @@
           </div>
           <div>
             <p class="text-[11px] text-gray-500 font-black uppercase tracking-widest mb-1">현금 보유고</p>
-            <p class="text-xl font-black font-mono text-brand-blue leading-none">
+            <p class="text-xl font-black font-mono text-primary-500 leading-none">
               {{ formatNumber(cashBalance) }}<span class="text-xs ml-1 font-bold">원</span>
             </p>
           </div>
@@ -151,7 +151,7 @@
           <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-heroicons-banknotes" class="text-brand-blue" />
+                <UIcon name="i-heroicons-banknotes" class="text-primary-500" />
                 자금 정보 {{ isEditing ? '수정' : '등록' }}
               </h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
@@ -181,7 +181,7 @@
                     v-model="initialBalanceStr"
                     type="text"
                     placeholder="0"
-                    class="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-xl text-gray-900 dark:text-white"
+                    class="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-xl text-gray-900 dark:text-white"
                     @input="onBalanceInput"
                   />
                   <span class="absolute right-4 top-3 text-gray-500 font-bold">원</span>
@@ -363,7 +363,7 @@ const getFundIcon = (f: any) => {
 
 const getFundIconBg = (f: any) => {
   if (f.name.includes('현금') || f.category?.includes('현금')) return 'bg-green-500'
-  if (f.category?.includes('적금') || f.category?.includes('예금')) return 'bg-blue-500'
+  if (f.category?.includes('적금') || f.category?.includes('예금')) return 'bg-primary-500'
   return 'bg-purple-500'
 }
 

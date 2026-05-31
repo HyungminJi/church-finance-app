@@ -19,7 +19,7 @@
             </div>
 
             <div class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border dark:border-gray-700">
-              <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-brand-blue" />
+              <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-primary-500" />
               <span>목록 개수</span>
               <USelectMenu v-model="pageSize" :items="pageSizeOptions" variant="none" class="w-16 font-mono font-black" size="sm" />
             </div>
@@ -28,8 +28,8 @@
           <!-- 요약 통계 카드 (개선된 대시보드형) -->
           <div v-if="activeDonorTab === 'MEMBER'" class="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
             <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-              <div class="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <UIcon name="i-heroicons-users" class="w-5 h-5 text-brand-blue" />
+              <div class="p-2.5 bg-primary-50 dark:bg-primary-900/30 rounded-lg">
+                <UIcon name="i-heroicons-users" class="w-5 h-5 text-primary-500" />
               </div>
               <div>
                 <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">누적 등록</p>
@@ -42,7 +42,7 @@
               </div>
               <div>
                 <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">출석 성도</p>
-                <p class="text-lg font-black font-mono text-brand-blue">{{ formatNumber(globalStats?.current || 0) }}</p>
+                <p class="text-lg font-black font-mono text-primary-500">{{ formatNumber(globalStats?.current || 0) }}</p>
               </div>
             </div>
             <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
@@ -54,13 +54,13 @@
                 <p class="text-lg font-black font-mono text-red-500">{{ formatNumber(globalStats?.removed || 0) }}</p>
               </div>
             </div>
-            <div class="bg-brand-blue/5 dark:bg-blue-900/10 p-4 rounded-xl border-2 border-brand-blue/20 shadow-sm flex items-center gap-4">
-              <div class="p-2.5 bg-brand-blue rounded-lg">
+            <div class="bg-primary-500/5 dark:bg-primary-900/10 p-4 rounded-xl border-2 border-primary-500/20 shadow-sm flex items-center gap-4">
+              <div class="p-2.5 bg-primary-500 rounded-lg">
                 <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-white" />
               </div>
               <div>
-                <p class="text-[10px] text-brand-blue font-black uppercase tracking-wider">현재 조회 결과</p>
-                <p class="text-lg font-black font-mono text-brand-blue">{{ formatNumber(paginationInfo.totalCount) }}</p>
+                <p class="text-[10px] text-primary-500 font-black uppercase tracking-wider">현재 조회 결과</p>
+                <p class="text-lg font-black font-mono text-primary-500">{{ formatNumber(paginationInfo.totalCount) }}</p>
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@
           <div class="p-6 space-y-4 bg-white dark:bg-gray-900 rounded-lg shadow-xl">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-3 mb-2">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                <UIcon :name="activeDonorTab === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="mr-2 text-brand-blue" />
+                <UIcon :name="activeDonorTab === 'MEMBER' ? 'i-heroicons-user' : 'i-heroicons-user-group'" class="mr-2 text-primary-500" />
                 {{ activeDonorLabel }} {{ isEditing ? '정보 수정' : '신규 등록' }}
               </h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
@@ -232,7 +232,7 @@
                 <div v-if="isEditing" class="col-span-2 border-t dark:border-gray-800 pt-4 mt-2 space-y-4">
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-bold flex items-center gap-2">
-                      <UIcon name="i-heroicons-shield-check" class="text-brand-blue" />
+                      <UIcon name="i-heroicons-shield-check" class="text-primary-500" />
                       시스템 로그인 권한
                     </label>
                     <UCheckbox v-model="hasAuth" :disabled="isRoleLocked" label="권한 부여됨" />

@@ -84,9 +84,9 @@
                 <td class="px-4 py-3 whitespace-nowrap font-mono font-bold text-gray-500">{{ acnt.code }}</td>
                 <td class="px-4 py-3 whitespace-nowrap font-black text-gray-900 dark:text-white" colspan="8">
                   <div class="flex items-center gap-2">
-                    <UIcon :name="acnt.level === 1 ? 'i-heroicons-folder' : 'i-heroicons-document-text'" :class="acnt.level === 1 ? 'text-yellow-500' : 'text-blue-400'" />
+                    <UIcon :name="acnt.level === 1 ? 'i-heroicons-folder' : 'i-heroicons-document-text'" :class="acnt.level === 1 ? 'text-yellow-500' : 'text-primary-400'" />
                     {{ acnt.name }}
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border" :class="acnt.type === 'INCOME' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-red-50 text-red-600 border-red-200'">
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border" :class="acnt.type === 'INCOME' ? 'bg-primary-50 text-primary-600 border-primary-200' : 'bg-red-50 text-red-600 border-red-200'">
                       {{ acnt.type === 'INCOME' ? '수입' : '지출' }}
                     </span>
                   </div>
@@ -94,13 +94,13 @@
               </tr>
               
               <!-- 상세 수치 (누계 행) -->
-              <tr class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+              <tr class="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors">
                 <td colspan="2"></td>
                 <td class="px-4 py-2 text-center text-xs font-bold text-gray-400 uppercase">이월/기간/누계</td>
                 <td class="px-4 py-2 text-right font-mono font-bold text-slate-600 dark:text-slate-400">
                   {{ formatCurrency(acnt.budget) }}
                 </td>
-                <td class="px-4 py-2 text-right font-mono font-bold text-blue-600">
+                <td class="px-4 py-2 text-right font-mono font-bold text-primary-600">
                   {{ formatCurrency(acnt.totalExec) }}
                 </td>
                 <td class="px-4 py-2 text-right font-mono font-bold" :class="acnt.rate > 100 ? 'text-red-500' : 'text-green-600'">
@@ -109,7 +109,7 @@
                 <td class="px-4 py-2 text-right font-mono font-bold text-red-500">
                   {{ formatCurrency(acnt.totalDebit) }}
                 </td>
-                <td class="px-4 py-2 text-right font-mono font-bold text-blue-500">
+                <td class="px-4 py-2 text-right font-mono font-bold text-primary-500">
                   {{ formatCurrency(acnt.totalCredit) }}
                 </td>
                 <td class="px-4 py-2 text-right font-mono font-black text-gray-900 dark:text-white bg-slate-50/50 dark:bg-slate-900/20">

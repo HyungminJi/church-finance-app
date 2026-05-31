@@ -20,7 +20,7 @@
           </div>
 
           <div class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border dark:border-gray-700">
-            <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-brand-blue" />
+            <UIcon name="i-heroicons-list-bullet" class="w-4 h-4 text-primary-500" />
             <span>목록 개수</span>
             <USelectMenu v-model="pageSize" :items="pageSizeOptions" variant="none" class="w-16 font-mono font-black" size="sm" />
           </div>
@@ -80,7 +80,7 @@
                     <span class="text-xs text-gray-400 font-mono">{{ t.account_code }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono" :class="t.account_type === 'INCOME' ? 'text-brand-blue' : 'text-red-500'">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono" :class="t.account_type === 'INCOME' ? 'text-primary-500' : 'text-red-500'">
                   {{ formatNumber(t.amount) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -115,7 +115,7 @@
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-6">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-4">
               <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-heroicons-pencil-square" class="text-brand-blue" />
+                <UIcon name="i-heroicons-pencil-square" class="text-primary-500" />
                 새 전표 작성
               </h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
@@ -169,7 +169,7 @@
               </UFormField>
 
               <!-- 헌금자/지출처 검색 영역 (통합) -->
-              <div class="col-span-2 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30">
+              <div class="col-span-2 p-4 bg-primary-50/50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/30">
                 <UFormField :label="form.type === 'INCOME' ? '헌금자 (매핑)' : '지출처 (매핑)'">
                   <div class="flex space-x-2">
                     <div class="relative flex-1">
@@ -188,7 +188,7 @@
                     v-model="formAmountStr"
                     type="text"
                     placeholder="0"
-                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
+                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
                     @input="onAmountInput"
                   />
                   <span class="absolute right-4 top-2.5 text-gray-500 font-bold">원</span>

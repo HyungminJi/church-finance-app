@@ -6,7 +6,7 @@
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div class="space-y-1">
           <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-cloud-arrow-up" class="text-brand-blue" />
+            <UIcon name="i-heroicons-cloud-arrow-up" class="text-primary-500" />
             헌금 전표 대량 업로드
           </h2>
           <p class="text-sm text-gray-500">엑셀 파일을 활용하여 다수의 헌금 내역을 한 번에 등록하세요.</p>
@@ -28,8 +28,8 @@
       <div v-if="parsedData.length > 0" class="space-y-4 animate-in fade-in slide-in-from-top-2">
         <div class="flex justify-between items-end">
           <div class="flex gap-4">
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800">
-              <span class="text-xs text-blue-600 dark:text-blue-400 font-bold block mb-1">총 건수</span>
+            <div class="bg-primary-50 dark:bg-primary-900/20 px-4 py-2 rounded-lg border border-primary-100 dark:border-primary-800">
+              <span class="text-xs text-primary-600 dark:text-primary-400 font-bold block mb-1">총 건수</span>
               <span class="text-lg font-black font-mono">{{ formatNumber(parsedData.length) }}건</span>
             </div>
             <div class="bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-lg border border-green-100 dark:border-green-800">
@@ -92,7 +92,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <div class="flex flex-col">
                     <span :class="!row.account_code ? 'text-red-500 font-bold' : ''">{{ row.excel_type }}</span>
-                    <span v-if="row.account_code" class="text-[10px] text-blue-500">{{ row.account_name }} ({{ row.account_code }})</span>
+                    <span v-if="row.account_code" class="text-[10px] text-primary-500">{{ row.account_name }} ({{ row.account_code }})</span>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold font-mono">
@@ -118,7 +118,7 @@
         class="group bg-white dark:bg-gray-800 rounded-2xl border-4 border-dashed py-32 flex flex-col items-center justify-center space-y-6 transition-all duration-300 relative overflow-hidden"
         :class="[
           isDragging 
-            ? 'border-brand-blue bg-blue-50/50 dark:bg-blue-900/20 scale-[1.01]' 
+            ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/20 scale-[1.01]' 
             : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
         ]"
         @dragover.prevent="isDragging = true"
@@ -135,7 +135,7 @@
           <UIcon 
             :name="isDragging ? 'i-heroicons-arrow-down-tray' : 'i-heroicons-document-text'" 
             class="w-10 h-10 transition-colors duration-300"
-            :class="isDragging ? 'text-brand-blue' : 'text-gray-300'"
+            :class="isDragging ? 'text-primary-500' : 'text-gray-300'"
           />
         </div>
 

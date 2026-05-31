@@ -7,7 +7,7 @@
         <div class="flex justify-between items-center">
           <div class="space-y-1">
             <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-heroicons-user-group" class="text-brand-blue" />
+              <UIcon name="i-heroicons-user-group" class="text-primary-500" />
               작정헌금 관리 현황
             </h2>
             <p class="text-sm text-gray-500">성도별 약정 금액 대비 실제 납부 현황을 실시간으로 확인합니다.</p>
@@ -54,7 +54,7 @@
             </div>
             <div class="flex flex-col border-l dark:border-gray-700 pl-8">
               <span class="text-[10px] font-bold text-gray-400 uppercase">전체 납부 총액</span>
-              <span class="text-sm font-black text-brand-blue">{{ formatNumber(selectedCampaign.total_collected) }}원</span>
+              <span class="text-sm font-black text-primary-500">{{ formatNumber(selectedCampaign.total_collected) }}원</span>
             </div>
             <div class="flex flex-col border-l dark:border-gray-700 pl-8">
               <span class="text-[10px] font-bold text-gray-400 uppercase">전체 달성률</span>
@@ -91,7 +91,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-600 dark:text-gray-400 font-mono">
                   {{ formatNumber(p.pledge_amount) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black text-brand-blue font-mono">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black text-primary-500 font-mono">
                   {{ formatNumber(p.total_paid) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold font-mono" :class="p.pledge_amount - p.total_paid > 0 ? 'text-red-500' : 'text-gray-400'">
@@ -129,7 +129,7 @@
           <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-xl space-y-6">
             <div class="flex items-center justify-between border-b dark:border-gray-800 pb-4">
               <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-heroicons-user-plus" class="text-brand-blue" />
+                <UIcon name="i-heroicons-user-plus" class="text-primary-500" />
                 {{ isEditing ? '약정 수정' : '약정 등록' }}
               </h3>
               <UButton class="cursor-pointer" type="button" color="neutral" variant="ghost" icon="i-heroicons-x-mark" @click="isModalOpen = false" />
@@ -149,7 +149,7 @@
                     v-model="formAmountStr"
                     type="text"
                     placeholder="0"
-                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
+                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
                     @input="onAmountInput"
                   />
                   <span class="absolute right-4 top-2.5 text-gray-500 font-bold">원</span>

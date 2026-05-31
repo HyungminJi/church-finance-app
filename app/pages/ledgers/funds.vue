@@ -94,7 +94,7 @@
                 v-model="transferAmountStr"
                 type="text"
                 placeholder="0"
-                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
+                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-700 text-right font-black font-mono text-lg text-gray-900 dark:text-white"
                 @input="onTransferAmountInput"
               />
               <span class="absolute right-4 top-2.5 text-gray-500 font-bold">원</span>
@@ -117,7 +117,7 @@
     <div id="printable-funds" class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
       <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
         <h3 class="text-sm font-black text-gray-800 dark:text-gray-200 flex items-center gap-2">
-          <UIcon name="i-heroicons-banknotes" class="text-brand-blue" />
+          <UIcon name="i-heroicons-banknotes" class="text-primary-500" />
           자금명세서 ({{ startDate }} ~ {{ endDate }})
         </h3>
         <div v-if="reportItems.length > 0" class="text-xs font-bold text-gray-500">
@@ -146,13 +146,13 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800">
-            <tr v-for="item in reportItems" :key="item.id" class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+            <tr v-for="item in reportItems" :key="item.id" class="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors">
               <td class="px-4 py-3 whitespace-nowrap text-gray-500 font-medium">{{ item.book_type }}</td>
               <td class="px-4 py-3 whitespace-nowrap font-bold text-gray-900 dark:text-white">{{ item.category }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ item.bank_name }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-gray-900 dark:text-gray-300 font-bold">{{ item.name }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-right font-mono font-bold">{{ formatNumber(item.carryOver) }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-right font-mono font-bold text-brand-blue">{{ formatNumber(item.income) }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-right font-mono font-bold text-primary-500">{{ formatNumber(item.income) }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-right font-mono font-bold text-red-500">{{ formatNumber(item.expense) }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-right font-mono font-black text-gray-900 dark:text-white">{{ formatNumber(item.balance) }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-gray-500 font-mono">{{ item.account_number }}</td>
@@ -166,7 +166,7 @@
             <tr v-if="reportItems.length > 0" class="bg-gray-50 dark:bg-gray-900/80 font-black border-t-2 border-gray-200 dark:border-gray-700 shadow-inner">
               <td colspan="4" class="px-4 py-4 text-center text-gray-900 dark:text-white text-sm tracking-[0.5em] pl-[0.5em]">총 계</td>
               <td class="px-4 py-4 text-right font-mono text-sm">{{ formatNumber(totals.carryOver) }}</td>
-              <td class="px-4 py-4 text-right font-mono text-sm text-brand-blue">{{ formatNumber(totals.income) }}</td>
+              <td class="px-4 py-4 text-right font-mono text-sm text-primary-500">{{ formatNumber(totals.income) }}</td>
               <td class="px-4 py-4 text-right font-mono text-sm text-red-500">{{ formatNumber(totals.expense) }}</td>
               <td class="px-4 py-4 text-right font-mono text-base bg-white dark:bg-gray-800 rounded shadow-sm">{{ formatNumber(totals.balance) }}</td>
               <td colspan="2"></td>
