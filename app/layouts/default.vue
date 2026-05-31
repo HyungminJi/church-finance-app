@@ -30,7 +30,7 @@
             :class="[
               isPathActive(item.path) 
                 ? 'bg-brand-blue/10 text-brand-blue font-bold shadow-sm' 
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-slate-100'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-brand-blue dark:hover:text-brand-blue'
             ]"
           >
             <UIcon 
@@ -191,6 +191,30 @@ const themeStyle = computed(() => {
     '--theme-900': s['900'],
     '--theme-950': s['950'],
   }
+})
+
+// CSS 변수를 :root 레벨에 직접 주입하여 호버 및 Nuxt UI 전역에서 참조 가능하게 함
+useHead({
+  style: [
+    {
+      innerHTML: computed(() => `
+        :root {
+          --theme-main: ${themeStyle.value['--theme-main']};
+          --theme-rgb: ${themeStyle.value['--theme-rgb']};
+          --theme-50: ${themeStyle.value['--theme-50']};
+          --theme-100: ${themeStyle.value['--theme-100']};
+          --theme-200: ${themeStyle.value['--theme-200']};
+          --theme-300: ${themeStyle.value['--theme-300']};
+          --theme-400: ${themeStyle.value['--theme-400']};
+          --theme-600: ${themeStyle.value['--theme-600']};
+          --theme-700: ${themeStyle.value['--theme-700']};
+          --theme-800: ${themeStyle.value['--theme-800']};
+          --theme-900: ${themeStyle.value['--theme-900']};
+          --theme-950: ${themeStyle.value['--theme-950']};
+        }
+      `).value
+    }
+  ]
 })
 
 const roleInfo = computed(() => {
