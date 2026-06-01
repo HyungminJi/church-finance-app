@@ -65,7 +65,7 @@
                   <UIcon name="i-heroicons-arrow-trending-up" class="text-blue-500" />
                   수 입 부 (INCOME)
                 </span>
-                <span v-if="meta" class="text-xs font-mono bg-primary-100 dark:bg-primary-800 px-2 py-0.5 rounded text-primary-700 dark:text-primary-200">
+                <span v-if="meta" class="text-xs font-mono bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded text-blue-700 dark:text-blue-200">
                   합계: {{ formatNumber(meta.total_income_actual) }}
                 </span>
               </div>
