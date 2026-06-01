@@ -63,12 +63,12 @@
         </div>
         
         <div class="h-64 flex items-end justify-between gap-2 px-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-          <div v-for="s in statsData" :key="s.month" class="flex-1 flex flex-col items-center group relative">
+          <div v-for="s in statsData" :key="s.month" class="flex-1 h-full flex flex-col items-center justify-end group relative">
             <div class="absolute -top-12 scale-0 group-hover:scale-100 transition-transform bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap z-10 font-bold shadow-xl">
               {{ formatNumber(s.amount) }}원
             </div>
             <div 
-              class="w-full max-w-[40px] bg-primary-500/20 group-hover:bg-primary-500 rounded-t-sm transition-all duration-700 ease-out relative"
+              class="w-full max-w-[40px] bg-blue-500/20 group-hover:bg-blue-500 rounded-t-sm transition-all duration-700 ease-out relative"
               :style="{ height: getBarHeight(s.amount) + '%' }"
             >
               <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-blue-500 shadow-[0_0_10px_#3cafff]"></div>

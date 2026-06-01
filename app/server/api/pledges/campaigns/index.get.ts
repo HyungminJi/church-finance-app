@@ -26,10 +26,9 @@ export default defineEventHandler(async (event) => {
         'pc.target_amount',
         'pc.account_code',
         'a.name as account_name',
-        'pc.is_active',
-        // 해당 캠페인 기간 내에 계정으로 들어온 트랜잭션 합계
-        sql<number>`COALESCE(SUM(t.amount), 0)`.as('total_collected')
+        'pc.is_active'
       ])
+      .select(sql<number>`COALESCE(SUM(t.amount), 0)`.as('total_collected'))
       .$if(event.context.userRole !== 0, (qb) => qb.where('pc.church_id', '=', event.context.churchId || session.user.church_id))
       .groupBy(['pc.id', 'pc.name', 'pc.description', 'pc.start_date', 'pc.end_date', 'pc.target_amount', 'pc.account_code', 'a.name', 'pc.is_active'])
       .orderBy('pc.created_at', 'desc')

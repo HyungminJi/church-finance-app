@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
       }
 
       // 총 개수 조회 (페이징용)
-      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(sql<number>`count(d.id)`.as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       // 데이터 조회
@@ -141,7 +141,7 @@ export default defineEventHandler(async (event) => {
         baseQuery = baseQuery.where('cg.is_active', '=', isActive === 'true')
       }
 
-      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(sql<number>`count(d.id)`.as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       const results = await baseQuery
@@ -202,7 +202,7 @@ export default defineEventHandler(async (event) => {
         baseQuery = baseQuery.where('o.org_type', 'ilike', `%${orgType}%`)
       }
 
-      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(sql<number>`count(d.id)`.as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       const results = await baseQuery
