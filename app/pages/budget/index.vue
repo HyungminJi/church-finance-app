@@ -41,7 +41,7 @@
                 <div :style="{ paddingLeft: (item.level * 24) + 'px' }" class="flex items-center">
                   <UIcon :name="item.level < 2 ? 'i-heroicons-folder' : 'i-heroicons-document-text'" 
                          class="w-4 h-4 mr-2" 
-                         :class="item.level < 2 ? 'text-primary-500' : 'text-gray-400'" />
+                         :class="item.level < 2 ? 'text-blue-500' : 'text-gray-400'" />
                   <span :class="{'font-bold': item.level < 2}">{{ item.name }}</span>
                 </div>
               </td>
@@ -56,7 +56,7 @@
                     size="sm"
                   />
                 </div>
-                <span v-else class="font-bold font-mono text-primary-500">{{ formatNumber(item.thisYearBudget) }}</span>
+                <span v-else class="font-bold font-mono text-blue-500">{{ formatNumber(item.thisYearBudget) }}</span>
               </td>
               <td class="px-6 py-4 text-right font-mono font-bold" :class="getChangeColor(item.thisYearBudget - item.lastYearBudget)">
                 {{ formatNumber(item.thisYearBudget - item.lastYearBudget) }}
@@ -77,7 +77,7 @@
         <div class="flex items-center gap-12">
           <div class="flex flex-col">
             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">수입 총계 ({{ props.selectedYear }})</span>
-            <span class="text-xl font-black font-mono text-primary-500">{{ formatNumber(totalThisYear) }}</span>
+            <span class="text-xl font-black font-mono text-blue-500">{{ formatNumber(totalThisYear) }}</span>
           </div>
           <div class="flex flex-col border-l border-slate-700 pl-8">
             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">전년 대비 증감</span>
@@ -196,7 +196,7 @@ const totalLastYear = computed(() => {
 })
 
 const getChangeColor = (change: number) => {
-  if (change > 0) return 'text-primary-400'
+  if (change > 0) return 'text-blue-500'
   if (change < 0) return 'text-red-400'
   return 'text-slate-400'
 }

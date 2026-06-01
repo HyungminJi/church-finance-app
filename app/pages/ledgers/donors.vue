@@ -58,7 +58,7 @@
     <div v-if="meta" class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
       <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4">
         <div class="p-3 bg-primary-50 dark:bg-primary-900/30 rounded-full">
-          <UIcon name="i-heroicons-users" class="w-6 h-6 text-primary-500" />
+          <UIcon name="i-heroicons-users" class="w-6 h-6 text-blue-500" />
         </div>
         <div>
           <p class="text-xs text-gray-500 font-bold">총 헌금 건수</p>
@@ -71,7 +71,7 @@
         </div>
         <div>
           <p class="text-xs text-gray-500 font-bold">기간 합계 금액</p>
-          <p class="text-xl font-black font-mono text-primary-500">{{ formatNumber(meta.totalAmount) }}<span class="text-xs ml-1">원</span></p>
+          <p class="text-xl font-black font-mono text-blue-500">{{ formatNumber(meta.totalAmount) }}<span class="text-xs ml-1">원</span></p>
         </div>
       </div>
       <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4">
@@ -127,7 +127,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">
                 {{ t.account_name }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono text-primary-500">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono text-blue-500">
                 {{ formatNumber(t.amount) }}
               </td>
               <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" :title="t.description || ''">
@@ -142,7 +142,7 @@
           <tfoot v-if="donorsData.length > 0" class="bg-gray-50 dark:bg-gray-900/50 font-bold border-t-2">
             <tr>
               <td colspan="4" class="px-6 py-4 text-center text-sm uppercase tracking-widest">합 계</td>
-              <td class="px-6 py-4 text-right text-sm font-mono text-primary-500">{{ formatNumber(meta?.totalAmount) }}</td>
+              <td class="px-6 py-4 text-right text-sm font-mono text-blue-500">{{ formatNumber(meta?.totalAmount) }}</td>
               <td></td>
             </tr>
           </tfoot>

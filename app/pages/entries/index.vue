@@ -70,7 +70,7 @@
               <tr v-for="t in transactions" :key="t.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ formatDate(t.transaction_date) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  <UBadge :color="t.account_type === 'INCOME' ? 'primary' : 'error'" variant="subtle" class="font-bold">
+                  <UBadge :color="t.account_type === 'INCOME' ? 'info' : 'error'" variant="subtle" class="font-bold">
                     {{ t.account_type === 'INCOME' ? '수입' : '지출' }}
                   </UBadge>
                 </td>
@@ -169,7 +169,8 @@
               </UFormField>
 
               <!-- 헌금자/지출처 검색 영역 (통합) -->
-              <div class="col-span-2 p-4 bg-primary-50/50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/30">
+              <div class="col-span-2 p-4 rounded-xl border transition-colors"
+                   :class="form.type === 'INCOME' ? 'bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'">
                 <UFormField :label="form.type === 'INCOME' ? '헌금자 (매핑)' : '지출처 (매핑)'">
                   <div class="flex space-x-2">
                     <div class="relative flex-1">
@@ -256,7 +257,7 @@ const ui = useUIStore()
 
 const typeTabs = [
   { label: '전체', value: 'ALL', color: 'neutral' as const },
-  { label: '수입 (헌금)', value: 'INCOME', color: 'primary' as const },
+  { label: '수입 (헌금)', value: 'INCOME', color: 'info' as const },
   { label: '지출', value: 'EXPENSE', color: 'error' as const }
 ]
 
@@ -482,3 +483,4 @@ const downloadExcel = async () => {
   z-index: 30;
 }
 </style>
+e>

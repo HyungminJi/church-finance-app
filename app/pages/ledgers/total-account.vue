@@ -86,7 +86,7 @@
                   <div class="flex items-center gap-2">
                     <UIcon :name="acnt.level === 1 ? 'i-heroicons-folder' : 'i-heroicons-document-text'" :class="acnt.level === 1 ? 'text-yellow-500' : 'text-primary-400'" />
                     {{ acnt.name }}
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border" :class="acnt.type === 'INCOME' ? 'bg-primary-50 text-primary-600 border-primary-200' : 'bg-red-50 text-red-600 border-red-200'">
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border" :class="acnt.type === 'INCOME' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-red-50 text-red-600 border-red-200'">
                       {{ acnt.type === 'INCOME' ? '수입' : '지출' }}
                     </span>
                   </div>
@@ -100,7 +100,7 @@
                 <td class="px-4 py-2 text-right font-mono font-bold text-slate-600 dark:text-slate-400">
                   {{ formatCurrency(acnt.budget) }}
                 </td>
-                <td class="px-4 py-2 text-right font-mono font-bold text-primary-600">
+                <td class="px-4 py-2 text-right font-mono font-bold text-blue-600">
                   {{ formatCurrency(acnt.totalExec) }}
                 </td>
                 <td class="px-4 py-2 text-right font-mono font-bold" :class="acnt.rate > 100 ? 'text-red-500' : 'text-green-600'">
@@ -232,3 +232,4 @@ onMounted(() => {
   fetchLedger()
 })
 </script>
+t>

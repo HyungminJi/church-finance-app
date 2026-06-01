@@ -46,7 +46,7 @@
       <div class="lg:col-span-3 bg-white dark:bg-gray-800 shadow-md rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 flex flex-col h-fit">
         <div class="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
           <span class="text-sm font-black text-gray-700 dark:text-gray-300 flex items-center gap-2">
-            <UIcon name="i-heroicons-funnel" class="text-primary-500" />
+            <UIcon name="i-heroicons-funnel" class="text-blue-500" />
             집계 기준 선택
           </span>
         </div>
@@ -54,10 +54,10 @@
           <ul class="space-y-1">
             <li v-for="m in statModes" :key="m.id" 
                 class="p-3 flex items-center gap-3 rounded-lg cursor-pointer transition-all duration-200 group"
-                :class="mode === m.id ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-500 font-black border border-primary-100 dark:border-primary-800' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400'"
+                :class="mode === m.id ? 'bg-primary-50 dark:bg-primary-900/30 text-blue-500 font-black border border-primary-100 dark:border-primary-800' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400'"
                 @click="changeMode(m.id)"
             >
-              <UIcon :name="m.icon" class="w-5 h-5" :class="mode === m.id ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-600'" />
+              <UIcon :name="m.icon" class="w-5 h-5" :class="mode === m.id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600'" />
               <span class="text-sm">{{ m.label }}</span>
               <UIcon v-if="mode === m.id" name="i-heroicons-check-circle" class="ml-auto w-4 h-4" />
             </li>
@@ -71,7 +71,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-6">
             <div class="p-4 bg-primary-50 dark:bg-primary-900/30 rounded-2xl">
-              <UIcon name="i-heroicons-banknotes" class="w-8 h-8 text-primary-500" />
+              <UIcon name="i-heroicons-banknotes" class="w-8 h-8 text-blue-500" />
             </div>
             <div>
               <p class="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">기간 총 헌금액</p>
@@ -86,7 +86,7 @@
             </div>
             <div>
               <p class="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">전체 집계 건수</p>
-              <p class="text-3xl font-black font-mono text-primary-500 leading-none">
+              <p class="text-3xl font-black font-mono text-blue-500 leading-none">
                 {{ formatNumber(totalCount) }}<span class="text-sm ml-1 font-bold text-gray-400">건</span>
               </p>
             </div>
@@ -101,7 +101,7 @@
 
           <div class="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
-              <UIcon name="i-heroicons-chart-bar" class="text-primary-500" />
+              <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
               {{ currentModeLabel }}별 분석 결과
             </h3>
             <span class="text-[10px] font-bold text-gray-400 px-2 py-1 bg-white dark:bg-gray-800 rounded border dark:border-gray-700">단위: 원, 건</span>
@@ -122,7 +122,7 @@
                 <tr v-for="(item, idx) in statData" :key="idx" class="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors group">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">{{ item.label }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500 font-mono">{{ formatNumber(item.count) }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-primary-500 font-black">{{ formatNumber(item.amount) }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-blue-500 font-black">{{ formatNumber(item.amount) }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-bold text-gray-700 dark:text-gray-300">
                     {{ calculateRate(item.amount) }}%
                   </td>
@@ -150,7 +150,7 @@
                  :style="{ background: generateConicGradient() }"></div>
             <div class="absolute inset-8 bg-white dark:bg-gray-800 rounded-full flex flex-col items-center justify-center shadow-inner">
               <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">비중 분석</span>
-              <span class="text-xl font-black text-primary-500">TOP {{ statData.length > 5 ? 5 : statData.length }}</span>
+              <span class="text-xl font-black text-blue-500">TOP {{ statData.length > 5 ? 5 : statData.length }}</span>
             </div>
           </div>
           

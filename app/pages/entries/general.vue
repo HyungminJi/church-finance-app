@@ -77,7 +77,7 @@
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="(item, index) in generalEntries" :key="index">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.date }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" :class="item.type === '수입' ? 'text-primary-600' : 'text-red-600'">{{ item.type }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" :class="item.type === '수입' ? 'text-blue-600' : 'text-red-600'">{{ item.type }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ item.category }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.note }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold">{{ item.amount }}</td>

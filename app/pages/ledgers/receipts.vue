@@ -116,7 +116,7 @@
             <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
               <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">성함</p><p class="text-sm font-black">{{ selectedDonor.name }}</p></div>
               <div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">대상 연도</p><p class="text-sm font-black">{{ selectedYear }}년</p></div>
-              <div class="col-span-2 border-t dark:border-gray-700 pt-3 mt-1"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">총 기부금액</p><p class="text-xl font-black text-primary-500 font-mono">{{ formatNumber(selectedDonor.total_amount) }}원</p></div>
+              <div class="col-span-2 border-t dark:border-gray-700 pt-3 mt-1"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">총 기부금액</p><p class="text-xl font-black text-blue-500 font-mono">{{ formatNumber(selectedDonor.total_amount) }}원</p></div>
             </div>
 
             <div class="space-y-4 pt-2">

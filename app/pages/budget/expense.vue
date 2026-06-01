@@ -196,7 +196,7 @@ const totalLastYear = computed(() => {
 
 const getChangeColor = (change: number) => {
   if (change > 0) return 'text-red-400'
-  if (change < 0) return 'text-primary-400'
+  if (change < 0) return 'text-blue-500'
   return 'text-slate-400'
 }
 
