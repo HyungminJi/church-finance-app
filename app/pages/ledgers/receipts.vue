@@ -188,13 +188,13 @@
             <tr><td colspan="4" class="td-section-title">2. 기부금 단체</td></tr>
             <tr>
               <td class="td-label" style="letter-spacing: 5px;">교 회 명</td>
-              <td class="td-center">대한예수교장로회 창세교회</td>
+              <td class="td-center">{{ churchInfo?.name || '대한예수교장로회 창세교회' }}</td>
               <td class="td-label">교회고유번호</td>
-              <td class="td-center">224-82-70302</td>
+              <td class="td-center">{{ churchInfo?.registration_number || '224-82-70302' }}</td>
             </tr>
             <tr>
               <td class="td-label" style="letter-spacing: 5px;">소 재 지</td>
-              <td colspan="3" class="td-center">군포시 번영로 557번길 42(금정동)</td>
+              <td colspan="3" class="td-center">{{ churchInfo?.address || '군포시 번영로 557번길 42(금정동)' }}</td>
             </tr>
 
             <tr><td colspan="4" class="td-section-title">3. 기부내용</td></tr>
@@ -245,9 +245,10 @@
                   <div class="receipt-sign-row">
                     <p>{{ formatDate(new Date()) }}</p>
                     <div class="seal-container" style="margin-top: 10px;">
-                      <p class="receipt-church-name">대한예수교장로회 창세교회</p>
-                      <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; 남 명 철 &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
-                      <div class="seal-stamp">직인</div>
+                      <p class="receipt-church-name">{{ churchInfo?.name || '우리교회' }}</p>
+                      <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; {{ churchInfo?.representative_name || '-' }} &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
+                      <img v-if="churchInfo?.seal_image_path" :src="churchInfo.seal_image_path" class="seal-stamp-img" />
+                      <div v-else class="seal-stamp">직인</div>
                     </div>
                   </div>
                 </div>
@@ -273,6 +274,10 @@ const currentYear = new Date().getFullYear()
 const selectedYear = ref(currentYear)
 const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
 const keyword = ref('')
+
+// 현재 교회 정보 조회 (로고, 직인, 주소 등)
+const { data: churchRes } = await useFetch('/api/churches/current')
+const churchInfo = computed(() => (churchRes.value as any)?.data || null)
 
 const { data: response, pending, refresh } = await useFetch('/api/reports/receipts', {
   query: computed(() => ({ year: selectedYear.value, keyword: keyword.value })),
@@ -372,6 +377,7 @@ const downloadPDF = async (donor: any) => {
     .receipt-pastor-name { font-size: 14pt; margin-right: 60px; }
     .seal-container { position: relative; display: inline-block; text-align: right; }
     .seal-stamp { position: absolute; right: 0; top: -10px; width: 70px; height: 70px; border: 2px solid red; border-radius: 50%; color: red; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16pt; transform: rotate(15deg); }
+    .seal-stamp-img { position: absolute; right: -5px; top: -25px; width: 80px; height: 80px; object-fit: contain; }
   `
 
   const htmlContent = `
@@ -405,13 +411,13 @@ const downloadPDF = async (donor: any) => {
           <tr><td colspan="4" class="td-section-title">2. 기부금 단체</td></tr>
           <tr>
             <td class="td-label" style="letter-spacing: 5px;">교 회 명</td>
-            <td class="td-center">대한예수교장로회 창세교회</td>
+            <td class="td-center">${churchInfo.value?.name || '우리교회'}</td>
             <td class="td-label">교회고유번호</td>
-            <td class="td-center">224-82-70302</td>
+            <td class="td-center">${churchInfo.value?.registration_number || '-'}</td>
           </tr>
           <tr>
             <td class="td-label" style="letter-spacing: 5px;">소 재 지</td>
-            <td colspan="3" class="td-center">군포시 번영로 557번길 42(금정동)</td>
+            <td colspan="3" class="td-center">${churchInfo.value?.address || '-'}</td>
           </tr>
 
           <tr><td colspan="4" class="td-section-title">3. 기부내용</td></tr>
@@ -459,9 +465,12 @@ const downloadPDF = async (donor: any) => {
                 <div class="receipt-sign-row">
                   <p>${formatDate(new Date())}</p>
                   <div class="seal-container" style="margin-top: 10px;">
-                    <p class="receipt-church-name">대한예수교장로회 창세교회</p>
-                    <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; 남 명 철 &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
-                    <div class="seal-stamp">직인</div>
+                    <p class="receipt-church-name">${churchInfo.value?.name || '대한예수교장로회 창세교회'}</p>
+                    <p class="receipt-pastor-name">담임교역자 &nbsp;&nbsp;&nbsp; ${churchInfo.value?.representative_name || '남 명 철'} &nbsp;&nbsp;&nbsp; 목사 &nbsp;&nbsp; (인)</p>
+                    ${churchInfo.value?.seal_image_path 
+                      ? `<img src="${churchInfo.value.seal_image_path}" class="seal-stamp-img" />` 
+                      : `<div class="seal-stamp">직인</div>`
+                    }
                   </div>
                 </div>
               </div>
@@ -584,6 +593,7 @@ onMounted(() => refresh())
 .receipt-pastor-name { font-size: 14pt; margin-right: 60px; }
 .seal-container { position: relative; display: inline-block; text-align: right; }
 .seal-stamp { position: absolute; right: 0; top: -10px; width: 70px; height: 70px; border: 2px solid red; border-radius: 50%; color: red; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16pt; transform: rotate(15deg); }
+.seal-stamp-img { position: absolute; right: -5px; top: -25px; width: 80px; height: 80px; object-fit: contain; }
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
