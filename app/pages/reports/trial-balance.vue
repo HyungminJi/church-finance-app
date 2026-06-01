@@ -12,7 +12,7 @@
       <div class="flex items-center gap-2">
         <div v-if="!pending && trialItems.length > 0" class="mr-4 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700 flex items-center gap-2">
           <UIcon name="i-heroicons-check-circle" class="text-primary-600" />
-          <span class="text-xs font-bold text-primary-700 dark:text-primary-300">대차평균의 원리 일치 (정상)</span>
+          <span class="text-xs font-bold text-blue-700 dark:text-primary-300">대차평균의 원리 일치 (정상)</span>
         </div>
 
         <UButton 
@@ -77,7 +77,7 @@
                 <td colspan="2"></td>
               </tr>
 
-              <tr v-for="item in group.items" :key="item.code" class="hover:bg-primary-50/20 h-[22px] break-inside-avoid">
+              <tr v-for="item in group.items" :key="item.code" class="hover:bg-gray-50/50 h-[22px] break-inside-avoid">
                 <td class="px-2 text-right border-r border-gray-200 font-mono text-[12px]" :class="{'text-primary-600 font-bold': item.debitBalance > 0}">
                   {{ item.debitBalance > 0 ? formatNumber(item.debitBalance) : '' }}
                 </td>
@@ -98,7 +98,7 @@
               </tr>
 
               <tr class="font-bold bg-gray-50/50 h-[22px] border-t border-gray-300 break-inside-avoid">
-                <td class="px-2 text-right border-r border-gray-200 font-mono text-primary-700">{{ formatNumber(group.totals.debitBalance) }}</td>
+                <td class="px-2 text-right border-r border-gray-200 font-mono text-blue-700">{{ formatNumber(group.totals.debitBalance) }}</td>
                 <td class="px-2 text-right border-r border-gray-200 font-mono text-gray-500">{{ formatNumber(group.totals.debitTotal) }}</td>
                 <td class="text-center border-r border-gray-200 border-l border-gray-200 text-[12px] bg-gray-50/80 text-gray-500">[ {{ group.label }} 소계 ]</td>
                 <td class="px-2 text-right border-r border-gray-200 font-mono text-gray-500">{{ formatNumber(group.totals.creditTotal) }}</td>
@@ -267,7 +267,7 @@ const printReport = () => {
     
     .text-primary-900 { color: #1e3a8a !important; }
     .text-primary-800 { color: #1e40af !important; }
-    .text-primary-700 { color: #1d4ed8 !important; }
+    .text-blue-700 { color: #1d4ed8 !important; }
     .text-primary-600 { color: #2563eb !important; }
     .text-red-800 { color: #991b1b !important; }
     .text-red-700 { color: #b91c1c !important; }
@@ -387,3 +387,5 @@ onMounted(() => {
   }
 }
 </style>
+e>
+e>

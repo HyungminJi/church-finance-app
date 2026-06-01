@@ -99,14 +99,14 @@
 
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
           <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
-              <UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+              <UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <UBadge color="primary" variant="soft" class="font-bold">{{ summaryData?.targetMonth }}월</UBadge>
+            <UBadge color="info" variant="soft" class="font-bold">{{ summaryData?.targetMonth }}월</UBadge>
           </div>
           <div>
             <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">당월 수입 누계</p>
-            <p class="text-3xl font-black text-primary-600 dark:text-primary-400 font-mono tracking-tight">{{ formatNumber(summaryData?.monthlyIncome) }}<span class="text-base font-bold text-slate-400 ml-1">원</span></p>
+            <p class="text-3xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight">{{ formatNumber(summaryData?.monthlyIncome) }}<span class="text-base font-bold text-slate-400 ml-1">원</span></p>
           </div>
         </div>
 
@@ -179,3 +179,4 @@ const dashboardMode = computed(() => res.value?.mode || 'user')
 const summaryData = computed(() => res.value?.data || null)
 
 </script>
+t>
