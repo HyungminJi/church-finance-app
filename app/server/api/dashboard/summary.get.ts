@@ -32,13 +32,28 @@ export default defineEventHandler(async (event) => {
         .limit(5)
         .execute()
 
+      // 최근 6개월 가입 추이
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+      const startDateStr = `${sixMonthsAgo.getFullYear()}-${(sixMonthsAgo.getMonth() + 1).toString().padStart(2, '0')}-01`;
+
+      const monthlyGrowth = await db.selectFrom('churches')
+        .select(sql<string>`to_char(created_at, 'YYYY-MM')`.as('month'))
+        .select(db.fn.count<string>('id').as('count'))
+        .where('id', '!=', SYSTEM_CHURCH_ID)
+        .where('created_at', '>=', new Date(startDateStr))
+        .groupBy(sql`to_char(created_at, 'YYYY-MM')`)
+        .orderBy(sql`to_char(created_at, 'YYYY-MM')`, 'asc')
+        .execute()
+
       return {
         success: true,
         mode: 'platform',
         data: {
           totalChurches: Number(churchesResult?.total_churches || 0),
           totalUsers: Number(usersResult?.total_users || 0),
-          recentChurches
+          recentChurches,
+          monthlyGrowth
         }
       }
     }
@@ -84,12 +99,59 @@ export default defineEventHandler(async (event) => {
         .limit(5)
         .execute()
 
+      // 최근 6개월 헌금 추이
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+      const sixMonthsStartDate = `${sixMonthsAgo.getFullYear()}-${(sixMonthsAgo.getMonth() + 1).toString().padStart(2, '0')}-01`;
+
+      const monthlyDonations = await db.selectFrom('transactions as t')
+        .innerJoin('accounts as a', 't.account_code', 'a.code')
+        .select(sql<string>`to_char(t.transaction_date, 'YYYY-MM')`.as('month'))
+        .select(sql<number>`sum(t.amount)`.as('amount'))
+        .where('t.church_id', '=', churchId)
+        .where('t.donor_id', '=', currentUser.donor_id)
+        .where('a.type', '=', 'INCOME')
+        .where('t.transaction_date', '>=', sixMonthsStartDate)
+        .groupBy(sql`to_char(t.transaction_date, 'YYYY-MM')`)
+        .orderBy(sql`to_char(t.transaction_date, 'YYYY-MM')`, 'asc')
+        .execute()
+
+      // 약정 캠페인 진행 현황 (본인이 참여한 올해 종료되지 않은 캠페인)
+      const pledges = await db.selectFrom('member_pledges as mp')
+        .innerJoin('pledge_campaigns as pc', 'mp.campaign_id', 'pc.id')
+        .innerJoin('members as m', 'mp.member_id', 'm.id')
+        .select([
+          'pc.name as campaign_name',
+          'mp.pledge_amount',
+          'pc.account_code'
+        ])
+        .where('m.donor_id', '=', currentUser.donor_id)
+        .where('pc.church_id', '=', churchId)
+        .execute()
+
+      const pledgeStatus = await Promise.all(pledges.map(async (p) => {
+        const paid = await db.selectFrom('transactions as t')
+          .select(sql<number>`sum(t.amount)`.as('paid_amount'))
+          .where('t.church_id', '=', churchId)
+          .where('t.donor_id', '=', currentUser.donor_id)
+          .where('t.account_code', '=', p.account_code)
+          .executeTakeFirst()
+        
+        return {
+          campaign_name: p.campaign_name,
+          pledge_amount: p.pledge_amount,
+          paid_amount: Number(paid?.paid_amount || 0)
+        }
+      }))
+
       return {
         success: true,
         mode: 'user',
         data: {
           totalDonation: Number(donationResult?.total_amount || 0),
-          recentDonations
+          recentDonations,
+          monthlyDonations,
+          pledgeStatus
         }
       }
     }
@@ -112,7 +174,7 @@ export default defineEventHandler(async (event) => {
     // 3-1. 자산(통장) 총 잔액 계산
     // 각 통장별 (초기 잔액 + 전체 수입 - 전체 지출)
     const funds = await db.selectFrom('funds')
-      .select(['id', 'initial_balance'])
+      .select(['id', 'name', 'initial_balance'])
       .where('church_id', '=', churchId)
       .execute()
 
@@ -153,6 +215,61 @@ export default defineEventHandler(async (event) => {
       if (t.type === 'EXPENSE') monthlyExpense = Number(t.sum_amount || 0)
     }
 
+    // 3-3. 자산 구성비 (통장별 잔액)
+    const fundBalances = await Promise.all(funds.map(async (fund) => {
+      const txs = await db.selectFrom('transactions as t')
+        .innerJoin('accounts as a', 't.account_code', 'a.code')
+        .select('a.type')
+        .select(sql<number>`sum(t.amount)`.as('sum_amount'))
+        .where('t.church_id', '=', churchId)
+        .where('t.fund_id', '=', fund.id)
+        .groupBy('a.type')
+        .execute()
+        
+      let balance = Number(fund.initial_balance || 0)
+      for (const tx of txs) {
+        if (tx.type === 'INCOME') balance += Number(tx.sum_amount || 0)
+        if (tx.type === 'EXPENSE') balance -= Number(tx.sum_amount || 0)
+      }
+      return {
+        id: fund.id,
+        name: fund.name || '미지정 통장',
+        balance
+      }
+    }))
+
+    // 3-4. 최근 6개월 수입/지출 추이 (Cash Flow)
+    const sixMonthsAgoTenant = new Date(targetYear, currentMonth - 6, 1);
+    const startDateStrTenant = `${sixMonthsAgoTenant.getFullYear()}-${(sixMonthsAgoTenant.getMonth() + 1).toString().padStart(2, '0')}-01`;
+
+    const monthlyCashFlow = await db.selectFrom('transactions as t')
+      .innerJoin('accounts as a', 't.account_code', 'a.code')
+      .select('a.type')
+      .select(sql<string>`to_char(t.transaction_date, 'YYYY-MM')`.as('month'))
+      .select(sql<number>`sum(t.amount)`.as('amount'))
+      .where('t.church_id', '=', churchId)
+      .where('t.transaction_date', '>=', startDateStrTenant)
+      .groupBy(['a.type', sql`to_char(t.transaction_date, 'YYYY-MM')`])
+      .orderBy(sql`to_char(t.transaction_date, 'YYYY-MM')`, 'asc')
+      .execute()
+
+    // 3-5. 예산 대비 집행률 (올해 예산 합계 및 지출 합계)
+    const budgetRes = await db.selectFrom('budgets')
+      .select(sql<number>`sum(amount)`.as('total_budget'))
+      .where('church_id', '=', churchId)
+      .where('fiscal_year', '=', targetYear)
+      .executeTakeFirst()
+    const totalBudget = Number(budgetRes?.total_budget || 0)
+
+    const expenseRes = await db.selectFrom('transactions as t')
+      .innerJoin('accounts as a', 't.account_code', 'a.code')
+      .select(sql<number>`sum(t.amount)`.as('total_expense'))
+      .where('t.church_id', '=', churchId)
+      .where('a.type', '=', 'EXPENSE')
+      .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', targetYear)
+      .executeTakeFirst()
+    const totalExpense = Number(expenseRes?.total_expense || 0)
+
     return {
       success: true,
       mode: 'tenant',
@@ -162,7 +279,11 @@ export default defineEventHandler(async (event) => {
         monthlyIncome,
         monthlyExpense,
         targetYear,
-        targetMonth: currentMonth
+        targetMonth: currentMonth,
+        fundBalances,
+        monthlyCashFlow,
+        totalBudget,
+        totalExpense
       }
     }
 

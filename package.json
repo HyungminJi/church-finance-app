@@ -28,10 +28,12 @@
   "dependencies": {
     "@types/pg": "^8.18.0",
     "bcryptjs": "^3.0.3",
+    "chart.js": "^4.5.1",
     "kysely": "^0.28.11",
     "nuxt-auth-utils": "^0.5.29",
     "pg": "^8.19.0",
     "pinia": "^3.0.4",
+    "vue-chartjs": "^5.3.3",
     "xlsx": "^0.18.5"
   }
 }
