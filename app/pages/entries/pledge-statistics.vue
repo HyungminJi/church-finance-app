@@ -71,7 +71,7 @@
               class="w-full max-w-[40px] bg-primary-500/20 group-hover:bg-primary-500 rounded-t-sm transition-all duration-700 ease-out relative"
               :style="{ height: getBarHeight(s.amount) + '%' }"
             >
-              <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-primary-500 shadow-[0_0_10px_#3cafff]"></div>
+              <div v-if="s.amount > 0" class="absolute inset-x-0 top-0 h-1 bg-blue-500 shadow-[0_0_10px_#3cafff]"></div>
             </div>
             <span class="text-[10px] font-bold text-gray-400 mt-3 group-hover:text-blue-500 transition-colors">{{ s.month }}</span>
           </div>

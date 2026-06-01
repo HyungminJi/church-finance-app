@@ -78,7 +78,7 @@
               </tr>
 
               <tr v-for="item in group.items" :key="item.code" class="hover:bg-gray-50/50 h-[22px] break-inside-avoid">
-                <td class="px-2 text-right border-r border-gray-200 font-mono text-[12px]" :class="{'text-primary-600 font-bold': item.debitBalance > 0}">
+                <td class="px-2 text-right border-r border-gray-200 font-mono text-[12px]" :class="{'text-blue-600 font-bold': item.debitBalance > 0}">
                   {{ item.debitBalance > 0 ? formatNumber(item.debitBalance) : '' }}
                 </td>
                 <td class="px-2 text-right border-r border-gray-200 font-mono text-[12px] text-gray-400">

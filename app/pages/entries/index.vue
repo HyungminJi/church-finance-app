@@ -80,7 +80,7 @@
                     <span class="text-xs text-gray-400 font-mono">{{ t.account_code }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono" :class="t.account_type === 'INCOME' ? 'text-primary-500' : 'text-red-500'">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black font-mono" :class="t.account_type === 'INCOME' ? 'text-blue-500' : 'text-red-500'">
                   {{ formatNumber(t.amount) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
