@@ -239,19 +239,36 @@ export default defineEventHandler(async (event) => {
     }))
 
     // 3-4. 최근 6개월 수입/지출 추이 (Cash Flow)
-    const sixMonthsAgoTenant = new Date(targetYear, currentMonth - 6, 1);
-    const startDateStrTenant = `${sixMonthsAgoTenant.getFullYear()}-${(sixMonthsAgoTenant.getMonth() + 1).toString().padStart(2, '0')}-01`;
+    // 현재 월부터 역산하여 정확히 6개월 리스트 생성
+    const last6Months: string[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(targetYear, currentMonth - 1 - i, 1)
+      last6Months.push(`${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`)
+    }
 
-    const monthlyCashFlow = await db.selectFrom('transactions as t')
+    const startDateStrTenant = last6Months[0] + '-01'
+    const endDateStrTenant = last6Months[5] + '-' + new Date(targetYear, currentMonth, 0).getDate()
+
+    const rawCashFlow = await db.selectFrom('transactions as t')
       .innerJoin('accounts as a', 't.account_code', 'a.code')
       .select('a.type')
       .select(sql<string>`to_char(t.transaction_date, 'YYYY-MM')`.as('month'))
       .select(sql<number>`sum(t.amount)`.as('amount'))
       .where('t.church_id', '=', churchId)
       .where('t.transaction_date', '>=', startDateStrTenant)
+      .where('t.transaction_date', '<=', endDateStrTenant)
       .groupBy(['a.type', sql`to_char(t.transaction_date, 'YYYY-MM')`])
-      .orderBy(sql`to_char(t.transaction_date, 'YYYY-MM')`, 'asc')
       .execute()
+
+    // 0원으로 채워진 6개월 데이터 구성
+    const monthlyCashFlow = last6Months.flatMap(m => {
+      const income = rawCashFlow.find(r => r.month === m && r.type === 'INCOME')
+      const expense = rawCashFlow.find(r => r.month === m && r.type === 'EXPENSE')
+      return [
+        { month: m, type: 'INCOME', amount: Number(income?.amount || 0) },
+        { month: m, type: 'EXPENSE', amount: Number(expense?.amount || 0) }
+      ]
+    })
 
     // 3-5. 예산 대비 집행률 (올해 예산 합계 및 지출 합계)
     const budgetRes = await db.selectFrom('budgets')
