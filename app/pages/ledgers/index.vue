@@ -46,8 +46,13 @@
 
                 <!-- 2. 통합 원장 조회 전용 영역 (중앙 텍스트) -->
                 <div 
-                  class="flex-1 py-1.5 px-2 font-black text-sm cursor-pointer hover:text-blue-500 hover:underline underline-offset-4 decoration-2 decoration-primary-500/30 transition-all"
-                  :class="selectedAccountType === group.type && !selectedAccountCode ? 'text-blue-500' : 'text-gray-800 dark:text-gray-200'"
+                  class="flex-1 py-1.5 px-2 font-black text-sm cursor-pointer hover:underline underline-offset-4 decoration-2 transition-all"
+                  :class="[
+                    selectedAccountType === group.type && !selectedAccountCode 
+                      ? (group.type === 'INCOME' ? 'text-blue-500' : 'text-red-500') 
+                      : 'text-gray-800 dark:text-gray-200',
+                    group.type === 'INCOME' ? 'hover:text-blue-500 decoration-blue-500/30' : 'hover:text-red-500 decoration-red-500/30'
+                  ]"
                   @click="selectGroup(group)"
                   title="통합 원장 조회"
                 >
@@ -309,8 +314,6 @@ const selectAccount = (code: string) => {
 const selectGroup = (group: any) => {
   selectedAccountType.value = group.type as 'INCOME' | 'EXPENSE'
   selectedAccountCode.value = null // 그룹 선택 시 개별 계정 필터 해제
-  // 아코디언 토글 (이미 선택된 그룹을 다시 누르면 접기/펼치기만 수행)
-  group.expanded = !group.expanded
   fetchData()
 }
 
