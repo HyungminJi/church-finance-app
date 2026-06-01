@@ -79,11 +79,9 @@ export default defineEventHandler(async (event) => {
       const results = await baseQuery
         .innerJoin('donors as d', 't.donor_id', 'd.id')
         .where('d.donor_type', '=', 'ORGANIZATION')
-        .select([
-          'd.name as label',
-          sql<number>`COUNT(t.id)`.as('count'),
-          sql<number>`SUM(t.amount)::BIGINT`.as('amount')
-        ])
+        .select('d.name as label')
+        .select(sql<number>`COUNT(t.id)`.as('count'))
+        .select(sql<number>`SUM(t.amount)::BIGINT`.as('amount'))
         .groupBy('d.name')
         .orderBy('amount', 'desc')
         .execute()

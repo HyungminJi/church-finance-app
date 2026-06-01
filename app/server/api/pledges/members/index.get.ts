@@ -7,10 +7,7 @@ export default defineEventHandler(async (event) => {
   const campaignId = query.campaignId as string
 
   if (!campaignId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '캠페인 ID가 필요합니다.'
-    })
+    return { success: true, data: [] }
   }
 
   try {

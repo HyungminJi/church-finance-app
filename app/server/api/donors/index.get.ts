@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
       }
 
       // 총 개수 조회 (페이징용)
-      const totalRes = await baseQuery.select(db.fn.count('donors.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       // 데이터 조회
@@ -95,11 +95,9 @@ export default defineEventHandler(async (event) => {
       // [추가] 전체 성도 통계 (필터와 무관)
       const globalStats = await db.selectFrom('members')
         .innerJoin('donors as d', 'members.donor_id', 'd.id')
-        .select([
-          db.fn.count('members.id').as('total'),
-          sql<number>`COUNT(CASE WHEN members.removed_date IS NULL THEN 1 END)`.as('current'),
-          sql<number>`COUNT(CASE WHEN members.removed_date IS NOT NULL THEN 1 END)`.as('removed')
-        ])
+        .select(db.fn.count('members.id').as('total'))
+        .select(sql<number>`COUNT(CASE WHEN members.removed_date IS NULL THEN 1 END)`.as('current'))
+        .select(sql<number>`COUNT(CASE WHEN members.removed_date IS NOT NULL THEN 1 END)`.as('removed'))
         .$if(event.context.userRole !== 0, (qb) => qb.where('d.church_id', '=', event.context.churchId || session.user.church_id))
         .executeTakeFirstOrThrow()
 
@@ -143,7 +141,7 @@ export default defineEventHandler(async (event) => {
         baseQuery = baseQuery.where('cg.is_active', '=', isActive === 'true')
       }
 
-      const totalRes = await baseQuery.select(db.fn.count('donors.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       const results = await baseQuery
@@ -204,7 +202,7 @@ export default defineEventHandler(async (event) => {
         baseQuery = baseQuery.where('o.org_type', 'ilike', `%${orgType}%`)
       }
 
-      const totalRes = await baseQuery.select(db.fn.count('donors.id').as('count')).executeTakeFirstOrThrow()
+      const totalRes = await baseQuery.select(db.fn.count('d.id').as('count')).executeTakeFirstOrThrow()
       const totalCount = Number(totalRes.count)
 
       const results = await baseQuery

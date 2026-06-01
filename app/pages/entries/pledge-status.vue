@@ -328,4 +328,10 @@ const downloadExcel = async () => {
   })
   await fetchAndDownloadExcel('/api/pledges/members', { campaignId: selectedCampaignId.value }, mapper, `약정현황_${selectedCampaign.value?.label}`)
 }
+
+watch(campaigns, (newVal) => {
+  if (newVal.length > 0 && !selectedCampaignId.value) {
+    selectedCampaignId.value = newVal[0].id
+  }
+}, { immediate: true })
 </script>

@@ -50,10 +50,8 @@ export default defineEventHandler(async (event) => {
 
     // 총 개수 및 총 금액 합계 조회
     const stats = await baseQuery
-      .select([
-        sql<number>`COUNT(t.id)`.as('total_count'),
-        sql<number>`COALESCE(SUM(t.amount), 0)`.as('total_amount')
-      ])
+      .select(sql<number>`COUNT(t.id)`.as('total_count'))
+      .select(sql<number>`COALESCE(SUM(t.amount), 0)`.as('total_amount'))
       .executeTakeFirstOrThrow()
 
     // 데이터 조회

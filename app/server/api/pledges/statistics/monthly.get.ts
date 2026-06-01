@@ -20,14 +20,16 @@ export default defineEventHandler(async (event) => {
       .executeTakeFirstOrThrow()
 
     // 2. 월별 실제 모금액 집계 쿼리 (캠페인 기간 필터링 추가)
+    const targetStartDate = `${year}-01-01`
+    const targetEndDate = `${year}-12-31`
+
     let baseQuery = db.selectFrom('transactions as t')
-      .select([
-        sql<string>`TO_CHAR(t.transaction_date, 'MM')`.as('month'),
-        sql<number>`SUM(t.amount)`.as('amount')
-      ])
+      .select(sql<string>`TO_CHAR(t.transaction_date, 'MM')`.as('month'))
+      .select(sql<number>`SUM(t.amount)`.as('amount'))
       .$if(event.context.userRole !== 0, (qb) => qb.where('t.church_id', '=', event.context.churchId || session.user.church_id))
       .where('t.account_code', '=', campaign.account_code)
-      .where(sql`EXTRACT(YEAR FROM t.transaction_date)`, '=', year)
+      .where('t.transaction_date', '>=', targetStartDate)
+      .where('t.transaction_date', '<=', targetEndDate)
       .where('t.transaction_date', '>=', campaign.start_date)
 
     if (campaign.end_date) {
