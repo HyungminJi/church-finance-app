@@ -24,6 +24,41 @@
         </div>
       </div>
 
+      <!-- 입금 통장 선택 (신규 추가) -->
+      <div class="bg-primary-500/5 dark:bg-primary-900/10 p-6 rounded-xl border-2 border-primary-500/20 shadow-sm animate-in fade-in slide-in-from-top-2">
+        <div class="flex flex-col md:flex-row md:items-end gap-6">
+          <div class="w-full md:w-80">
+            <UFormField label="입금 처리할 통장(자금) 선택" required>
+              <USelectMenu 
+                v-model="selectedFundId" 
+                :items="funds" 
+                value-key="id" 
+                label-key="name"
+                placeholder="전표가 등록될 통장을 선택하세요"
+                class="font-bold"
+                size="lg"
+              >
+                <template #default>
+                  <span v-if="selectedFund" class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-banknotes" class="text-primary-500" />
+                    {{ selectedFund.name }}
+                  </span>
+                  <span v-else class="text-gray-400">통장을 선택해 주세요</span>
+                </template>
+              </USelectMenu>
+            </UFormField>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+              * 엑셀 내 모든 수입 데이터는 위에서 선택한 통장의 입금 내역으로 일괄 처리됩니다.
+            </p>
+            <p class="text-xs text-primary-600 dark:text-primary-400 font-bold">
+              * 전표가 등록된 후에는 장부관리 메뉴에서 개별적으로 수정 가능합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- 데이터 프리뷰 영역: 파일이 이미 로드되었을 때 -->
       <div v-if="parsedData.length > 0" class="space-y-4 animate-in fade-in slide-in-from-top-2">
         <div class="flex justify-between items-end">
@@ -177,9 +212,17 @@ const parsedData = ref<any[]>([])
 // 1. 기초 데이터 로드
 const { data: accountsRes } = await useFetch('/api/accounts')
 const { data: membersRes } = await useFetch('/api/members', { query: { limit: 10000, tab: 'CURRENT' } })
+const { data: fundsRes } = await useFetch('/api/funds')
 
 const accounts = computed(() => (accountsRes.value as any)?.data || [])
 const members = computed(() => (membersRes.value as any)?.data || [])
+const funds = computed(() => {
+  const all = (fundsRes.value as any)?.data || []
+  return all.filter((f: any) => f.is_active)
+})
+
+const selectedFundId = ref<string | null>(null)
+const selectedFund = computed(() => funds.value.find((f: any) => f.id === selectedFundId.value))
 
 const totalAmount = computed(() => parsedData.value.reduce((sum, row) => sum + (Number(row.amount) || 0), 0))
 
@@ -245,6 +288,7 @@ const processFile = async (file: File) => {
           excel_name: excelName,
           excel_type: excelType,
           member_id: matchedMember?.id || null,
+          donor_id: matchedMember?.donor_id || null, // 실제 전표 테이블의 donor_id 매핑용
           member_name: matchedMember?.name || '',
           account_code: matchedAccount?.code || null,
           account_name: matchedAccount?.name || '',
@@ -286,17 +330,31 @@ const downloadTemplate = () => {
 }
 
 const submitBulk = async () => {
-  const confirmed = await ui.showConfirm('일괄 등록', `총 ${parsedData.value.length}건을 정식 전표로 등록하시겠습니까?`, 'info')
+  if (!selectedFundId.value) {
+    ui.showAlert('통장 선택 필요', '전표를 등록할 입금 통장을 먼저 선택해 주세요.', 'warning')
+    return
+  }
+
+  const confirmed = await ui.showConfirm('일괄 등록', `총 ${parsedData.value.length}건을 [${selectedFund.value.name}] 통장의 정식 전표로 등록하시겠습니까?`, 'info')
   if (!confirmed) return
   isSaving.value = true
   try {
-    const res: any = await $fetch('/api/transactions/bulk', { method: 'POST', body: { transactions: parsedData.value } })
+    // 파싱된 데이터의 각 항목에 선택된 통장 ID 주입
+    const finalTransactions = parsedData.value.map(t => ({
+      ...t,
+      fund_id: selectedFundId.value
+    }))
+
+    const res: any = await $fetch('/api/transactions/bulk', { 
+      method: 'POST', 
+      body: { transactions: finalTransactions } 
+    })
     if (res.success) {
-      ui.showAlert('등록 완료', `${res.count}건이 성공적으로 등록되었습니다.`, 'success')
+      ui.showAlert('등록 완료', `${res.data.count}건이 성공적으로 등록되었습니다.`, 'success')
       parsedData.value = []
     }
   } catch (error: any) {
-    ui.showAlert('오류', '등록 중 오류가 발생했습니다.', 'error')
+    ui.showAlert('오류', error.data?.statusMessage || '등록 중 오류가 발생했습니다.', 'error')
   } finally {
     isSaving.value = false
   }

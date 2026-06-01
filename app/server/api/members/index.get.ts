@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
     const members = await baseQuery
       .select([
         'members.id',
+        'members.donor_id',
         'members.name',
         'members.phone_number',
         'members.spouse_name',
