@@ -174,7 +174,7 @@ export default defineEventHandler(async (event) => {
     // 3-1. 자산(통장) 총 잔액 계산
     // 각 통장별 (초기 잔액 + 전체 수입 - 전체 지출)
     const funds = await db.selectFrom('funds')
-      .select(['id', 'name', 'initial_balance'])
+      .select(['id', 'name', 'initial_balance', 'is_active'])
       .where('church_id', '=', churchId)
       .execute()
 
@@ -216,8 +216,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // 3-3. 자산 구성비 (통장별 잔액)
-    const fundBalances = await Promise.all(funds.map(async (fund) => {
-      const txs = await db.selectFrom('transactions as t')
+    const fundBalances = await Promise.all(funds
+      .filter(f => f.is_active) // 활성 통장만 필터링
+      .map(async (fund) => {
+        const txs = await db.selectFrom('transactions as t')
         .innerJoin('accounts as a', 't.account_code', 'a.code')
         .select('a.type')
         .select(sql<number>`sum(t.amount)`.as('sum_amount'))
