@@ -227,6 +227,28 @@
                 <UFormField label="구역"><USelectMenu v-model="form.details.cell_group_id" :items="cellGroups" value-key="id" class="w-full" /></UFormField>
                 <UFormField label="배우자"><UInput v-model="form.details.spouse_name" placeholder="배우자 성함" class="w-full" /></UFormField>
                 <UFormField label="생년월일"><UInput v-model="form.details.birth_date" type="date" class="w-full" /></UFormField>
+
+                <!-- 성도 주소 정보 (추가) -->
+                <div class="col-span-2 space-y-4 border-t dark:border-gray-800 pt-4 mt-2">
+                  <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <UFormField label="우편번호" class="w-full sm:w-1/3">
+                      <UInput v-model="form.details.postcode" readonly placeholder="검색 버튼 클릭" class="bg-gray-50 dark:bg-gray-800" />
+                    </UFormField>
+                    <UButton 
+                      color="primary" 
+                      icon="i-heroicons-magnifying-glass" 
+                      label="주소 검색" 
+                      class="font-bold cursor-pointer px-6"
+                      @click="isAddressModalOpen = true"
+                    />
+                  </div>
+                  <UFormField label="도로명 주소">
+                    <UInput v-model="form.details.address" readonly placeholder="주소 검색을 이용해 주세요" class="bg-gray-50 dark:bg-gray-800 w-full" />
+                  </UFormField>
+                  <UFormField label="상세 주소">
+                    <UInput v-model="form.details.detail_address" placeholder="나머지 상세 주소 입력" class="w-full" />
+                  </UFormField>
+                </div>
                 
                 <!-- 시스템 권한 설정 (복원) -->
                 <div v-if="isEditing" class="col-span-2 border-t dark:border-gray-800 pt-4 mt-2 space-y-4">
@@ -310,6 +332,9 @@
           </div>
         </template>
       </UModal>
+
+      <!-- 주소 검색 모달 -->
+      <AddressSearchModal v-model:open="isAddressModalOpen" @select="handleAddressSelect" />
     </div>
   </ClientOnly>
 </template>
@@ -506,7 +531,13 @@ const saveDonor = async () => {
 
 // 5. 구역장 검색 로직 (복원)
 const isLeaderSearchOpen = ref(false)
+const isAddressModalOpen = ref(false)
 const leaderSearchTerm = ref('')
+
+const handleAddressSelect = (addressData: any) => {
+  form.details.postcode = addressData.zipNo
+  form.details.address = addressData.roadAddr
+}
 const { data: allMembersRes } = await useFetch('/api/donors', { query: { type: 'MEMBER', limit: 1000 } })
 const allMembers = computed(() => (allMembersRes.value as any)?.data || [])
 

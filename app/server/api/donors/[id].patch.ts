@@ -33,6 +33,9 @@ export default defineEventHandler(async (event) => {
             email: details.email,
             church_role: details.church_role,
             cell_group_id: details.cell_group_id,
+            postcode: details.postcode,
+            address: details.address,
+            detail_address: details.detail_address,
             updated_at: new Date()
           })
           .where('donor_id', '=', id)

@@ -32,7 +32,10 @@ export default defineEventHandler(async (event) => {
             birth_date: details.birth_date ? new Date(details.birth_date) : null,
             email: details.email,
             church_role: details.church_role,
-            cell_group_id: details.cell_group_id
+            cell_group_id: details.cell_group_id,
+            postcode: details.postcode,
+            address: details.address,
+            detail_address: details.detail_address
           })
           .execute()
       } else if (donor_type === 'CELL_GROUP') {
