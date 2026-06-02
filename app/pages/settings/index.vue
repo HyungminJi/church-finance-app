@@ -97,7 +97,16 @@
               <UInput v-model="churchForm.phone_number" placeholder="교회 대표 연락처" class="w-full" size="lg" />
             </UFormField>
             <UFormField label="소재지 주소" class="md:col-span-2">
-              <UInput v-model="churchForm.address" placeholder="교회 주소 전체 입력" class="w-full" size="lg" />
+              <div class="flex gap-2">
+                <UInput v-model="churchForm.address" placeholder="주소 검색 버튼을 눌러 입력하세요" class="flex-1" size="lg" readonly />
+                <UButton 
+                  color="primary" 
+                  icon="i-heroicons-magnifying-glass" 
+                  label="주소 검색" 
+                  class="font-bold cursor-pointer px-6"
+                  @click="isAddressModalOpen = true"
+                />
+              </div>
             </UFormField>
           </div>
 
@@ -412,6 +421,8 @@
         </div>
       </template>
     </UModal>
+    <!-- 주소 검색 모달 -->
+    <AddressSearchModal v-model:open="isAddressModalOpen" @select="handleAddressSelect" />
   </div>
 </template>
 
@@ -426,6 +437,12 @@ import * as XLSX from 'xlsx'
 const { user, fetch: fetchSession } = useUserSession()
 const authStore = useAuthStore()
 const ui = useUIStore()
+
+// 주소 검색 관련
+const isAddressModalOpen = ref(false)
+const handleAddressSelect = (addressData: any) => {
+  churchForm.address = addressData.roadAddr
+}
 
 // 탭 관리 로직
 const activeTab = ref('profile')

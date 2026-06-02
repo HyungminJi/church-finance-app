@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const confmKey = 'devU01TX0FVVEgyMDI2MDIyNjEzMTkyMTExNzY1OTg='
+  const confmKey = 'devU01TX0FVVEgyMDI2MDYwMzAwMTA0NzExODk4OTg='
   const currentPage = query.currentPage || 1
   const countPerPage = query.countPerPage || 10
   const keyword = query.keyword
