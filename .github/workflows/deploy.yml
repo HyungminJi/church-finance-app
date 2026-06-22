@@ -30,11 +30,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Nuxt Application
+      - name: Build Ledgerrection Application
         run: pnpm build # SSR 빌드 진행 (결과물은 .output 폴더에 생성됨)
 
       # 4. 빌드 결과물(.output)을 우분투 서버로 전송 (SCP)
-      - name: Transfer .output to Ubuntu Server
+      - name: Transfer Build Artifacts to Ledgerrection Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -42,11 +42,11 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           source: ".output/*"
-          target: "/var/www/nuxt-app" # 서버 내 배포할 경로
+          target: "/var/www/ledgerrection" # 서버 내 배포할 경로
           strip_components: 0
 
       # 5. 우분투 서버에서 Node 배포 프로세스 재시작 (SSH)
-      - name: Restart Nuxt Application via PM2
+      - name: Restart Ledgerrection via PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -54,6 +54,6 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd /var/www/nuxt-app
+            cd /var/www/ledgerrection
             # PM2를 이용하여 Nuxt 3의 내장 Nitro 서버를 무중단 재시작합니다.
-            pm2 reload nuxt-app || pm2 start .output/server/index.mjs --name "nuxt-app" --env PORT=3000
+            pm2 reload ledgerrection || pm2 start .output/server/index.mjs --name "ledgerrection" --env PORT=${{ secrets.APP_PORT || 3000 }}
