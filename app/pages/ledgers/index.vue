@@ -94,17 +94,17 @@
               <div class="flex items-center gap-1">
                 <USelectMenu 
                   v-model="selectedFundId" 
-                  :items="funds" 
+                  :items="displayFunds" 
                   value-key="id" 
-                  label-key="name" 
+                  label-key="displayName" 
                   placeholder="전체 자금/통장" 
                   class="w-48 cursor-pointer shadow-sm bg-white dark:bg-gray-800"
                   @change="() => fetchData()"
                 >
                   <template #default>
-                    <span v-if="selectedFund" class="flex items-center gap-2 truncate">
+                    <span v-if="selectedFund" class="flex items-center gap-2 truncate" :class="!selectedFund.is_active ? 'text-gray-400' : ''">
                       <UIcon name="i-heroicons-banknotes" class="text-blue-500 shrink-0" />
-                      {{ selectedFund.name }}
+                      {{ selectedFund.is_active ? selectedFund.name : `${selectedFund.name} (미사용)` }}
                     </span>
                     <span v-else class="text-gray-400">전체 자금/통장</span>
                   </template>
@@ -259,6 +259,13 @@ const selectedAccountType = ref<'INCOME' | 'EXPENSE' | null>(null) // [추가] �
 const selectedFundId = ref<string | null>(null)
 const accounts = ref<any[]>([])
 const funds = ref<any[]>([])
+
+const displayFunds = computed(() => {
+  return funds.value.map(fund => ({
+    ...fund,
+    displayName: fund.is_active ? fund.name : `${fund.name} (미사용)`
+  }))
+})
 
 const today = new Date()
 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)

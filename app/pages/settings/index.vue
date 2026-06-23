@@ -172,7 +172,7 @@
         <div class="flex items-center justify-between border-b pb-4 dark:border-gray-700">
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">회계 기수 및 마감 관리</h2>
-            <p class="text-sm text-gray-500 mt-1">현재 회계 기수(연도)를 지정하거나 장부 마감일을 설정합니다.</p>
+            <p class="text-sm text-gray-500 mt-1">현재 회계 기수(연도)를 지정하거나 장부 마감일을 설정합니다. 마감 시 차기 연도로 전년이월금 전표가 자동 생성됩니다.</p>
           </div>
         </div>
         
@@ -211,7 +211,7 @@
             <UIcon name="i-heroicons-lock-closed" class="w-8 h-8 text-amber-500 shrink-0 mt-1" />
             <div class="space-y-4 w-full">
               <div>
-                <h3 class="font-bold text-amber-900 dark:text-amber-100 text-lg">현재 장부 마감일</h3>
+                <h3 class="font-bold text-amber-900 dark:text-amber-100 text-lg">장부 마감 및 자동 이월</h3>
                 <p v-if="churchForm.closing_date" class="text-sm text-amber-700 dark:text-amber-300 font-bold mt-1">
                   현재 [ <span class="text-amber-900 dark:text-amber-50">{{ churchForm.closedByName || '관리자' }}</span> ] 담당자에 의해 {{ formatDate(churchForm.closing_date) }} 기준으로 마감되었습니다.
                 </p>
@@ -232,6 +232,49 @@
                   마감 적용
                 </UButton>
               </div>
+              <div class="bg-amber-100/60 dark:bg-amber-900/30 p-3 rounded-lg mt-2">
+                <p class="text-xs text-amber-800 dark:text-amber-200 font-medium">
+                  <UIcon name="i-heroicons-information-circle" class="w-4 h-4 inline-block mr-1 align-text-bottom" />
+                  마감 적용 시 마감 기준일까지의 통장별 잔액을 자동 합산하여, 차기 회계 연도({{ (churchForm.current_fiscal_year || new Date().getFullYear()) + 1 }}년) 시작일에 <strong>'전년이월금'</strong> 전표가 자동 생성됩니다. 마감 해제 시 해당 이월 전표는 자동으로 삭제됩니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 최근 이월 결과 표시 -->
+        <div v-if="carryforwardResult && carryforwardResult.details.length > 0" class="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-xl border border-emerald-200 dark:border-emerald-800 transition-all">
+          <div class="flex items-start gap-4">
+            <UIcon name="i-heroicons-check-badge" class="w-8 h-8 text-emerald-500 shrink-0 mt-1" />
+            <div class="w-full">
+              <h3 class="font-bold text-emerald-900 dark:text-emerald-100 text-lg mb-3">자동 이월 전표 생성 결과</h3>
+              <div class="overflow-hidden rounded-lg border border-emerald-200 dark:border-emerald-700">
+                <table class="w-full text-sm">
+                  <thead class="bg-emerald-100 dark:bg-emerald-900/40">
+                    <tr>
+                      <th class="text-left px-4 py-2 font-bold text-emerald-800 dark:text-emerald-200">통장명</th>
+                      <th class="text-right px-4 py-2 font-bold text-emerald-800 dark:text-emerald-200">이월 금액</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, idx) in carryforwardResult.details" :key="idx" class="border-t border-emerald-100 dark:border-emerald-800">
+                      <td class="px-4 py-2 text-emerald-900 dark:text-emerald-100 font-medium">{{ item.fundName }}</td>
+                      <td class="px-4 py-2 text-right font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ Number(item.amount).toLocaleString() }}원</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="bg-emerald-100/50 dark:bg-emerald-900/30 border-t-2 border-emerald-300 dark:border-emerald-600">
+                    <tr>
+                      <td class="px-4 py-2 font-black text-emerald-900 dark:text-emerald-100">합계 ({{ carryforwardResult.details.length }}건)</td>
+                      <td class="px-4 py-2 text-right font-mono font-black text-emerald-700 dark:text-emerald-300">
+                        {{ carryforwardResult.details.reduce((sum: number, d: any) => sum + Number(d.amount), 0).toLocaleString() }}원
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-2 italic">
+                * 위 이월 전표는 {{ (churchForm.current_fiscal_year || new Date().getFullYear()) + 1 }}년 1월 1일 자로 자동 생성되었습니다. 전표관리 및 원장 화면에서 확인할 수 있습니다.
+              </p>
             </div>
           </div>
         </div>
@@ -548,12 +591,18 @@ const handleSaveFiscalYear = async () => {
   }
 }
 
+// 자동 이월 결과 상태
+const carryforwardResult = ref<{ details: { fundName: string; amount: number }[] } | null>(null)
+
 const handleSaveClosingDate = async () => {
+  const fiscalYear = churchForm.current_fiscal_year || new Date().getFullYear()
+  const nextFiscalYear = fiscalYear + 1
+
   const confirmed = await ui.showConfirm(
     '장부 마감 설정', 
     closingDateInput.value 
-      ? `${closingDateInput.value} 기준으로 장부를 마감하시겠습니까? 이 날짜 이전의 전표는 수정/삭제할 수 없게 됩니다.`
-      : '장부 마감을 해제하시겠습니까? 모든 데이터의 수정/삭제가 가능해집니다.', 
+      ? `${closingDateInput.value} 기준으로 장부를 마감하시겠습니까?\n\n• 이 날짜 이전의 전표는 수정/삭제할 수 없게 됩니다.\n• 통장별 잔액이 자동 계산되어 ${nextFiscalYear}년 1월 1일자로 '전년이월금' 전표가 자동 생성됩니다.`
+      : '장부 마감을 해제하시겠습니까?\n\n• 모든 데이터의 수정/삭제가 가능해집니다.\n• 자동 생성된 전년이월금 전표가 함께 삭제(롤백)됩니다.', 
     'warning'
   )
   
@@ -571,8 +620,15 @@ const handleSaveClosingDate = async () => {
       // 마감을 설정한 경우 현재 세션의 사용자 이름으로 즉시 업데이트
       if (closingDateInput.value) {
         churchForm.closedByName = user.value?.name || user.value?.login_id || '관리자'
+        // 이월 결과 저장 (UI 표시용)
+        if (res.data?.carryforwardDetails && res.data.carryforwardDetails.length > 0) {
+          carryforwardResult.value = { details: res.data.carryforwardDetails }
+        } else {
+          carryforwardResult.value = null
+        }
       } else {
         churchForm.closedByName = ''
+        carryforwardResult.value = null
       }
     }
   } catch (e: any) {

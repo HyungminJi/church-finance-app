@@ -160,7 +160,7 @@
               <UFormField :label="form.type === 'INCOME' ? '입금계좌' : '출금계좌'" required>
                 <USelectMenu 
                   v-model="form.fund_id" 
-                  :items="allFunds" 
+                  :items="activeFunds" 
                   value-key="id" 
                   label-key="name"
                   class="w-full cursor-pointer"
@@ -365,6 +365,10 @@ const allAccounts = computed(() => (accountsRes.value as any)?.data || [])
 
 const { data: fundsRes } = await useFetch('/api/funds')
 const allFunds = computed(() => (fundsRes.value as any)?.data || [])
+
+const activeFunds = computed(() => {
+  return allFunds.value.filter((f: any) => f.is_active)
+})
 
 // 현재 선택된 타입과 Level=2(입력가능 계정)만 필터링
 const filteredAccounts = computed(() => {
