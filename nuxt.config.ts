@@ -36,6 +36,12 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true
+    },
+    externals: {
+      inline: ['xlsx'] // Github Actions 런너의 절대경로 하드코딩 버그 방지
     }
+  },
+  build: {
+    transpile: ['xlsx']
   }
 })
