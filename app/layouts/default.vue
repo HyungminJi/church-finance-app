@@ -59,6 +59,16 @@
             </div>
           </div>
           <UButton 
+            v-if="user?.role === 0 || Number(user?.role) === 0"
+            variant="ghost" 
+            color="primary" 
+            icon="i-heroicons-globe-alt" 
+            label="백오피스 (관리자)" 
+            block 
+            class="cursor-pointer bg-brand-blue/10 hover:bg-brand-blue/20 shadow-sm border border-transparent transition-all font-bold text-xs py-2 mb-2"
+            @click="() => navigateTo('/back-office')"
+          />
+          <UButton 
             variant="ghost" 
             color="neutral" 
             icon="i-heroicons-arrow-left-on-rectangle" 
