@@ -83,7 +83,8 @@ const route = useRoute()
 
 const menuItems = computed(() => [
   { path: '/back-office', label: '대시보드', icon: 'i-heroicons-squares-2x2' },
-  { path: '/back-office/churches', label: '교회(Tenant) 관리', icon: 'i-heroicons-building-office-2' }
+  { path: '/back-office/churches', label: '교회(Tenant) 관리', icon: 'i-heroicons-building-office-2' },
+  { path: '/back-office/tools', label: '진단 및 보정', icon: 'i-heroicons-wrench-screwdriver' }
 ])
 
 const isPathActive = (path: string) => {

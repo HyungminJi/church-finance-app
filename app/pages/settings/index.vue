@@ -328,82 +328,7 @@
         </div>
       </div>
 
-      <!-- 5. 플랫폼 관리 (Master 전용) -->
-      <div v-else-if="activeTab === 'platform'" class="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-        <div class="flex items-center justify-between border-b pb-4 border-red-200 dark:border-red-900/30">
-          <div>
-            <h2 class="text-xl font-bold text-red-600 flex items-center">
-              <UIcon name="i-heroicons-shield-exclamation" class="w-6 h-6 mr-2" />
-              플랫폼 본사 전용 도구 (Master Only)
-            </h2>
-            <p class="text-sm text-gray-500 mt-1">기술 지원 및 고객의 소리(VOC) 해결을 위한 강력한 도구입니다.</p>
-          </div>
-        </div>
 
-        <!-- 테넌트 스위처 -->
-        <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-          <h3 class="font-bold text-lg mb-4 flex items-center text-slate-800 dark:text-slate-200">
-            <UIcon name="i-heroicons-arrow-path-rounded-square" class="w-5 h-5 mr-2 text-primary-500" />
-            작업 대상 테넌트(교회) 스위칭
-          </h3>
-          <div class="flex items-end gap-4 max-w-2xl">
-            <UFormField label="지원할 교회 선택" class="flex-1">
-              <USelectMenu 
-                v-model="selectedTenantId" 
-                :items="allChurches" 
-                value-key="id" 
-                label-key="name" 
-                placeholder="교회를 선택하세요" 
-                size="lg" 
-                class="w-full font-bold"
-                :loading="loadingChurches"
-              />
-            </UFormField>
-            <UButton 
-              color="primary" 
-              icon="i-heroicons-arrow-right-circle" 
-              class="font-bold cursor-pointer px-6 shadow-md" 
-              size="lg"
-              :disabled="!selectedTenantId || isSwitching"
-              :loading="isSwitching"
-              @click="switchTenant"
-            >
-              해당 환경으로 진입
-            </UButton>
-          </div>
-          <p class="text-xs text-gray-500 mt-3 italic">
-            * 진입 시 상단에 경고 배너가 나타나며, 원래 환경으로 돌아오려면 스위칭을 해제하거나 다시 본사를 선택하세요.
-          </p>
-        </div>
-
-        <!-- 데이터 강제 보정 툴 -->
-        <div class="bg-red-50 dark:bg-red-900/10 p-6 rounded-xl border border-red-100 dark:border-red-900/30 opacity-70 hover:opacity-100 transition-opacity mt-8">
-          <h3 class="font-bold text-lg mb-2 text-red-800 dark:text-red-300 flex items-center">
-            <UIcon name="i-heroicons-wrench-screwdriver" class="w-5 h-5 mr-2" />
-            데이터 무결성 강제 보정 툴
-          </h3>
-          <p class="text-sm text-red-600/80 dark:text-red-400 mb-2">
-            통장 기초 잔액 0원화 및 전기이월금 전표 강제 생성 등, 대차가 맞지 않는 교회의 데이터를 강제로 치료하는 일괄 스크립트를 GUI로 실행합니다.
-          </p>
-          <div class="bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg mb-4 text-xs font-bold text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800/30">
-            ⚠️ 대상: 현재 [<span class="underline underline-offset-2">{{ user?.impersonating_church_name || '본사/시스템' }}</span>] 데이터에 대해 보정 스크립트를 실행합니다. (중복 방지 및 마감 예외 적용됨)
-          </div>
-          <UButton 
-            color="error" 
-            variant="soft" 
-            icon="i-heroicons-exclamation-triangle" 
-            class="font-bold cursor-pointer"
-            :loading="isCorrecting"
-            :disabled="user?.church_id === SYSTEM_CHURCH_ID"
-            @click="executeCorrectionScript"
-          >
-            치료 스크립트 실행
-          </UButton>
-          <p v-if="user?.church_id === SYSTEM_CHURCH_ID" class="text-xs text-red-500 mt-2 font-bold">
-            * 플랫폼 본사 환경에서는 실행할 수 없습니다. 특정 교회를 먼저 선택하여 '진입'한 후 실행해 주세요.
-          </p>
-        </div>
-      </div>
 
     </div>
 
@@ -473,7 +398,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { getRoleInfo, formatDate } from '~/utils/formatter'
 import { useAuthStore } from '~/stores/auth'
-import { UserRole, ROLE_META, SYSTEM_CHURCH_ID } from '~/types/auth'
+import { UserRole, ROLE_META } from '~/types/auth'
 import { useUIStore } from '~/stores/ui'
 import * as XLSX from 'xlsx'
 
@@ -493,9 +418,6 @@ const activeTab = ref('profile')
 watch(activeTab, (newTab) => {
   if (newTab === 'church' || newTab === 'closing') {
     fetchChurchInfo()
-  }
-  if (newTab === 'platform') {
-    fetchAllChurches()
   }
 })
 
@@ -660,20 +582,14 @@ const allTabs = [
   { id: 'profile', name: '내 계정', icon: 'i-heroicons-user' },
   { id: 'church', name: '교회 정보', icon: 'i-heroicons-building-office' },
   { id: 'closing', name: '장부 마감', icon: 'i-heroicons-lock-closed' },
-  { id: 'backup', name: '데이터 백업', icon: 'i-heroicons-arrow-down-tray' },
-  { id: 'platform', name: '플랫폼 관리', icon: 'i-heroicons-shield-exclamation' }
+  { id: 'backup', name: '데이터 백업', icon: 'i-heroicons-arrow-down-tray' }
 ]
 
 const visibleTabs = computed(() => {
   let tabs = [...allTabs]
   const currentRole = Number(user.value?.role) as UserRole
 
-  // 1. 플랫폼 관리 탭: Master(0) 권한 전용
-  if (currentRole !== UserRole.MASTER) {
-    tabs = tabs.filter(t => t.id !== 'platform')
-  }
-
-  // 2. 교회 정보 탭: Admin(1) 이상의 권한 전용
+  // 1. 교회 정보 탭: Admin(1) 이상의 권한 전용
   if (currentRole > UserRole.ADMIN) {
     tabs = tabs.filter(t => t.id !== 'church')
   }
@@ -827,98 +743,5 @@ const handleBackupDonors = async () => {
   }
 }
 
-// Master 전용 테넌트 스위칭 로직
-interface ChurchOption {
-  id: string
-  name: string
-}
-const allChurches = ref<ChurchOption[]>([])
-const loadingChurches = ref(false)
-const selectedTenantId = ref<string | undefined>(undefined)
-const isSwitching = ref(false)
 
-const fetchAllChurches = async () => {
-  if (!authStore.isMaster) return
-
-  loadingChurches.value = true
-  try {
-    const res: any = await $fetch('/api/churches')
-    if (res.success) {
-      // 본사 아이디를 배열 맨 앞에 강제 추가 (원상 복구용)
-      allChurches.value = [
-        { id: SYSTEM_CHURCH_ID, name: '★ 플랫폼 본사 (기술지원 종료/복귀)' },
-        ...res.data.filter((c: any) => c.id !== SYSTEM_CHURCH_ID)
-      ] as any
-      
-      // 현재 열람 중인 교회를 기본값으로 설정
-      selectedTenantId.value = user.value?.church_id
-    }
-  } catch (e) {
-    console.error('Failed to fetch churches', e)
-  } finally {
-    loadingChurches.value = false
-  }
-}
-
-// 데이터 강제 보정 툴 로직
-const isCorrecting = ref(false)
-
-const executeCorrectionScript = async () => {
-  if (user.value?.church_id === SYSTEM_CHURCH_ID) {
-    ui.showAlert('실행 불가', '플랫폼 본사 환경에서는 이 툴을 실행할 수 없습니다. 보정할 특정 교회를 선택하여 진입한 후 실행해 주세요.', 'warning')
-    return
-  }
-
-  const confirmed = await ui.showConfirm(
-    '데이터 강제 보정', 
-    '현재 열람 중인 교회의 기초 잔액을 0으로 초기화하고 전년이월금 전표로 변환하며, 누락된 통장 정보를 강제 연결합니다. 정말 실행하시겠습니까?', 
-    'warning'
-  )
-  
-  if (!confirmed) return
-
-  isCorrecting.value = true
-  try {
-    const res: any = await $fetch('/api/platform/correct-data', {
-      method: 'POST'
-    })
-    
-    if (res.success) {
-      ui.showAlert('보정 완료', res.message, 'success')
-    }
-  } catch (e: any) {
-    ui.showAlert('보정 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
-  } finally {
-    isCorrecting.value = false
-  }
-}
-
-const switchTenant = async () => {
-  if (!selectedTenantId.value) return
-  isSwitching.value = true
-  try {
-    const res: any = await $fetch('/api/auth/switch-tenant', {
-      method: 'POST',
-      body: { targetChurchId: selectedTenantId.value }
-    })
-    
-    if (res.success) {
-      ui.showAlert('전환 성공', res.message, 'success')
-      await fetchSession() // 세션 정보 다시 불러오기
-      setTimeout(() => {
-        window.location.href = '/' // 완전히 새로고침하여 바뀐 컨텍스트 적용
-      }, 1000)
-    }
-  } catch (e: any) {
-    ui.showAlert('전환 실패', e.data?.statusMessage || '오류가 발생했습니다.', 'error')
-  } finally {
-    isSwitching.value = false
-  }
-}
-
-onMounted(() => {
-  if (authStore.isMaster) {
-    fetchAllChurches()
-  }
-})
 </script>

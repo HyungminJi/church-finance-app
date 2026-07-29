@@ -33,17 +33,38 @@
           {{ formatDate(row.original.created_at) }}
         </template>
         <template #actions-cell="{ row }">
-          <UButton 
-            v-if="row.original.id !== '00000000-0000-0000-0000-000000000000'"
-            icon="i-heroicons-arrow-right-on-rectangle" 
-            color="neutral" 
-            variant="ghost" 
-            size="xs" 
-            label="접속" 
-            class="cursor-pointer text-brand-blue"
-            title="해당 교회의 데이터로 직접 접속합니다."
-            @click="impersonateChurch(row.original)"
-          />
+          <div v-if="row.original.id !== '00000000-0000-0000-0000-000000000000'" class="flex gap-1">
+            <UButton 
+              icon="i-heroicons-arrow-right-on-rectangle" 
+              color="neutral" 
+              variant="ghost" 
+              size="xs" 
+              label="접속" 
+              class="cursor-pointer text-brand-blue"
+              title="해당 교회의 데이터로 직접 접속합니다."
+              @click="impersonateChurch(row.original)"
+            />
+            <UButton 
+              :icon="row.original.is_active ? 'i-heroicons-pause-circle' : 'i-heroicons-play-circle'"
+              :color="row.original.is_active ? 'warning' : 'success'"
+              variant="ghost" 
+              size="xs" 
+              :label="row.original.is_active ? '정지' : '활성화'"
+              class="cursor-pointer"
+              :title="row.original.is_active ? '서비스를 정지합니다. 해당 교회 사용자의 로그인이 차단됩니다.' : '서비스를 재개합니다.'"
+              @click="toggleChurchStatus(row.original)"
+            />
+            <UButton 
+              icon="i-heroicons-trash"
+              color="error" 
+              variant="ghost" 
+              size="xs" 
+              label="삭제"
+              class="cursor-pointer"
+              title="교회를 시스템에서 영구 삭제합니다."
+              @click="deleteChurch(row.original)"
+            />
+          </div>
         </template>
       </UTable>
     </UCard>
@@ -138,6 +159,7 @@ definePageMeta({
 })
 
 const ui = useUIStore()
+const { fetch: fetchSession } = useUserSession()
 
 // 테이블 컬럼 설정
 const columns = [
@@ -212,9 +234,84 @@ const submitCreateChurch = async () => {
   }
 }
 
-// 추후 고도화 될 기능 (타 교회 데이터 접속)
-const impersonateChurch = (church: any) => {
-  ui.showAlert('기능 준비 중', `[${church.name}] 데이터망 접속 기능은 현재 준비 중입니다.`, 'info')
+// 타 교회 데이터망 접속 (테넌트 스위칭)
+const impersonateChurch = async (church: any) => {
+  const confirmed = await ui.showConfirm(
+    '데이터망 접속',
+    `[${church.name}] 데이터 환경으로 접속하시겠습니까?\n작업을 마치면 백오피스(진단 및 보정 도구)에서 언제든 원래 환경으로 복귀할 수 있습니다.`,
+    'info'
+  )
+  if (!confirmed) return
+
+  try {
+    const res: any = await $fetch('/api/auth/switch-tenant', {
+      method: 'POST',
+      body: { targetChurchId: church.id }
+    })
+    
+    if (res.success) {
+      ui.showAlert('전환 성공', res.message, 'success')
+      await fetchSession() // 세션 갱신
+      setTimeout(() => {
+        window.location.href = '/' // 앱 메인 화면으로 리다이렉트 및 새로고침
+      }, 1000)
+    }
+  } catch (err: any) {
+    ui.showAlert('접속 실패', err.data?.statusMessage || '오류가 발생했습니다.', 'error')
+  }
+}
+
+// 교회 상태 토글 (운영 중 ↔ 비활성화)
+const toggleChurchStatus = async (church: any) => {
+  const newStatus = !church.is_active
+  const actionText = newStatus ? '서비스를 재개(활성화)' : '서비스를 정지(비활성화)'
+  const warningText = newStatus 
+    ? `[${church.name}] 교회의 서비스를 재개하시겠습니까?\n해당 교회 사용자들이 다시 로그인할 수 있게 됩니다.`
+    : `[${church.name}] 교회의 서비스를 정지하시겠습니까?\n해당 교회의 모든 사용자가 로그인할 수 없게 됩니다.`
+
+  const confirmed = await ui.showConfirm(
+    `교회 ${actionText}`,
+    warningText,
+    newStatus ? 'info' : 'warning',
+    actionText
+  )
+  if (!confirmed) return
+
+  try {
+    const res: any = await $fetch(`/api/platform/churches/${church.id}`, {
+      method: 'PATCH',
+      body: { is_active: newStatus }
+    })
+    if (res.success) {
+      ui.showAlert('처리 완료', res.message, 'success')
+      await refresh()
+    }
+  } catch (err: any) {
+    ui.showAlert('오류', err.data?.statusMessage || '상태 변경에 실패했습니다.', 'error')
+  }
+}
+
+// 교회 영구 삭제
+const deleteChurch = async (church: any) => {
+  const confirmed = await ui.showConfirm(
+    '교회 영구 삭제',
+    `[${church.name}] 교회를 시스템에서 영구 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없으며, 해당 교회의 사용자 계정도 함께 삭제됩니다.\n(전표 데이터가 존재하는 교회는 삭제할 수 없습니다.)`,
+    'error',
+    '영구 삭제'
+  )
+  if (!confirmed) return
+
+  try {
+    const res: any = await $fetch(`/api/platform/churches/${church.id}`, {
+      method: 'DELETE'
+    })
+    if (res.success) {
+      ui.showAlert('삭제 완료', res.message, 'success')
+      await refresh()
+    }
+  } catch (err: any) {
+    ui.showAlert('삭제 실패', err.data?.statusMessage || '교회 삭제에 실패했습니다.', 'error')
+  }
 }
 </script>
 
