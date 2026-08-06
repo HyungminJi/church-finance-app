@@ -349,7 +349,7 @@ import * as XLSX from 'xlsx'
 
 const ui = useUIStore()
 const { user: currentUser } = useUserSession()
-const currentUserRole = computed(() => currentUser.value?.role || 4)
+const currentUserRole = computed(() => currentUser.value?.role !== undefined ? Number(currentUser.value.role) : 4)
 
 const donorTabs = [
   { id: 'MEMBER', label: '성도 관리' },
