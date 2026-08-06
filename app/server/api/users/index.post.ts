@@ -28,23 +28,32 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Admin(1)은 Master(0) 권한을 부여할 수 없음
-  if (userRole === UserRole.ADMIN && Number(role) === UserRole.MASTER) {
+  // 어떠한 사용자도(Master 포함) 성도 계정에 Master(0) 권한을 부여할 수 없음
+  if (Number(role) === UserRole.MASTER) {
     throw createError({
       statusCode: 403,
-      statusMessage: '관리자는 본사 최고관리자 권한을 부여할 수 없습니다.'
+      statusMessage: '본사 계정(Master)은 성도 정보와 연결하여 생성할 수 없습니다.'
     })
   }
 
   try {
     // 트랜잭션 처리: user 생성 + member 업데이트
     await db.transaction().execute(async (trx) => {
-      // 1. users 테이블에 등록
+      // 1. 성도의 실제 church_id 조회
+      const memberRes = await trx.selectFrom('members')
+        .innerJoin('donors', 'members.donor_id', 'donors.id')
+        .select('donors.church_id')
+        .where('members.id', '=', member_id)
+        .executeTakeFirst()
+        
+      if (!memberRes) throw new Error('성도 정보를 찾을 수 없습니다.')
+
+      // 2. users 테이블에 등록
       const hashedPassword = await bcrypt.hash(password, 10)
       await trx.insertInto('users')
         .values({
           id: sql`gen_random_uuid()`,
-          church_id: churchId,
+          church_id: memberRes.church_id,
           member_id,
           login_id,
           password_hash: hashedPassword,

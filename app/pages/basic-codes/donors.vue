@@ -607,7 +607,6 @@ const getRoleBadgeColor = (role: any): "primary" | "secondary" | "success" | "in
 
 const dynamicSysRoles = computed(() => {
   const allRoles = [
-    { code: UserRole.MASTER, label: ROLE_META[UserRole.MASTER].label },
     { code: UserRole.ADMIN, label: ROLE_META[UserRole.ADMIN].label },
     { code: UserRole.MANAGER, label: ROLE_META[UserRole.MANAGER].label },
     { code: UserRole.USER, label: ROLE_META[UserRole.USER].label }

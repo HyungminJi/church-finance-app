@@ -51,15 +51,26 @@ export default defineEventHandler(async (event) => {
           .execute()
           
         // 3. 권한 액션(GRANT, UPDATE, REVOKE) 처리
+        if (auth_action && user_role !== undefined && Number(user_role) === 0) {
+          throw createError({
+            statusCode: 403,
+            statusMessage: '본사 계정(Master) 권한은 성도에게 부여할 수 없습니다.'
+          })
+        }
+
         if (auth_action === 'GRANT' && login_id && new_password && user_role !== undefined) {
           const hashedPassword = await bcrypt.hash(new_password, 10)
-          const memberRes = await trx.selectFrom('members').select('id').where('donor_id', '=', id).executeTakeFirst()
+          const memberRes = await trx.selectFrom('members')
+            .innerJoin('donors', 'members.donor_id', 'donors.id')
+            .select(['members.id', 'donors.church_id'])
+            .where('donors.id', '=', id)
+            .executeTakeFirst()
             
           if (memberRes) {
             await trx.insertInto('users')
               .values({
                 id: sql`gen_random_uuid()`,
-                church_id: event.context.churchId || session.user.church_id,
+                church_id: memberRes.church_id,
                 member_id: memberRes.id,
                 login_id: login_id,
                 password_hash: hashedPassword,
