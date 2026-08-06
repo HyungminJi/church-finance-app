@@ -1,10 +1,12 @@
 import { db } from '../../utils/db'
+import { sql } from 'kysely'
+import bcrypt from 'bcryptjs'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { donor_type, name, details } = body
+  const { donor_type, name, details, auth_action, login_id, new_password, user_role, user_id } = body
 
   if (!id || !donor_type || !name) {
     throw createError({ statusCode: 400, statusMessage: '필수 정보가 누락되었습니다.' })
@@ -47,6 +49,37 @@ export default defineEventHandler(async (event) => {
             )
           )
           .execute()
+          
+        // 3. 권한 액션(GRANT, UPDATE, REVOKE) 처리
+        if (auth_action === 'GRANT' && login_id && new_password && user_role !== undefined) {
+          const hashedPassword = await bcrypt.hash(new_password, 10)
+          const memberRes = await trx.selectFrom('members').select('id').where('donor_id', '=', id).executeTakeFirst()
+            
+          if (memberRes) {
+            await trx.insertInto('users')
+              .values({
+                id: sql`gen_random_uuid()`,
+                church_id: event.context.churchId || session.user.church_id,
+                member_id: memberRes.id,
+                login_id: login_id,
+                password_hash: hashedPassword,
+                role: Number(user_role),
+                is_active: true
+              })
+              .execute()
+              
+            await trx.updateTable('members').set({ is_user: true }).where('donor_id', '=', id).execute()
+          }
+        } else if (auth_action === 'UPDATE' && user_id) {
+          const updateData: any = { role: Number(user_role) }
+          if (new_password) {
+            updateData.password_hash = await bcrypt.hash(new_password, 10)
+          }
+          await trx.updateTable('users').set(updateData).where('id', '=', user_id).execute()
+        } else if (auth_action === 'REVOKE' && user_id) {
+          await trx.deleteFrom('users').where('id', '=', user_id).execute()
+          await trx.updateTable('members').set({ is_user: false }).where('donor_id', '=', id).execute()
+        }
       } else if (donor_type === 'CELL_GROUP') {
         await trx.updateTable('cell_groups')
           .set({
