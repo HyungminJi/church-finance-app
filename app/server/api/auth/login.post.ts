@@ -57,8 +57,8 @@ export default defineEventHandler(async (event) => {
 
     let roleNumber = Number(userBase.role) as UserRole
     
-    // 기존 DB 데이터 하위 호환성 보장: 본사 소속은 무조건 MASTER로 취급
-    if (userBase.church_id === SYSTEM_CHURCH_ID) {
+    // 기존 DB 데이터 하위 호환성 보장: 본사 소속이면서 권한 값이 명시되지 않았거나 0인 경우만 MASTER로 취급
+    if (userBase.church_id === SYSTEM_CHURCH_ID && (!userBase.role && userBase.role !== 0)) {
       roleNumber = UserRole.MASTER
     }
 
