@@ -408,9 +408,15 @@ const { data: rolesRes } = await useFetch('/api/common-codes', { query: { group:
 const { data: sysRolesRes } = await useFetch('/api/common-codes', { query: { group: 'SYS_ROLE' } })
 const { data: groupsRes } = await useFetch('/api/cell-groups')
 
-const roles = computed(() => ((rolesRes.value as any)?.data || []).map((r: any) => ({ ...r, label: r.name })))
+const roles = computed(() => [
+  { code: null, label: '전체 직분' },
+  ...((rolesRes.value as any)?.data || []).map((r: any) => ({ ...r, label: r.name }))
+])
 const sysRoles = computed(() => ((sysRolesRes.value as any)?.data || []).map((r: any) => ({ ...r, label: r.name, code: parseInt(r.code) })))
-const cellGroups = computed(() => ((groupsRes.value as any)?.data || []).map((g: any) => ({ ...g, label: g.name })))
+const cellGroups = computed(() => [
+  { id: null, label: '전체 구역' },
+  ...((groupsRes.value as any)?.data || []).map((g: any) => ({ ...g, label: g.name }))
+])
 
 // 3. 컬럼 정의 (동적)
 const currentColumns = computed(() => {

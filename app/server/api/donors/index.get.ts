@@ -35,16 +35,23 @@ export default defineEventHandler(async (event) => {
       if (keyword) {
         // 이름 또는 전화번호(하이픈 무시)로 검색 범위 확대
         const rawKeyword = keyword.replace(/[^0-9]/g, '')
-        baseQuery = baseQuery.where((eb) => eb.or([
-          eb('d.name', 'ilike', `%${keyword}%`),
-          eb(sql`REPLACE(m.phone_number, '-', '')`, 'like', `%${rawKeyword}%`)
-        ]))
+        baseQuery = baseQuery.where((eb) => {
+          const conditions = [eb('d.name', 'ilike', `%${keyword}%`)]
+          if (rawKeyword) {
+            conditions.push(eb(sql`REPLACE(m.phone_number, '-', '')`, 'like', `%${rawKeyword}%`))
+          }
+          return eb.or(conditions)
+        })
       }
 
       if (phone) {
         // 명시적 전화번호 필터 (하이픈 무시)
         const rawPhone = phone.replace(/[^0-9]/g, '')
-        baseQuery = baseQuery.where(sql`REPLACE(m.phone_number, '-', '')`, 'like', `%${rawPhone}%`)
+        if (rawPhone) {
+          baseQuery = baseQuery.where(sql`REPLACE(m.phone_number, '-', '')`, 'like', `%${rawPhone}%`)
+        } else {
+          baseQuery = baseQuery.where('m.phone_number', 'ilike', `%${phone}%`) // 숫자가 아닌 경우 일반 텍스트 매칭
+        }
       }
       
       // 출석/제적 필터 (매우 정교한 처리)
@@ -55,10 +62,10 @@ export default defineEventHandler(async (event) => {
       }
       // status === 'ALL' 이면 추가 필터 없음
 
-      if (cellGroupId) {
+      if (cellGroupId && cellGroupId !== 'null') {
         baseQuery = baseQuery.where('m.cell_group_id', '=', cellGroupId)
       }
-      if (role) {
+      if (role && role !== 'null') {
         baseQuery = baseQuery.where('m.church_role', '=', parseInt(role))
       }
 
