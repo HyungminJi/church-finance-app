@@ -16,7 +16,7 @@
     </div>
 
     <!-- 목록 데이터 테이블 -->
-    <UCard class="bg-slate-900 border border-slate-800 shadow-xl" :ui="{ body: { padding: '' }, ring: '', divide: 'divide-y divide-slate-800' }">
+    <UCard class="bg-slate-900 border border-slate-800 shadow-xl divide-y divide-slate-800" :ui="{ body: 'p-0' }">
       <UTable 
         :columns="columns" 
         :data="churches" 

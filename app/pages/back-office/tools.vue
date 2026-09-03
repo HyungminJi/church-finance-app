@@ -12,7 +12,7 @@
     </p>
 
     <!-- 시스템 원상 복귀 (기술지원 종료) -->
-    <UCard v-if="user?.church_id !== SYSTEM_CHURCH_ID" class="bg-slate-900 border border-slate-800 shadow-xl" :ui="{ body: { padding: 'p-6' }, ring: '' }">
+    <UCard v-if="user?.church_id !== SYSTEM_CHURCH_ID" class="bg-slate-900 border border-slate-800 shadow-xl" :ui="{ body: 'p-6' }">
       <h3 class="font-bold text-lg mb-4 flex items-center text-slate-100">
         <UIcon name="i-heroicons-arrow-uturn-left" class="w-5 h-5 mr-2 text-brand-blue" />
         기술지원 모드 종료 (본사 환경으로 복귀)
@@ -33,7 +33,7 @@
     </UCard>
 
     <!-- 데이터 강제 보정 툴 -->
-    <UCard class="bg-red-950/20 border border-red-900/50 shadow-xl mt-8" :ui="{ body: { padding: 'p-6' }, ring: '' }">
+    <UCard class="bg-red-950/20 border border-red-900/50 shadow-xl mt-8" :ui="{ body: 'p-6' }">
       <h3 class="font-bold text-lg mb-2 text-red-400 flex items-center">
         <UIcon name="i-heroicons-wrench-screwdriver" class="w-5 h-5 mr-2" />
         데이터 무결성 강제 보정 툴

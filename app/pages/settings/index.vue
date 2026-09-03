@@ -398,7 +398,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { getRoleInfo, formatDate } from '~/utils/formatter'
 import { useAuthStore } from '~/stores/auth'
-import { UserRole, ROLE_META } from '~/types/auth'
+import { UserRole, ROLE_META, SYSTEM_CHURCH_ID } from '~/types/auth'
 import { useUIStore } from '~/stores/ui'
 import * as XLSX from 'xlsx'
 
@@ -666,7 +666,7 @@ const handleBackupTransactions = async () => {
   try {
     const res: any = await $fetch('/api/settings/backup/transactions')
     if (res.success && res.data.length > 0) {
-      const isMasterAll = authStore.isMaster && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      const isMasterAll = authStore.isMaster && (!user.value?.church_id || user.value?.church_id === SYSTEM_CHURCH_ID)
       
       const wsData = [
         ['전체 전표 내역 백업'],
@@ -701,7 +701,7 @@ const handleBackupDonors = async () => {
   try {
     const res: any = await $fetch('/api/settings/backup/donors')
     if (res.success && res.data.length > 0) {
-      const isMasterAll = authStore.isMaster && (!selectedTenantId.value || selectedTenantId.value === SYSTEM_CHURCH_ID)
+      const isMasterAll = authStore.isMaster && (!user.value?.church_id || user.value?.church_id === SYSTEM_CHURCH_ID)
       
       const wsData = [
         ['전체 성도 및 헌금자 백업'],
